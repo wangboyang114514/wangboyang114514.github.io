@@ -1,61 +1,90 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Chemsry World 1.0(create)</title>
-		<head/>
-		<style type="text/css">
-		p{
-		
-		   text-align:center;    /*设置段落居中显示*/
-		   
-		   font-size:40px;       /*设置字体大小*/
-		}
-		
-		</style>
-		<style type="text/css">
-		h1{
-		
-		   text-align:center;
-		   
-		   font-size:10px;
-		}
-		</style>
-		<style type="text/css">
-		h2{
-		
-		   text-align:center;
-		   
-		   font-size:15px;
-		}
-		img{
-			max-width: 0;
-			float: right;
-			
-		}
-		h3{text-aling:center;
-		}
-		</style>
-		
-		
-		
-	</head>
-	<body>
-		<h1>Thanks Fan Fan</h1><p style="text-align:right"><img src="photo/loge.jpeg" style="max-width:150px"></p>
-		
-		<h2><a href="mailto:Wangboyang8@126.com">feedback</a></h2>
-		<br />
-		
-		<br />
-		<p>Welcom To Chemsry World</p>
-		
-		<br />
-		<br />
-		<br />
-		<br />
-		<br />
-		
-		<br /><br />
-		<h3><a href="chinese.html">中文</a>    &ensp;&ensp;&ensp;&ensp;    <a href="English.html">English </a><br /></h3>
-	</body>
+<head>
+    <meta charset="utf-8">
+    <title>Chemistry World 2.0</title>
+    <style>
+        /* 全局布局控制‌:ml-citation{ref="4,5" data="citationList"} */
+        body {
+            background: #BDC3C7;  /* 实验室银灰主色 */
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;  /* 弹性纵向布局‌:ml-citation{ref="2" data="citationList"} */
+        }
+
+        /* 内容容器居中‌:ml-citation{ref="2,4" data="citationList"} */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;  /* 水平居中‌:ml-citation{ref="4" data="citationList"} */
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            font-size: 12px;
+            color: #2C3E50;
+            margin-top: 30px;
+        }
+
+        /* 主标语文本居中‌:ml-citation{ref="2,7" data="citationList"} */
+        p {
+            text-align: center;
+            font-size: 40px;
+            color: #34495E;
+            margin: 50px 0;
+        }
+
+        /* 按钮容器Flex布局‌:ml-citation{ref="1,2" data="citationList"} */
+        .button-container {
+            display: flex;
+            justify-content: center;  /* 水平居中‌:ml-citation{ref="1" data="citationList"} */
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        /* 交互式按钮样式‌:ml-citation{ref="3,6" data="citationList"} */
+        a {
+            background: #2C3E50;
+            color: white;
+            padding: 12px 35px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        a:hover {
+            background: #3498DB;
+            transform: translateY(-2px);  /* 悬停效果‌:ml-citation{ref="3" data="citationList"} */
+        }
+
+        /* 右侧Logo定位‌:ml-citation{ref="4" data="citationList"} */
+        .logo {
+            width: 150px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Thanks Fan Fan</h1>
+        <img src="photo/loge.jpeg" class="logo" alt="Logo">
+        
+        <p>Welcome To Chemistry World</p>
+        
+        <div class="button-container">  <!-- 按钮居中容器‌:ml-citation{ref="1" data="citationList"} -->
+            <a href="chinese.html">中文</a>
+            <a href="english.html">English</a>
+        </div>
+        
+        <h2 style="text-align:center; margin-top:80px;">
+            <a href="mailto:Wangboyang8@126.com" style="padding:8px 20px; font-size:14px;">Feedback</a>
+        </h2>
+    </div>
+</body>
 </html>
+
