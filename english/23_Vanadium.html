@@ -2,6 +2,26 @@
         <!DOCTYPE html>
         <html>
             <head>
+<script>
+    fetch('../head.html')
+       .then(response => response.text())
+       .then(data => {
+            const head = document.getElementsByTagName('head')[0];
+            head.innerHTML += data;
+        })
+       .catch(error => console.error('Error loading head.html:', error));
+</script>
+
+<script>
+    fetch('../head.html')
+       .then(response => response.text())
+       .then(data => {
+            const head = document.getElementsByTagName('head')[0];
+            head.innerHTML += data;
+        })
+       .catch(error => console.error('Error loading head.html:', error));
+</script>
+
                 <meta charset="utf-8">
                 <title>Vanadium</title>
             </head>
