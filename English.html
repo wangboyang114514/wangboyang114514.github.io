@@ -3,16 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chemistry Elements | Chemsry World</title>
+    <title>Chemistry Elements | Chemistry World</title>
+    <script>
+        fetch('head.html')
+           .then(response => response.text())
+           .then(data => {
+                const head = document.getElementsByTagName('head')[0];
+                const body = document.getElementsByTagName('body')[0];
+                // 提取 style 标签内容到 head 中
+                const styleMatch = data.match(/<style>([\s\S]*?)<\/style>/);
+                if (styleMatch) {
+                    const style = document.createElement('style');
+                    style.innerHTML = styleMatch[1];
+                    head.appendChild(style);
+                }
+                // 提取 nav 标签内容到 body 开头
+                const navMatch = data.match(/<nav>([\s\S]*?)<\/nav>/);
+                if (navMatch) {
+                    const nav = document.createElement('nav');
+                    nav.innerHTML = navMatch[1];
+                    body.insertBefore(nav, body.firstChild);
+                }
+                // 提取 script 标签内容并执行
+                const scriptMatch = data.match(/<script>([\s\S]*?)<\/script>/);
+                if (scriptMatch) {
+                    const script = document.createElement('script');
+                    script.innerHTML = scriptMatch[1];
+                    body.appendChild(script);
+                }
+            })
+           .catch(error => console.error('Error loading head.html:', error));
+    </script>
     <style>
-        /* 全局布局优化 */
-        body {
-            background: #BDC3C7;
-            margin: 0;
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui;
-        }
-
         /* 主容器样式 */
         .container {
             max-width: 1200px;

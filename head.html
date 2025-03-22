@@ -1,7 +1,7 @@
 <!-- head.html -->
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">‌
-<title>Chemistry Elements | Chemsry World</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry Elements | Chemistry World</title>
 <style>
     /* 全局布局优化‌:ml-citation{ref="5,7" data="citationList"} */
     body {
@@ -11,35 +11,114 @@
         font-family: 'Segoe UI', system-ui;
     }
 
-    /* 主容器样式‌:ml-citation{ref="4,7" data="citationList"} */
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-
-    /* 元素网格布局‌:ml-citation{ref="3,5" data="citationList"} */
-    .element-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 15px;
-        padding: 30px 0;
-    }
-
-    /* 元素链接样式‌:ml-citation{ref="4,6" data="citationList"} */
-    .element-link {
-        background: #2C3E50;
+    /* 导航栏样式 */
+    nav {
+        display: flex;
+        align-items: center;
+        background-color: #2C3E50;
         color: white;
-        padding: 12px 20px;
-        text-decoration: none;
-        border-radius: 6px;
-        transition: all 0.3s;
-        text-align: center;
-        font-size: 16px;
+        padding: 10px 20px;
     }
-    .element-link:hover {
-        background: #3498DB;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+    /* logo 样式 */
+    .logo {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    /* 化学世界文字样式 */
+    .site-title {
+        font-size: 20px;
+        margin-right: auto;
+    }
+
+    /* 汉堡菜单按钮样式 */
+    .menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+    }
+
+    .bar {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+        margin: 3px 0;
+    }
+
+    /* 菜单列表样式 */
+    .menu {
+        display: flex;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .menu li {
+        margin-left: 20px;
+    }
+
+    .menu a {
+        color: white;
+        text-decoration: none;
+    }
+
+    /* 响应式设计，小屏幕时显示汉堡菜单 */
+    @media (max-width: 768px) {
+        .menu-toggle {
+            display: flex;
+        }
+
+        .menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background-color: #2C3E50;
+            flex-direction: column;
+        }
+
+        .menu li {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .menu.active {
+            display: flex;
+        }
     }
 </style>
+<nav>
+    <img src="photo/loge.png" alt="Logo" class="logo">
+    <span class="site-title">Chemistry World</span>
+    <div class="menu-toggle" onclick="toggleMenu()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <ul class="menu" id="menu">
+        <li><a href="index.html">Back to Home</a></li>
+    </ul>
+</nav>
+<script>
+    function toggleMenu() {
+        console.log('toggleMenu function called');
+        const menu = document.getElementById('menu');
+        if (menu) {
+            console.log('Menu element found');
+            menu.classList.toggle('active');
+        } else {
+            console.error('Menu element not found');
+        }
+    }
+    window.onload = function () {
+        console.log('Page loaded');
+        const menu = document.getElementById('menu');
+        if (menu) {
+            console.log('Menu element exists on page load');
+        } else {
+            console.error('Menu element does not exist on page load');
+        }
+    };
+</script>
