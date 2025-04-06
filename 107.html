@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中考英语单词卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            width: 400px;
+            height: 500px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .word-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            padding: 30px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 100px;
+        }
+
+        .front {
+            background-color: white;
+        }
+
+        .back {
+            background-color: #f8f9fa;
+            transform: rotateY(180deg);
+        }
+
+        .word {
+            font-size: 74px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1a73e8;
+            text-align: center;
+        }
+
+        .phonetic {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #666;
+            text-align: center;
+        }
+
+        .definition {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .example {
+            font-size: 18px;
+            text-align: center;
+            color: #666;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .countdown {
+            font-size: 16px;
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        @media (max-width: 600px) {
+            .word-card {
+                width: 300px;
+                height: 400px;
+            }
+
+            .word {
+                font-size: 50px;
+            }
+
+            .phonetic {
+                font-size: 18px;
+            }
+
+            .definition {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card-container">
+        <div class="word-card" id="wordCard">
+            <div class="card-face front">
+                <div class="card-number" id="cardNumberFront"></div>
+                <div class="word" id="englishWord"></div>
+                <div class="phonetic" id="phonetic"></div>
+                <div class="example" id="englishExample"></div>
+                <div class="countdown" id="countdownFront"></div>
+                <div class="button-container" id="buttonContainer"></div>
+            </div>
+            <div class="card-face back">
+                <div class="card-number" id="cardNumberBack"></div>
+                <div class="definition" id="definition"></div>
+                <div class="example-chinese" id="chineseExample1"></div>
+                <div class="example-chinese" id="chineseExample2"></div>
+                <div class="countdown" id="countdownBack"></div>
+                <div class="button-container" id="buttonContainerBack"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            {
+                english: 'passenger',
+                phonetic: '/ˈpæsɪndʒə(r)/',
+                definition: 'n. 乘客；旅客',
+                example: 'The passengers boarded the plane.（乘客们登上了飞机。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'passport',
+                phonetic: '/ˈpɑːspɔːt/',
+                definition: 'n. 护照',
+                example: 'You need a passport to travel abroad.（你出国旅行需要一本护照。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'patient',
+                phonetic: '/ˈpeɪʃnt/',
+                definition: 'n. 病人；患者；adj. 有耐心的；能忍耐的',
+                example: 'The doctor is treating a patient.（医生正在治疗一位病人。）',
+                example2: 'He is a patient teacher.（他是一位有耐心的老师。）',
+                example2Chinese: '他是一位有耐心的老师。'
+            },
+            {
+                english: 'peace',
+                phonetic: '/piːs/',
+                definition: 'n. 和平；平静；安宁',
+                example: 'We all hope for world peace.（我们都希望世界和平。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'penguin',
+                phonetic: '/ˈpeŋɡwɪn/',
+                definition: 'n. 企鹅',
+                example: 'Penguins are cute animals.（企鹅是可爱的动物。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'pepper',
+                phonetic: '/ˈpepə(r)/',
+                definition: 'n. 胡椒；辣椒；v. 撒胡椒粉于；使布满',
+                example: 'Add some pepper to the soup.（往汤里加点胡椒。）',
+                example2: 'The wall was peppered with bullet holes.（墙上布满了弹孔。）',
+                example2Chinese: '墙上布满了弹孔。'
+            },
+            {
+                english: 'seem',
+                phonetic: '/siːm/',
+                definition: 'v. 似乎；好像',
+                example: 'He seems very happy today.（他今天似乎很开心。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'seldom',
+                phonetic: '/ˈseldəm/',
+                definition: 'adv. 很少；不常',
+                example: 'He seldom goes to the movies.（他很少去看电影。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'sell',
+                phonetic: '/sel/',
+                definition: 'v. 卖；出售',
+                example: 'He sells newspapers.（他卖报纸。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'send',
+                phonetic: '/send/',
+                definition: 'v. 发送；寄；派遣',
+                example: 'I will send you an email.（我会给你发一封电子邮件。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'sense',
+                phonetic: '/sens/',
+                definition: 'n. 感觉；意识；v. 感觉到；意识到',
+                example: 'He has a good sense of humor.（他有很好的幽默感。）',
+                example2: 'I sense that something is wrong.（我感觉到有什么不对劲。）',
+                example2Chinese: '我感觉到有什么不对劲。'
+            },
+            {
+                english: 'sentence',
+                phonetic: '/ˈsentəns/',
+                definition: 'n. 句子；宣判；v. 宣判；判决',
+                example: 'Please make a sentence with this word.（请用这个词造一个句子。）',
+                example2: 'He was sentenced to five years in prison.（他被判处五年监禁。）',
+                example2Chinese: '他被判处五年监禁。'
+            },
+            {
+                english: 'separate',
+                phonetic: '/ˈseprət/（adj.）；/ˈsepəreɪt/（v.）',
+                definition: 'adj. 分开的；单独的；v. 分开；隔开',
+                example: 'Keep the two things separate.（把这两件东西分开。）',
+                example2: 'The children were separated from their parents.（孩子们和他们的父母分开了。）',
+                example2Chinese: '孩子们和他们的父母分开了。'
+            },
+            {
+                english: 'serious',
+                phonetic: '/ˈsɪəriəs/',
+                definition: 'adj. 严肃的；认真的；严重的',
+                example: 'You should be serious about your studies.（你应该认真对待你的学习。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'server',
+                phonetic: '/ˈsɜːvə(r)/',
+                definition: 'n. 服务器；侍者；上菜者',
+                example: 'The server is down.（服务器宕机了。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'service',
+                phonetic: '/ˈsɜːvɪs/',
+                definition: 'n. 服务；服侍；v. 维修；保养',
+                example: 'The service in this restaurant is very good.（这家餐厅的服务非常好。）',
+                example2: 'You should service your car regularly.（你应该定期保养你的汽车。）',
+                example2Chinese: '你应该定期保养你的汽车。'
+            },
+            {
+                english: 'set',
+                phonetic: '/set/',
+                definition: 'v. 设置；放置；n. 一套；一组；adj. 规定的；固定的',
+                example: 'Set the alarm for 7 o\'clock.（把闹钟设置到七点。）',
+                example2: 'This is a set of books.（这是一套书。）',
+                example2Chinese: '这是一套书。'
+            },
+            {
+                english: 'several',
+                phonetic: '/ˈsevrəl/',
+                definition: 'adj. 几个；若干；pron. 几个；若干',
+                example: 'I have several friends in this city.（我在这个城市有几个朋友。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'shake',
+                phonetic: '/ʃeɪk/',
+                definition: 'v. 摇动；摇晃；抖动；n. 摇动；抖动',
+                example: 'Shake the bottle before drinking.（喝之前摇晃一下瓶子。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'shall',
+                phonetic: '/ʃæl/；/ʃəl/',
+                definition: 'aux. v. 将；会；用于第一人称，表示将来；应该',
+                example: 'I shall go to school tomorrow.（我明天将会去上学。）',
+                example2: '',
+                example2Chinese: ''
+            },
+            {
+                english: 'shame',
+                phonetic: '/ʃeɪm/',
+                definition: 'n. 羞耻；羞愧；憾事；v. 使羞愧；使丢脸',
+                example: 'You should be ashamed of your shame.（你应该为你的羞耻行为感到羞愧。）',
+                example2: 'It\'s a shame that you missed the party.（你错过了派对真是太遗憾了。）',
+                example2Chinese: '你错过了派对真是太遗憾了。'
+            }
+        ];
+
+        let currentIndex = 0;
+        let timer;
+        let countdown = 15;
+
+        function showWord(index) {
+            if (words.length === 0) {
+                console.error('单词数组为空，请检查数据！');
+                return;
+            }
+            const word = words[index];
+            document.getElementById('englishWord').textContent = word.english;
+            document.getElementById('phonetic').textContent = word.phonetic;
+            const [englishExample, chineseExample] = word.example.split('（');
+            let englishExampleText = englishExample;
+            if (word.example2) {
+                const [englishExample2] = word.example2.split('（');
+                englishExampleText += '\n' + englishExample2;
+            }
+            document.getElementById('englishExample').textContent = englishExampleText;
+            let formattedDefinition = word.definition.replace('；', '；\n');
+            document.getElementById('definition').textContent = formattedDefinition;
+            document.getElementById('chineseExample1').textContent = chineseExample.replace('）', '');
+            if (word.example2Chinese) {
+                document.getElementById('chineseExample2').textContent = word.example2Chinese;
+            } else {
+                document.getElementById('chineseExample2').textContent = '';
+            }
+
+            // 更新卡片编号
+            const cardNumber = index + 1;
+            document.getElementById('cardNumberFront').textContent = `卡片 ${cardNumber}/${words.length}`;
+            document.getElementById('cardNumberBack').textContent = `卡片 ${cardNumber}/${words.length}`;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('wordCard');
+            card.classList.toggle('flipped');
+        }
+
+        function nextWord() {
+            currentIndex = (currentIndex + 1) % words.length;
+            showWord(currentIndex);
+            countdown = 15;
+            clearInterval(timer);
+            startCountdown();
+            const card = document.getElementById('wordCard');
+            if (!card.classList.contains('flipped')) {
+                flipCard();
+            }
+        }
+
+        function prevWord() {
+            currentIndex = (currentIndex - 1 + words.length) % words.length;
+            showWord(currentIndex);
+            countdown = 15;
+            clearInterval(timer);
+            startCountdown();
+            const card = document.getElementById('wordCard');
+            if (!card.classList.contains('flipped')) {
+                flipCard();
+            }
+        }
+
+        function createButtons(containerId) {
+            const container = document.getElementById(containerId);
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '上一个';
+            prevButton.onclick = prevWord;
+            const flipButton = document.createElement('button');
+            flipButton.textContent = '翻转卡片';
+            flipButton.onclick = flipCard;
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '下一个';
+            nextButton.onclick = nextWord;
+            container.appendChild(prevButton);
+            container.appendChild(flipButton);
+            container.appendChild(nextButton);
+        }
+
+        function startCountdown() {
+            timer = setInterval(() => {
+                countdown--;
+                document.getElementById('countdownFront').textContent = `倒计时: ${countdown}s`;
+                document.getElementById('countdownBack').textContent = `倒计时: ${countdown}s`;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    nextWord();
+                }
+            }, 1000);
+        }
+
+        // 动态创建按钮
+        createButtons('buttonContainer');
+        createButtons('buttonContainerBack');
+
+        // 初始加载
+        showWord(currentIndex);
+        startCountdown();
+    </script>
+</body>
+
+</html>
+    
