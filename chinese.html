@@ -1,18 +1,72 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>化学世界</title>
-	</head>
-	<body>
-		<img src="photo/H2.jpeg">
-		<br /><a href="chinese/01H.html">氢</a><br />
-		<img src="photo/he.jpg">
-		<br /><a href="chinese/02he.html">氦</a>
-	<br /><img src="photo/Li (2).png">
-		<br /><a href="chinese/03li.html">锂</a>
-		<br /><a href="chinese/04be.html">铍</a>
-		<br /><a href="chinese/05peng.html">硼</a>
-		<br /><a href="chinese/05C.html">碳</a>
-	</body>
-</html>i
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>化学世界</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="site-title">
+                <img src="photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chinese.html">中文</a></li>
+                <li><a href="English.html">English</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-grid">
+            <a href="chinese/01H.html" class="element-link">
+                <img src="photo/H2.jpeg" alt="氢">
+                <span>氢</span>
+            </a>
+            <a href="chinese/02he.html" class="element-link">
+                <img src="photo/he.jpg" alt="氦">
+                <span>氦</span>
+            </a>
+            <a href="chinese/03li.html" class="element-link">
+                <img src="photo/Li (2).png" alt="锂">
+                <span>锂</span>
+            </a>
+            <a href="chinese/04be.html" class="element-link">
+                <span>铍</span>
+            </a>
+            <a href="chinese/05peng.html" class="element-link">
+                <span>硼</span>
+            </a>
+            <a href="chinese/05C.html" class="element-link">
+                <span>碳</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

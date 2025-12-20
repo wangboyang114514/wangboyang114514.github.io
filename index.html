@@ -1,71 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemistry World 2.0</title>
     <style>
-        /* 全局布局控制‌:ml-citation{ref="4,5" data="citationList"} */
+        /* 全局变量 */
+        :root {
+            --primary-color: #2563eb;   /* 主色调：现代蓝 */
+            --secondary-color: #10b981; /* 辅助色：清新绿 */
+            --accent-color: #f59e0b;    /* 强调色：活力橙 */
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #1f2937;    /* 主要文字色 */
+            --text-secondary: #6b7280;  /* 次要文字色 */
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 全局重置和基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: #BDC3C7;  /* 实验室银灰主色 */
+            background: var(--bg-gradient);
             margin: 0;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;  /* 弹性纵向布局‌:ml-citation{ref="2" data="citationList"} */
+            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
         }
 
-        /* 内容容器居中‌:ml-citation{ref="2,4" data="citationList"} */
+        /* 内容容器 */
         .container {
             max-width: 1200px;
-            margin: 0 auto;  /* 水平居中‌:ml-citation{ref="4" data="citationList"} */
+            margin: 0 auto;
             padding: 20px;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         /* 标题样式 */
         h1 {
             text-align: center;
-            font-size: 12px;
-            color: #2C3E50;
-            margin-top: 30px;
+            font-size: 1rem;
+            color: var(--white);
+            margin-top: 20px;
+            font-weight: 500;
+            opacity: 0.9;
         }
 
-        /* 主标语文本居中‌:ml-citation{ref="2,7" data="citationList"} */
+        /* 主标语文本 */
         p {
             text-align: center;
-            font-size: 40px;
-            color: #34495E;
-            margin: 50px 0;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 40px 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
         }
 
-        /* 按钮容器Flex布局‌:ml-citation{ref="1,2" data="citationList"} */
+        /* 按钮容器 */
         .button-container {
             display: flex;
-            justify-content: center;  /* 水平居中‌:ml-citation{ref="1" data="citationList"} */
-            gap: 40px;
-            margin: 30px 0;
+            justify-content: center;
+            gap: 24px;
+            margin: 40px 0;
+            flex-wrap: wrap;
         }
 
-        /* 交互式按钮样式‌:ml-citation{ref="3,6" data="citationList"} */
-        a {
-            background: #2C3E50;
-            color: white;
-            padding: 12px 35px;
+        /* 主按钮样式 */
+        .btn {
+            background: var(--white);
+            color: var(--primary-color);
+            padding: 16px 40px;
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 18px;
-        }
-        a:hover {
-            background: #3498DB;
-            transform: translateY(-2px);  /* 悬停效果‌:ml-citation{ref="3" data="citationList"} */
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-size: 1.125rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid transparent;
         }
 
-        /* 右侧Logo定位‌:ml-citation{ref="4" data="citationList"} */
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* 反馈按钮 */
+        .feedback-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 12px 32px;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: var(--transition);
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .feedback-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Logo样式 */
         .logo {
-            width: 150px;
+            width: 120px;
+            height: auto;
             position: absolute;
             right: 20px;
             top: 20px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            p {
+                font-size: 2.5rem;
+                margin: 30px 0;
+            }
+            
+            .button-container {
+                gap: 16px;
+                margin: 30px 0;
+            }
+            
+            .btn {
+                padding: 14px 32px;
+                font-size: 1rem;
+            }
+            
+            .logo {
+                width: 100px;
+                right: 15px;
+                top: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            p {
+                font-size: 2rem;
+                margin: 20px 0;
+            }
+            
+            .btn {
+                padding: 12px 28px;
+                font-size: 0.9375rem;
+            }
+            
+            .logo {
+                width: 80px;
+            }
         }
     </style>
 </head>
@@ -76,13 +182,13 @@
         
         <p>Welcome To Chemistry World</p>
         
-        <div class="button-container">  <!-- 按钮居中容器‌:ml-citation{ref="1" data="citationList"} -->
-            <a href="chinese.html">中文</a>
-            <a href="English.html">English</a>
+        <div class="button-container">
+            <a href="chinese.html" class="btn">中文</a>
+            <a href="English.html" class="btn">English</a>
         </div>
         
-        <h2 style="text-align:center; margin-top:80px;">
-            <a href="mailto:Wangboyang8@126.com" style="padding:8px 20px; font-size:14px;">Feedback</a>
+        <h2 style="text-align:center; margin-top:60px;">
+            <a href="mailto:Wangboyang8@126.com" class="feedback-btn">Feedback</a>
         </h2>
     </div>
 </body>

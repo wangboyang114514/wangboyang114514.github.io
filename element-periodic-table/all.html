@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素周期表全景：从同位素到材料科学应用的深度解析</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(52, 152, 219, 0.7));
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        nav {
+            background-color: white;
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-gray);
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            margin: 2rem 0;
+            height: 300px;
+            position: relative;
+        }
+
+        .element-category {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .category-item {
+            flex: 1 1 200px;
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: var(--light-gray);
+        }
+
+        .category-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .element-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .element-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .three-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-box {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--light-gray);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--secondary-color);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            left: 50%;
+        }
+
+        .left::after {
+            right: -14px;
+        }
+
+        .right::after {
+            left: -14px;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .timeline-content h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 1rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: var(--transition);
+                z-index: 99;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+            }
+
+            .nav-links li {
+                margin: 0.5rem 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-item::after {
+                left: 18px;
+            }
+
+            .left::after, .right::after {
+                left: 18px;
+            }
+
+            .right {
+                left: 0%;
+            }
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--secondary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: var(--card-shadow);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 99;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            background-color: var(--light-gray);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            background-color: var(--light-gray);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: rgba(236, 240, 241, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>元素周期表全景</h1>
+            <p class="subtitle">从同位素到材料科学应用的深度解析</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">元素周期表</a>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#overview">概述与分类</a></li>
+                <li><a href="#metals">金属元素</a></li>
+                <li><a href="#nonmetals">非金属元素</a></li>
+                <li><a href="#materials">材料科学应用</a></li>
+                <li><a href="#isotopes">同位素应用</a></li>
+                <li><a href="#history">元素发现史</a></li>
+                <li><a href="#future">总结与展望</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2><i class="fas fa-table"></i> 元素周期表概述与分类体系</h2>
+            
+            <h3>1.1 元素周期表的发展历程与结构特点</h3>
+            <p>元素周期表是化学科学的核心框架，它不仅展示了所有已知元素的有序排列，还揭示了元素性质的周期性规律。现代元素周期表的雏形由俄国科学家德米特里·门捷列夫于1869年首次提出，他根据元素的原子量和化学性质将当时已知的63种元素进行了排列。</p>
+            
+            <p>当前标准的元素周期表采用长式结构，共有7个横行（周期）和18个纵列（族）。周期表中的每个元素方格通常包含原子序数、元素符号、元素名称和相对原子质量等基本信息。</p>
+            
+            <div class="highlight-box">
+                <p>值得注意的是，最新的元素周期表已经包含了118种确认的元素，其中第104号至118号元素为人工合成的超铀元素。这些超重元素的合成和确认是现代核科学技术的重大成就。</p>
+            </div>
+            
+            <h3>1.2 元素的分类标准与主要类别</h3>
+            <div class="element-category">
+                <div class="category-item">
+                    <h4>金属元素</h4>
+                    <p>占据周期表的左下方大部分区域，具有典型的金属光泽、良好的导电性、导热性和延展性。</p>
+                </div>
+                <div class="category-item">
+                    <h4>非金属元素</h4>
+                    <p>位于周期表的右上方，一般不具备金属的典型特性，如光泽、良好的导电性等。</p>
+                </div>
+                <div class="category-item">
+                    <h4>半金属元素</h4>
+                    <p>位于金属与非金属分界线附近，具有一些金属和非金属的混合性质。</p>
+                </div>
+            </div>
+            
+            <p>此外，根据元素的性质和用途，还可以将元素分为碱金属、碱土金属、过渡金属、主族元素和稀有气体等类别。</p>
+            
+            <h3>1.3 同位素的基本概念与分布规律</h3>
+            <p>同位素是指具有相同质子数但中子数不同的同一元素的不同核素。例如，氢元素有三种同位素：氕（质子数1，中子数0）、氘（质子数1，中子数1）和氚（质子数1，中子数2）。</p>
+            
+            <p>同位素可以分为稳定同位素和放射性同位素两大类。稳定同位素不会自发地发生核衰变，而放射性同位素则会通过发射粒子或电磁辐射的方式衰变为其他元素。</p>
+            
+            <div class="chart-container">
+                <canvas id="isotopeChart"></canvas>
+            </div>
+        </section>
+
+        <section id="metals">
+            <h2><i class="fas fa-microchip"></i> 金属元素的详细解析</h2>
+            
+            <h3>2.1 碱金属元素：性质、同位素与应用</h3>
+            <p>碱金属是指元素周期表第IA族（除氢外）的金属元素，包括锂（Li）、钠（Na）、钾（K）、铷（Rb）、铯（Cs）和钫（Fr）。这些元素具有最外层只有一个电子，化学性质非常活泼等共同特性。</p>
+            
+            <div class="element-card">
+                <h4>锂（Li）</h4>
+                <p>最轻的金属元素，自然界中主要有两种稳定同位素：锂-6（丰度约7.5%）和锂-7（丰度约92.5%）。锂离子电池是目前最先进的可充电电池之一，广泛应用于智能手机、笔记本电脑和电动汽车等。</p>
+            </div>
+            
+            <div class="element-card">
+                <h4>钠（Na）和钾（K）</h4>
+                <p>钠是一种银白色金属，自然界中主要以钠-23的形式存在。钾在自然界中主要以钾-39（丰度93.26%）、钾-40（丰度0.012%）和钾-41（丰度6.73%）三种同位素形式存在。</p>
+            </div>
+            
+            <h3>2.2 碱土金属元素：结构、同位素与材料应用</h3>
+            <p>碱土金属是指元素周期表第IIA族的金属元素，包括铍（Be）、镁（Mg）、钙（Ca）、锶（Sr）、钡（Ba）和镭（Ra）。这些元素的共同特性是最外层有两个电子，化学性质较为活泼但不如碱金属活泼。</p>
+            
+            <div class="two-columns">
+                <div class="element-card">
+                    <h4>镁（Mg）</h4>
+                    <p>地壳中含量丰富的金属元素，主要同位素为镁-24（丰度78.99%）、镁-25（丰度10.00%）和镁-26（丰度11.01%）。镁合金是最轻的工程金属材料，广泛应用于航空航天、汽车和电子行业。</p>
+                </div>
+                <div class="element-card">
+                    <h4>钙（Ca）</h4>
+                    <p>地壳中含量第五丰富的元素，主要同位素为钙-40（丰度96.94%）、钙-44（丰度2.09%）等。碳酸钙是建筑材料（如石灰石、大理石）的主要成分，也用于制造水泥。</p>
+                </div>
+            </div>
+            
+            <h3>2.3 过渡金属元素：特性、同位素与工业应用</h3>
+            <p>过渡金属是指元素周期表中第IIIB至IIB族的金属元素，包括钪（Sc）、钛（Ti）、钒（V）、铬（Cr）、锰（Mn）、铁（Fe）、钴（Co）、镍（Ni）、铜（Cu）、锌（Zn）及其下方的同族元素。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>钛（Ti）</h4>
+                    <p>一种轻金属，主要同位素为钛-48（丰度73.72%）。钛合金具有高强度、低密度和优异的耐腐蚀性，广泛应用于航空航天、船舶和医疗器械等领域。</p>
+                </div>
+                <div class="element-card">
+                    <h4>铁（Fe）</h4>
+                    <p>地壳中含量第二丰富的金属元素，主要同位素为铁-56（丰度91.754%）。铁及其合金是现代工业的基础，生铁和钢是用量最大的金属材料。</p>
+                </div>
+                <div class="element-card">
+                    <h4>铜（Cu）</h4>
+                    <p>重要的有色金属，主要同位素为铜-63（丰度69.17%）。铜是重要的导电材料，广泛应用于电线电缆和电子元件。</p>
+                </div>
+            </div>
+            
+            <h3>2.4 稀土金属元素：性质、同位素与高科技应用</h3>
+            <p>稀土金属是指元素周期表中的镧系元素（从镧到镥）以及钪和钇，共17种元素。这些元素具有电子结构相似，化学性质相近等共同特性。</p>
+            
+            <p>稀土元素在现代高科技产业中扮演着不可替代的角色，特别是在新能源、电子信息、环境保护和国防军工等领域。例如，在风力发电机的永磁体、电动汽车的电池和电机、节能照明的荧光粉中，稀土元素都发挥着关键作用。</p>
+            
+            <h3>2.5 超铀元素：合成、同位素与特殊应用</h3>
+            <p>超铀元素是指原子序数大于92（铀）的元素，这些元素在自然界中极少存在，主要通过人工核反应合成。超铀元素的发现是20世纪中后期核科学领域的重大成就。</p>
+            
+            <div class="highlight-box">
+                <p>最近科学家成功合成了史上首个含超钚元素锫的有机金属分子——"锫茂"（Berkelocene），这项发现不仅填补了元素周期表的最后一块拼图，更为破解核废料处理世纪难题提供了关键密钥。</p>
+            </div>
+        </section>
+
+        <section id="nonmetals">
+            <h2><i class="fas fa-gas-pump"></i> 非金属元素的详细解析</h2>
+            
+            <h3>3.1 氢元素：特性、同位素与能源应用</h3>
+            <p>氢（H）是元素周期表中的第一个元素，也是宇宙中最丰富的元素。氢在常温常压下为气态，是最轻的气体。</p>
+            
+            <p>氢元素有三种同位素：氕（^1H，丰度99.98%）、氘（^2H或D，丰度0.02%）和氚（^3H或T，痕量）。氢在能源领域的应用尤为重要，氢气是一种清洁能源，燃烧产物只有水，无污染。</p>
+            
+            <h3>3.2 碳族元素：结构、同位素与材料科学应用</h3>
+            <p>碳族元素是指元素周期表第IVA族的元素，包括碳（C）、硅（Si）、锗（Ge）、锡（Sn）和铅（Pb）。这些元素的共同特点是最外层有4个电子。</p>
+            
+            <div class="two-columns">
+                <div class="element-card">
+                    <h4>碳（C）</h4>
+                    <p>生命的基础元素，有三种稳定同位素：碳-12（丰度98.93%）、碳-13（丰度1.07%）和极少量的碳-14。碳的同素异形体多种多样，包括金刚石、石墨、富勒烯和碳纳米管。</p>
+                </div>
+                <div class="element-card">
+                    <h4>硅（Si）</h4>
+                    <p>地壳中含量第二丰富的元素，主要同位素为硅-28（丰度92.23%）。高纯硅是最重要的半导体材料，广泛应用于电子工业和太阳能电池。</p>
+                </div>
+            </div>
+            
+            <h3>3.3 氮族元素：性质、同位素与工业应用</h3>
+            <p>氮族元素是指元素周期表第VA族的元素，包括氮（N）、磷（P）、砷（As）、锑（Sb）和铋（Bi）。这些元素的共同特点是最外层有5个电子。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>氮（N）</h4>
+                    <p>空气中含量最多的元素（约占78%），主要同位素为氮-14（丰度99.63%）和氮-15（丰度0.37%）。液氮用于低温冷冻和保存生物样本，氮气用于食品包装和电子工业中的保护气氛。</p>
+                </div>
+                <div class="element-card">
+                    <h4>磷（P）</h4>
+                    <p>生命必需元素，主要同位素为磷-31（丰度100%）。磷酸和磷酸盐用于生产化肥、食品添加剂和洗涤剂，白磷用于制造烟幕弹和燃烧弹。</p>
+                </div>
+                <div class="element-card">
+                    <h4>砷（As）</h4>
+                    <p>主要同位素为砷-75（丰度100%）。砷的化合物用于木材防腐剂、杀虫剂和医药，砷化镓是重要的半导体材料。</p>
+                </div>
+            </div>
+            
+            <h3>3.4 氧族元素：结构、同位素与环境应用</h3>
+            <p>氧族元素是指元素周期表第VIA族的元素，包括氧（O）、硫（S）、硒（Se）、碲（Te）和钋（Po）。这些元素的共同特点是最外层有6个电子。</p>
+            
+            <h3>3.5 卤素元素：性质、同位素与现代应用</h3>
+            <p>卤素元素是指元素周期表第VIIA族的元素，包括氟（F）、氯（Cl）、溴（Br）、碘（I）和砹（At）。这些元素的共同特点是最外层有7个电子，容易获得一个电子形成-1价离子。</p>
+            
+            <h3>3.6 稀有气体元素：特性、同位素与特殊应用</h3>
+            <p>稀有气体是指元素周期表第VIIIA族的元素，包括氦（He）、氖（Ne）、氩（Ar）、氪（Kr）、氙（Xe）和氡（Rn）。这些元素的共同特点是最外层电子已填满，化学性质非常稳定。</p>
+        </section>
+
+        <section id="materials">
+            <h2><i class="fas fa-cubes"></i> 元素在材料科学中的应用</h2>
+            
+            <h3>4.1 金属材料中的元素应用</h3>
+            <p>金属材料是指以金属元素为基础的材料，是现代工业的基础。根据组成和性能，金属材料可分为纯金属、合金和金属间化合物。</p>
+            
+            <div class="element-card">
+                <h4>钢铁材料</h4>
+                <p>应用最广泛的金属材料，主要由铁（Fe）和碳（C）组成。其他常见元素及其作用包括：铬（Cr）提高耐腐蚀性和硬度，用于不锈钢；镍（Ni）提高韧性和耐腐蚀性，用于不锈钢和高强度钢。</p>
+            </div>
+            
+            <div class="element-card">
+                <h4>轻金属材料</h4>
+                <p>具有密度低的特点，主要包括铝合金、镁合金和钛合金。铝合金用于航空航天、汽车和建筑领域；镁合金是最轻的工程金属材料；钛合金具有高强度、低密度和优异的耐腐蚀性。</p>
+            </div>
+            
+            <h3>4.2 无机非金属材料中的元素应用</h3>
+            <p>无机非金属材料是指以某些元素的氧化物、碳化物、氮化物、硼化物、硫系化合物和硅酸盐、钛酸盐、铝酸盐、磷酸盐等含氧酸盐为主要组成的无机材料。</p>
+            
+            <div class="two-columns">
+                <div class="element-card">
+                    <h4>陶瓷材料</h4>
+                    <p>主要由金属元素的氧化物、碳化物、氮化物等组成。氧化铝陶瓷高硬度、高强度、高熔点；氮化硅陶瓷高强度、高韧性、高温稳定性好；碳化硅陶瓷高硬度、高热导率、高温强度好。</p>
+                </div>
+                <div class="element-card">
+                    <h4>玻璃材料</h4>
+                    <p>由熔融物冷却硬化而得到的非晶态固体，主要由硅（Si）、氧（O）和其他金属元素组成。钠钙玻璃用于窗户、瓶子；硼硅酸盐玻璃具有低膨胀系数和高耐热性；铅玻璃具有高折射率和X射线屏蔽能力。</p>
+                </div>
+            </div>
+            
+            <h3>4.3 有机高分子材料中的元素应用</h3>
+            <p>有机高分子材料是以有机化合物为基础的材料，通常由碳（C）、氢（H）、氧（O）、氮（N）、硅（Si）等元素组成。高分子材料可分为天然高分子和合成高分子。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>塑料材料</h4>
+                    <p>最常见的有机高分子材料，主要由碳和氢组成。聚乙烯（PE）用于包装、管材；聚氯乙烯（PVC）用于管材、电线电缆；聚苯乙烯（PS）用于包装材料；聚酰胺（尼龙，PA）用于纤维和工程塑料。</p>
+                </div>
+                <div class="element-card">
+                    <h4>橡胶材料</h4>
+                    <p>具有高弹性，主要由碳、氢和其他元素组成。天然橡胶主要成分是聚异戊二烯；合成橡胶如丁苯橡胶（SBR）、丁腈橡胶（NBR）和硅橡胶；硫化橡胶通过添加硫元素进行硫化处理。</p>
+                </div>
+                <div class="element-card">
+                    <h4>纤维材料</h4>
+                    <p>长度比直径大很多倍的高分子材料。天然纤维如棉、羊毛和蚕丝；合成纤维如聚酯纤维（PET）、聚酰胺纤维（尼龙）和聚丙烯腈纤维（腈纶）。</p>
+                </div>
+            </div>
+            
+            <h3>4.4 复合材料中的元素协同作用</h3>
+            <p>复合材料是由两种或两种以上不同性质的材料通过物理或化学方法复合而成的材料，通常由基体材料和增强材料组成。复合材料中各元素的协同作用可以产生单一材料无法具备的优异性能。</p>
+        </section>
+
+        <section id="isotopes">
+            <h2><i class="fas fa-atom"></i> 同位素在科学研究与工业应用中的价值</h2>
+            
+            <h3>5.1 同位素在医学领域的应用</h3>
+            <p>同位素在医学领域的应用主要分为诊断和治疗两个方面，其中放射性同位素因其能够发射射线而特别有用。</p>
+            
+            <div class="two-columns">
+                <div class="element-card">
+                    <h4>医学诊断</h4>
+                    <p>正电子发射断层扫描（PET）使用半衰期短的同位素，如碳-11、氮-13、氧-15和氟-18等；单光子发射计算机断层扫描（SPECT）使用锝-99m、铊-201等同位素；甲状腺扫描使用碘-131或碘-123。</p>
+                </div>
+                <div class="element-card">
+                    <h4>医学治疗</h4>
+                    <p>近距离放射治疗将放射性同位素直接植入肿瘤组织；体外放射治疗使用钴-60或铯-137等同位素产生的γ射线；放射性药物治疗使用能够特异性靶向肿瘤细胞的放射性药物。</p>
+                </div>
+            </div>
+            
+            <h3>5.2 同位素在工业和环境科学中的应用</h3>
+            <p>同位素在工业和环境科学中有着广泛的应用，主要利用它们的独特物理和化学性质。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>工业应用</h4>
+                    <p>放射性同位素用于辐射加工、示踪技术、无损检测、厚度测量和放射性测井；稳定同位素作为标准物质、用于环境示踪和地质年代测定。</p>
+                </div>
+                <div class="element-card">
+                    <h4>环境科学应用</h4>
+                    <p>利用稳定同位素的特性，研究环境污染物的来源、迁移和转化过程；通过分析冰芯、珊瑚和沉积物中的氧-18、碳-13等同位素比例，重建过去的气候变化。</p>
+                </div>
+                <div class="element-card">
+                    <h4>同位素分离技术</h4>
+                    <p>在医学领域生产医用放射性同位素；在工业分析中对工业样品中的同位素进行精确测量和分析；在核能领域从天然铀中分离出铀-235等易裂变同位素。</p>
+                </div>
+            </div>
+            
+            <h3>5.3 同位素在能源领域的应用</h3>
+            <p>同位素在能源领域的应用主要集中在核能和清洁能源方面。</p>
+            
+            <div class="highlight-box">
+                <p>核能源中的同位素应用是最显著的，包括铀同位素分离、钚生产、重水（D2O）作为重水反应堆的中子慢化剂和冷却剂，以及氘和氚作为核聚变反应的主要燃料。</p>
+            </div>
+        </section>
+
+        <section id="history">
+            <h2><i class="fas fa-history"></i> 元素发现史与科学方法</h2>
+            
+            <h3>6.1 古代已知元素与早期发现</h3>
+            <p>在古代，人类已经发现并使用了一些元素，主要是那些在自然界中以单质形式存在或易于提取的金属和非金属。</p>
+            
+            <div class="element-card">
+                <h4>金属元素</h4>
+                <p>金（Au）、银（Ag）、铜（Cu）、铁（Fe）、锡（Sn）和铅（Pb）在古代文明中发挥了重要作用。铜的使用标志着人类进入"铜器时代"，铁的广泛使用始于公元前1200年左右的"铁器时代"。</p>
+            </div>
+            
+            <div class="element-card">
+                <h4>非金属元素</h4>
+                <p>硫（S）在各文明地区先后被发现，用于医药、火药和金属加工；碳（C）以木炭形式用于冶炼金属，以石墨形式用于书写和绘画；汞（Hg）俗称水银，在古代中国和埃及被用于医药和炼金术。</p>
+            </div>
+            
+            <h3>6.2 近代元素发现与分类</h3>
+            <p>18世纪至19世纪是元素发现的黄金时期，随着化学分析方法的进步，大量新元素被发现。</p>
+            
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h4>1766年</h4>
+                        <p>英国化学家卡文迪许发现氢气（H2）</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h4>1772年</h4>
+                        <p>瑞典化学家舍勒和英国化学家普里斯特利分别发现氧气（O2）</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h4>1772年</h4>
+                        <p>英国化学家卢瑟福发现氮气（N2）</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h4>1774年</h4>
+                        <p>瑞典化学家舍勒发现氯气（Cl2）</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h4>1807年</h4>
+                        <p>英国化学家戴维通过电解法发现钠（Na）和钾（K）</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h4>1808年</h4>
+                        <p>英国化学家戴维通过电解法发现镁（Mg）、钙（Ca）、锶（Sr）、钡（Ba）</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>6.3 现代元素发现与合成</h3>
+            <p>20世纪以来，随着原子结构理论和核物理技术的发展，元素发现进入了新的阶段，特别是超铀元素的合成。</p>
+            
+            <div class="highlight-box">
+                <p>1939年，美国加州大学的核物理学家麦克米伦和埃布尔森发现了第一个超铀元素镎（Np）。随后，西博格等人于1940年发现了钚（Pu），这是最重要的超铀元素之一。</p>
+            </div>
+            
+            <h3>6.4 元素命名的故事与文化背景</h3>
+            <p>元素的命名反映了科学发现的历史和文化背景，许多元素的名称来源于神话、地名、科学家或特性描述。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>以神话人物命名</h4>
+                    <p>钷（Pm）以希腊神话中的普罗米修斯命名，钛（Ti）以希腊神话中的泰坦巨人命名，硒（Se）以希腊月亮女神塞勒涅命名。</p>
+                </div>
+                <div class="element-card">
+                    <h4>以地名命名</h4>
+                    <p>锗（Ge）以德国的拉丁名"Germania"命名，钪（Sc）以斯堪的纳维亚半岛命名，铕（Eu）以欧洲命名，镥（Lu）以巴黎的拉丁名"Lutetia"命名。</p>
+                </div>
+                <div class="element-card">
+                    <h4>以科学家命名</h4>
+                    <p>锿（Es）纪念爱因斯坦，镄（Fm）纪念费米，钔（Md）纪念门捷列夫，锘（No）纪念诺贝尔，铹（Lr）纪念劳伦斯。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="future">
+            <h2><i class="fas fa-rocket"></i> 总结与展望</h2>
+            
+            <h3>7.1 元素研究的历史意义与科学价值</h3>
+            <p>元素研究是化学科学的基础，它不仅揭示了物质世界的基本组成，还推动了整个自然科学的发展。</p>
+            
+            <div class="two-columns">
+                <div class="element-card">
+                    <h4>对科学理论的贡献</h4>
+                    <p>元素概念的提出标志着近代化学的诞生，元素周期律的发现是科学史上的重大突破，同位素的发现丰富了我们对原子结构的理解，超铀元素的合成扩展了元素周期表的范围。</p>
+                </div>
+                <div class="element-card">
+                    <h4>对技术发展的推动</h4>
+                    <p>金属元素的提取和合金化技术推动了人类文明的进步，半导体元素的发现和应用引发了电子革命，稀土元素在新能源、电子信息和环境保护等领域的应用推动了高新技术产业的发展。</p>
+                </div>
+            </div>
+            
+            <h3>7.2 元素研究的前沿领域与挑战</h3>
+            <p>随着科学技术的进步，元素研究不断拓展新的领域，同时也面临着许多挑战。</p>
+            
+            <div class="three-columns">
+                <div class="element-card">
+                    <h4>超重元素的合成与研究</h4>
+                    <p>探索"稳定岛"理论预测的超重元素，寻找更稳定的超重同位素，发展更高效的合成方法，提高超重元素的产率和寿命。</p>
+                </div>
+                <div class="element-card">
+                    <h4>同位素研究的新方向</h4>
+                    <p>精确测量同位素丰度的变化，研究其地理和环境依赖性，开发新的同位素分离技术，如激光法分离同位素。</p>
+                </div>
+                <div class="element-card">
+                    <h4>元素在极端条件下的行为</h4>
+                    <p>超高压下元素的结构和性质变化，如金属氢的制备和研究，超高温下元素的反应性和相行为，强辐射环境中元素的稳定性和嬗变。</p>
+                </div>
+            </div>
+            
+            <h3>7.3 元素研究对未来科技发展的影响</h3>
+            <p>元素研究将继续推动未来科技的发展，特别是在能源、环境、材料和生命科学等领域。从新能源材料到高效催化剂，从先进半导体到医疗诊断技术，元素研究将为解决人类面临的重大挑战提供关键解决方案。</p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <h3>元素周期表全景</h3>
+            <p>从同位素到材料科学应用的深度解析</p>
+            
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+            </div>
+            
+            <p class="copyright">© 2023 元素周期表全景. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 导航菜单切换
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // 返回顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    
+                    // 如果是移动设备，点击后关闭菜单
+                    if (window.innerWidth <= 768) {
+                        navLinks.classList.remove('active');
+                    }
+                }
+            });
+        });
+        
+        // 同位素类型图表
+        const isotopeCtx = document.getElementById('isotopeChart').getContext('2d');
+        const isotopeChart = new Chart(isotopeCtx, {
+            type: 'pie',
+            data: {
+                labels: ['稳定同位素', '放射性同位素', '超重元素同位素'],
+                datasets: [{
+                    data: [45, 40, 15],
+                    backgroundColor: [
+                        '#3498db',
+                        '#e74c3c',
+                        '#f39c12'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+    

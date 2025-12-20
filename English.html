@@ -4,74 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemistry Elements | Chemistry World</title>
-    <script>
-        fetch('head.html')
-           .then(response => response.text())
-           .then(data => {
-                const head = document.getElementsByTagName('head')[0];
-                const body = document.getElementsByTagName('body')[0];
-                // 提取 style 标签内容到 head 中
-                const styleMatch = data.match(/<style>([\s\S]*?)<\/style>/);
-                if (styleMatch) {
-                    const style = document.createElement('style');
-                    style.innerHTML = styleMatch[1];
-                    head.appendChild(style);
-                }
-                // 提取 nav 标签内容到 body 开头
-                const navMatch = data.match(/<nav>([\s\S]*?)<\/nav>/);
-                if (navMatch) {
-                    const nav = document.createElement('nav');
-                    nav.innerHTML = navMatch[1];
-                    body.insertBefore(nav, body.firstChild);
-                }
-                // 提取 script 标签内容并执行
-                const scriptMatch = data.match(/<script>([\s\S]*?)<\/script>/);
-                if (scriptMatch) {
-                    const script = document.createElement('script');
-                    script.innerHTML = scriptMatch[1];
-                    body.appendChild(script);
-                }
-            })
-           .catch(error => console.error('Error loading head.html:', error));
-    </script>
-    <style>
-        /* 主容器样式 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        /* 元素网格布局 */
-        .element-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px;
-            padding: 30px 0;
-        }
-
-        /* 元素链接样式 */
-        .element-link {
-            background: #2C3E50;
-            color: white;
-            padding: 12px 20px;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 16px;
-        }
-        .element-link:hover {
-            background: #3498DB;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="site-title">
+                <img src="photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="chinese.html">中文</a></li>
+                <li><a href="English.html">English</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
     <div class="container">
-        <nav class="element-grid" id="element-list"></nav>
+        <div class="element-grid" id="element-list"></div>
     </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
     <script src="elements-en.js"></script>
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
