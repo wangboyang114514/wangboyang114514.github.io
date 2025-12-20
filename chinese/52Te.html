@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碲(Te)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>碲 (Te)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>Te</p>
+                    <p><strong>分子量：</strong>127.6 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>银白色的类金属元素，属于元素周期表第16族。有8种天然同位素和9种放射性同位素。用于半导体，并在一定程度上用于某些钢中。化学性质与硫相似。1782年由弗朗茨·米勒发现。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

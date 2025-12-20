@@ -1,49 +1,82 @@
 
         <!DOCTYPE html>
-        <html>
-            <head>
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dysprosium</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../chinese.html">Element List</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
 
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>Dysprosium</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <h3>Chemical Safety</h3>
+                    <p><strong>Hazard Class:</strong>No special hazard information</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Basic Information</h3>
+                    <p><strong>Formula:</strong>Dy</p>
+                    <p><strong>Molecular Weight:</strong>162.5 g/mol</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Identification Information</h3>
+                    <p><strong>CAS Number:</strong>No CAS number</p>
+                    <p><strong>Synonyms:</strong>No synonyms</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Creation Information</h3>
+                    <p><strong>Creation Date:</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>Description</h3>
+                <p>Metallic with a bright silvery-white lustre. Dysprosium belongs to the lanthanoids. It is relatively stable in air at room temperatures, it will however dissolve in mineral acids, evolving hydrogen. It is found in from rare-earth minerals. There are seven natural isotopes of dysprosium, and eight radioisotopes, Dy-154 being the most stable with a half-life of 3*10^6 years. Dysprosium is used as a neutron absorber in nuclear fission reactions, and in compact disks. It was discovered by Paul Emile Lecoq de Boisbaudran in 1886 in France. Its name comes from the Greek word dysprositos, which means hard to obtain.</p>
+            </div>
+        </div>
+    </div>
 
-                <meta charset="utf-8">
-                <title>Dysprosium</title>
-            </head>
-            <body>
-                <table border="1">
-                    <tr>
-                        <td>Element Name</td>
-                        <td>Dysprosium</td>
-                    </tr>
-                    <tr>
-                        <td>Symbol</td>
-                        <td>Dy</td>
-                    </tr>
-                    <tr>
-                        <td>Molecular Weight</td>
-                        <td>162.5 g/mol</td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>Metallic with a bright silvery-white lustre. Dysprosium belongs to the lanthanoids. It is relatively stable in air at room temperatures, it will however dissolve in mineral acids, evolving hydrogen. It is found in from rare-earth minerals. There are seven natural isotopes of dysprosium, and eight radioisotopes, Dy-154 being the most stable with a half-life of 3*10^6 years. Dysprosium is used as a neutron absorber in nuclear fission reactions, and in compact disks. It was discovered by Paul Emile Lecoq de Boisbaudran in 1886 in France. Its name comes from the Greek word dysprositos, which means hard to obtain.</td>
-                    </tr>
-                </table>
-            </body>
-        </html>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
         

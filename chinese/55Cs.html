@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铯(Cs)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>铯 (Cs)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>Cs</p>
+                    <p><strong>分子量：</strong>132.90545196 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>柔软的银白色金属元素，属于元素周期表第1族。是三种在室温下呈液态的金属之一。Cs-133是天然且唯一稳定的同位素。还存在十五种其他放射性同位素。铯与冷水和温度高于157K的冰反应会爆炸。氢氧化铯是已知的最强碱。铯是所有元素中电正性最强、碱性最强、电离势最小的元素。已知用途包括作为原子钟的基础、某些有机化合物氢化的催化剂以及光电池中。1860年，古斯塔夫·基尔霍夫和罗伯特·本生在德国通过光谱法发现了铯。其鉴定基于其光谱中的亮蓝色谱线。名称来源于拉丁词caesius，意为天蓝色。铯应被视为剧毒物质。其中一些放射性同位素的毒性甚至更强。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>钼(Mo)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>钼 (Mo)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>Mo</p>
+                    <p><strong>分子量：</strong>95.95 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>银白色、坚硬的金属过渡元素。化学性质不活泼，不受大多数酸的影响。在高温下氧化。有七种天然同位素和四种放射性同位素，Mo-93是最稳定的，半衰期为3500年。钼几乎用于所有高强度钢，具有核应用，是石油精炼中的催化剂。1778年由瑞典的卡尔·威廉·舍勒发现。1782年由彼得·雅各布·赫尔姆制备出不纯的金属。名称来源于希腊语molybdos，意为铅。所有已知生命形式都需要微量的钼。所有钼化合物应被视为剧毒，也会导致严重的出生缺陷。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

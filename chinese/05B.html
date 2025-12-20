@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>硼(B)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>硼 (B)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>B</p>
+                    <p><strong>分子量：</strong>10.81 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>周期表中第13族元素。有两种同素异形体，无定形硼是棕色粉末，而金属硼是黑色的。金属形式的硼质地坚硬（莫氏硬度9.3），在室温下是不良导体。它从未在自然界中以游离态存在。硼-10用于核反应堆的控制棒和屏蔽材料。它于1808年由汉弗里·戴维爵士、J.L.盖-吕萨克和L.J.泰纳尔发现。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

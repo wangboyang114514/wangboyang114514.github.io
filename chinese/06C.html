@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碳(C)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>碳 (C)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>C</p>
+                    <p><strong>分子量：</strong>12.011 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>碳是元素周期表第14族的成员。它有三种同素异形体：金刚石、石墨和富勒烯。碳-14常用于放射性测年。碳存在于所有有机生命中，是有机化学的基础。碳具有能够与自身以及多种其他元素结合的有趣化学性质。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

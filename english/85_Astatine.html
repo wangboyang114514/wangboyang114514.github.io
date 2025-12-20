@@ -1,49 +1,82 @@
 
         <!DOCTYPE html>
-        <html>
-            <head>
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astatine</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../chinese.html">Element List</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
 
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>Astatine</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <h3>Chemical Safety</h3>
+                    <p><strong>Hazard Class:</strong>No special hazard information</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Basic Information</h3>
+                    <p><strong>Formula:</strong>At</p>
+                    <p><strong>Molecular Weight:</strong>210.0 g/mol</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Identification Information</h3>
+                    <p><strong>CAS Number:</strong>No CAS number</p>
+                    <p><strong>Synonyms:</strong>No synonyms</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Creation Information</h3>
+                    <p><strong>Creation Date:</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>Description</h3>
+                <p>Radioactive halogen element. Occurs naturally from uranium and thorium decay. At least 20 known isotopes. At-210, the most stable, has a half-life of 8.3 hours. Synthesized by nuclear bombardment in 1940 by D.R. Corson, K.R. MacKenzie and E. Segre at the University of California.</p>
+            </div>
+        </div>
+    </div>
 
-                <meta charset="utf-8">
-                <title>Astatine</title>
-            </head>
-            <body>
-                <table border="1">
-                    <tr>
-                        <td>Element Name</td>
-                        <td>Astatine</td>
-                    </tr>
-                    <tr>
-                        <td>Symbol</td>
-                        <td>At</td>
-                    </tr>
-                    <tr>
-                        <td>Molecular Weight</td>
-                        <td>210.0 g/mol</td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>Radioactive halogen element. Occurs naturally from uranium and thorium decay. At least 20 known isotopes. At-210, the most stable, has a half-life of 8.3 hours. Synthesized by nuclear bombardment in 1940 by D.R. Corson, K.R. MacKenzie and E. Segre at the University of California.</td>
-                    </tr>
-                </table>
-            </body>
-        </html>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
         

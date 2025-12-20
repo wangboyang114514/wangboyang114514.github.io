@@ -1,49 +1,82 @@
 
         <!DOCTYPE html>
-        <html>
-            <head>
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iridium</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../chinese.html">Element List</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
 
-<script>
-    fetch('../head.html')
-       .then(response => response.text())
-       .then(data => {
-            const head = document.getElementsByTagName('head')[0];
-            head.innerHTML += data;
-        })
-       .catch(error => console.error('Error loading head.html:', error));
-</script>
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>Iridium</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <h3>Chemical Safety</h3>
+                    <p><strong>Hazard Class:</strong>No special hazard information</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Basic Information</h3>
+                    <p><strong>Formula:</strong>Ir</p>
+                    <p><strong>Molecular Weight:</strong>192.217 g/mol</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Identification Information</h3>
+                    <p><strong>CAS Number:</strong>No CAS number</p>
+                    <p><strong>Synonyms:</strong>No synonyms</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Creation Information</h3>
+                    <p><strong>Creation Date:</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>Description</h3>
+                <p>Very hard and brittle, silvery metallic transition element. It has a yellowish cast to it. Salts of iridium are highly colored. It is the most corrosion resistant metal known, not attacked by any acid, but is attacked by molten salts. There are two natural isotopes of iridium, and 4 radioisotopes, the most stable being Ir-192 with a half-life of 73.83 days. Ir-192 decays into Platinum, while the other radioisotopes decay into Osmium. Iridium is used in high temperature apparatus, electrical contacts, and as a hardening agent for platinumpy. Discovered in 1803 by Smithson Tennant in England. The name comes from the Greek word iris, which means rainbow. Iridium metal is generally non-toxic due to its relative unreactivity, but iridium compounds should be considered highly toxic.</p>
+            </div>
+        </div>
+    </div>
 
-                <meta charset="utf-8">
-                <title>Iridium</title>
-            </head>
-            <body>
-                <table border="1">
-                    <tr>
-                        <td>Element Name</td>
-                        <td>Iridium</td>
-                    </tr>
-                    <tr>
-                        <td>Symbol</td>
-                        <td>Ir</td>
-                    </tr>
-                    <tr>
-                        <td>Molecular Weight</td>
-                        <td>192.217 g/mol</td>
-                    </tr>
-                    <tr>
-                        <td>Description</td>
-                        <td>Very hard and brittle, silvery metallic transition element. It has a yellowish cast to it. Salts of iridium are highly colored. It is the most corrosion resistant metal known, not attacked by any acid, but is attacked by molten salts. There are two natural isotopes of iridium, and 4 radioisotopes, the most stable being Ir-192 with a half-life of 73.83 days. Ir-192 decays into Platinum, while the other radioisotopes decay into Osmium. Iridium is used in high temperature apparatus, electrical contacts, and as a hardening agent for platinumpy. Discovered in 1803 by Smithson Tennant in England. The name comes from the Greek word iris, which means rainbow. Iridium metal is generally non-toxic due to its relative unreactivity, but iridium compounds should be considered highly toxic.</td>
-                    </tr>
-                </table>
-            </body>
-        </html>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
         

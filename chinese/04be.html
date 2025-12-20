@@ -1,44 +1,76 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title></title>
-	</head>
-	<body>
-		<table border="1">
-			<tr>
-				<td>化学品安全</td>
-				<td>急性毒性</td>
-			</tr>
-			<tr>
-				<td>分子式</td>
-				<td>be</td>
-			</tr>
-			<tr>
-				<td>同义词</td>
-				<td>7440-41-7<br />Be<br />金属铍<br />
-			</tr>
-			<tr>
-				<td>分子量</td>
-				<td>9.012183克/摩尔</td>
-			</tr>
-			<tr>
-				<td>元素名称</td>
-				<td>铍</td>
-			</tr>
-			<tr>
-				<td>创建日期：2024年3月23日</td>
-			</tr>
-			<tr>
-				<td>描述</td>
-				<td>铍是一种坚硬的浅灰色金属，天然存在于矿物岩石、煤、土壤和火山灰中。铍化合物被商业开采，铍被<br />
-				提纯后用于核武器和反应堆、飞机和航天器结构、仪器、X射线机和镜子。铍矿石用于制造电气和高科<br />
-				技应用的特种陶瓷。铍合金用于汽车、计算机、运动器材(高尔夫球杆和自行车车架)和牙桥。<br />
-				
-				
-				
-				</td>
-			</tr>
-		</table>
-	</body>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铍(Be)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>铍 (Be)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>Be</p>
+                    <p><strong>分子量：</strong>9.0121831 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>元素周期表第2族的灰色金属元素。有毒，可引起严重的肺部疾病和皮炎。具有高度的共价性。1828年由F·沃勒和A·A·比西独立分离。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
 </html>

@@ -1,43 +1,76 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>氦（He）</title>
-	</head>
-	<body>
-		<table border="1">
-			<tr>
-				<td>化学品安全</td>
-				<td>压缩气体</td>
-			</tr>
-			<tr>
-				<td>分子式</td>
-				<td>He</td>
-			</tr>
-			<tr>
-				<td>同义词</td>
-				<td>7440-59-7<br />He<br />Helium<br />原子氨<br />氦-4</td>
-			</tr>
-			<tr>
-				<td>分子量</td>
-				<td>4.00260克/摩尔</td>
-			</tr>
-			<tr>
-				<td>元素名称</td>
-				<td>氢</td>
-			</tr>
-			<tr>
-				<td>创建日期：2024年2月21日</td>
-			</tr>
-			<tr>
-				<td>描述</td>
-				<td>氨是一种无色、无味、不可燃的气体。会窒息。吸入导致声音变得吱吱作响(米老鼠的声音)。容器暴露<br />
-				在长时间的高温或火灾中会导致它剧烈地破裂并发射火箭。如果液化，极冷的液体与水接触会引起剧烈的<br />
-				沸腾。如果液体与封闭容器中的水接触，压力可能达到危险水平。用于电弧焊，追踪制冷和其他封闭系统<br />的泄漏，并作为轻于空气的飞机的提升气体。
-				
-				
-				</td>
-			</tr>
-		</table>
-	</body>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氦(He)</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="site-title">
+                <img src="../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../chinese.html">元素列表</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <div class="element-detail">
+            <h1>氦 (He)</h1>
+            
+            <div class="element-info">
+                <div class="info-card">
+                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>分子式：</strong>He</p>
+                    <p><strong>分子量：</strong>4.002602 g/mol</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>CAS号：</strong>无CAS号</p>
+                    <p><strong>同义词：</strong>无同义词</p>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>创建日期：</strong>2024-01-01</p>
+                </div>
+            </div>
+            
+            <div class="element-description">
+                <h3>描述</h3>
+                <p>无色、无味的气态非金属元素。属于元素周期表第18族。所有元素中沸点最低，只能在压力下固化。化学性质不活泼，没有已知的化合物。1868年由洛克耶在太阳光谱中发现。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
 </html>
