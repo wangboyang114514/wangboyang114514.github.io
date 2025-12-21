@@ -566,7 +566,142 @@ def translate_description(text):
         '柔软的银白色金属元素，属于镧系元素。Eu-151和Eu-153是仅有的两种稳定同位素，它们都是中子吸收剂。1889年由威廉·克鲁克斯爵士发现。',
         # 钆元素
         'Soft silvery metallic element belonging to the lanthanoids. Seven natural, stable isotopes are known in addition to eleven artificial isotopes. Gd-155 and Gd-157 and the best neutron absorbers of all elements. Gadolinium compounds are used in electronics. Discovered by J.C.G Marignac in 1880.':
-        '柔软的银白色金属元素，属于镧系元素。已知有七种天然稳定同位素，此外还有十一种人工同位素。Gd-155和Gd-157是所有元素中最好的中子吸收剂。钆化合物用于电子领域。1880年由J.C.G.马里尼亚克发现。'
+        '柔软的银白色金属元素，属于镧系元素。已知有七种天然稳定同位素，此外还有十一种人工同位素。Gd-155和Gd-157是所有元素中最好的中子吸收剂。钆化合物用于电子领域。1880年由J.C.G.马里尼亚克发现。',
+        # 铽元素
+        'Silvery metallic element belonging to the lanthanoids. Tb-159 is the only stable isotope, there are seventeen artificial isotopes. Discovered by G.G. Mosander in 1843.':
+        '银白色金属元素，属于镧系元素。Tb-159是唯一的稳定同位素，存在十七种人工同位素。1843年由G.G.莫桑德尔发现。',
+        # 镝元素
+        'Metallic with a bright silvery-white lustre. Dysprosium belongs to the lanthanoids. It is relatively stable in air at room temperatures, it will however dissolve in mineral acids, evolving hydrogen. It is found in from rare-earth minerals. There are seven natural isotopes of dysprosium, and eight radioisotopes, Dy-154 being the most stable with a half-life of 3*10^6 years. Dysprosium is used as a neutron absorber in nuclear fission reactions, and in compact disks. It was discovered by Paul Emile Lecoq de Boisbaudran in 1886 in France. Its name comes from the Greek word dysprositos, which means hard to obtain.':
+        '带有明亮银白色光泽的金属元素。镝属于镧系元素。在室温空气中相对稳定，但会溶于无机酸，释放出氢气。存在于稀土矿物中。镝有七种天然同位素和八种放射性同位素，其中Dy-154最稳定，半衰期为3×10^6年。镝用作核裂变反应中的中子吸收剂，也用于光盘中。1886年由保罗·埃米尔·勒科克·德·布瓦博德朗在法国发现。其名称来自希腊词dysprositos，意为难以获得。',
+        # 钬元素
+        "Relatively soft and malleable silvery-white metallic element, which is stable in dry air at room temperature. It oxidizes in moist air and at high temperatures. It belongs to the lanthanoids. A rare-earth metal, it is found in the minerals monazite and gadolinite. It possesses unusual magnetic properties. One natural isotope, Ho-165 exists, six radioisotopes exist, the most stable being Ho-163 with a half-life of 4570 years. Holmium is used in some metal alloys, it is also said to stimulate the metabolism. Discovered by Per Theodor Cleve and J.L. Soret in Switzerland in 1879. The name homium comes from the Greek word Holmia which means Sweden. While all holmium compounds should be considered highly toxic, initial evidence seems to indicate that they do not pose much danger. The metal's dust however, is a fire hazard.":
+        "相对柔软且有延展性的银白色金属元素，在室温干燥空气中稳定。在潮湿空气中和高温下会氧化。属于镧系元素。作为稀土金属，存在于独居石和硅铍钇矿中。具有异常的磁性。存在一种天然同位素Ho-165，六种放射性同位素，其中最稳定的是Ho-163，半衰期为4570年。钬用于一些金属合金中，据说还能刺激新陈代谢。1879年由佩尔·西奥多·克莱夫和J.L.索雷特在瑞士发现。名称来自希腊词Holmia，意为瑞典。虽然所有钬化合物都应被视为剧毒，但初步证据表明它们不会构成太大危险。然而，该金属的粉尘存在火灾危险。",
+        # 铒元素
+        'Soft silvery metallic element which belongs to the lanthanoids. Six natural isotopes that are stable. Twelve artificial isotopes are known. Used in nuclear technology as a neutron absorber. It is being investigated for other possible uses. Discovered by Carl G. Mosander in 1843.':
+        '柔软的银白色金属元素，属于镧系元素。存在六种稳定的天然同位素，已知有十二种人工同位素。在核技术中用作中子吸收剂。目前正在研究其其他可能的用途。1843年由卡尔·G·莫桑德尔发现。',
+        # 铥元素
+        'Soft grey metallic element that belongs to the lanthanoids. One natural isotope exists, Tm-169, and seventeen artificial isotopes have been produced. No known uses for the element. Discovered in 1879 by Per Theodor Cleve.':
+        '柔软的灰色金属元素，属于镧系元素。存在一种天然同位素Tm-169，已制备了十七种人工同位素。该元素目前没有已知的用途。1879年由佩尔·西奥多·克莱夫发现。',
+        # 镱元素
+        'Silvery metallic element of the lanthanoids. Seven natural isotopes and ten artificial isotopes are known. Used in certain steels. Discovered by J.D.G. Marignac in 1878.':
+        '银白色金属元素，属于镧系元素。已知有七种天然同位素和十种人工同位素。用于某些钢中。1878年由J.D.G.马里尼亚克发现。',
+        # 镥元素
+        'Silvery-white rare-earth metal which is relatively stable in air. It happens to be the most expensive rare-earth metal. Its found with almost all rare-earth metals, but is very difficult to separate from other elements. Least abundant of all natural elements. Used in metal alloys, and as a catalyst in various processes. There are two natural, stable isotopes, and seven radioisotopes, the most stable being Lu-174 with a half-life of 3.3 years. The separation of lutetium from Ytterbium was described by Georges Urbain in 1907. It was discovered at approximately the same time by Carl Auer von Welsbach. The name comes from the Greek word lutetia which means Paris.':
+        '银白色稀土金属，在空气中相对稳定。它恰好是最昂贵的稀土金属。几乎与所有稀土金属一起被发现，但很难与其他元素分离。是所有天然元素中丰度最低的。用于金属合金，也用作各种工艺的催化剂。存在两种天然稳定同位素和七种放射性同位素，其中最稳定的是Lu-174，半衰期为3.3年。1907年，乔治·乌尔班描述了从镱中分离镥的方法。大约在同一时间，卡尔·奥尔·冯·韦尔斯巴赫也发现了它。其名称来自希腊词lutetia，意为巴黎。',
+        # 铪元素
+        'Silvery lustrous metallic transition element. Used in tungsten alloys in filaments and electrodes, also acts as a neutron absorber. First reported by Urbain in 1911, existence was finally established in 1923 by D. Coster, G.C. de Hevesy in 1923.':
+        '有光泽的银白色金属过渡元素。用于灯丝和电极中的钨合金，也用作中子吸收剂。1911年由乌尔班首次报道，其存在最终于1923年由D.科斯特和G.C.德赫维西确立。',
+        # 钽元素
+        'Heavy blue-grey metallic transition element. Ta-181 is a stable isotope, and Ta-180 is a radioactive isotope, with a half-life in excess of 10^7 years. Used in surgery as it is unreactive. Forms a passive oxide layer in air. Identified in 1802 by Ekeberg and isolated in 1820 by Jons J. Berzelius.':
+        '重的蓝灰色金属过渡元素。Ta-181是稳定同位素，Ta-180是放射性同位素，半衰期超过10^7年。由于其不活泼性，用于外科手术中。在空气中形成钝化氧化层。1802年由埃克伯格鉴定，1820年由约恩斯·J·贝采利乌斯分离。',
+        # 钨元素
+        'White or grey metallic transition element,formerly called Wolfram. Forms a protective oxide in air and can be oxidized at high temperature. First isolated by Jose and Fausto de Elhuyer in 1783.':
+        '白色或灰色金属过渡元素，以前称为Wolfram（钨锰铁矿）。在空气中形成保护性氧化物，在高温下可被氧化。1783年由何塞和福斯托·德·埃尔休耶首次分离。',
+        # 铼元素
+        'Silvery-white metallic transition element. Obtained as a by-product of molybdenum refinement. Rhenium-molybdenum alloys are superconducting.':
+        '银白色金属过渡元素。作为钼精炼的副产品获得。铼-钼合金具有超导性。',
+        # 锇元素
+        'Hard blue-white metallic transition element. Found with platinum and used in some alloys with platinum and iridium.':
+        '坚硬的蓝白色金属过渡元素。与铂一起被发现，并用于一些与铂和铱的合金中。',
+        # 铱元素
+        'Very hard and brittle, silvery metallic transition element. It has a yellowish cast to it. Salts of iridium are highly colored. It is the most corrosion resistant metal known, not attacked by any acid, but is attacked by molten salts. There are two natural isotopes of iridium, and 4 radioisotopes, the most stable being Ir-192 with a half-life of 73.83 days. Ir-192 decays into Platinum, while the other radioisotopes decay into Osmium. Iridium is used in high temperature apparatus, electrical contacts, and as a hardening agent for platinumpy. Discovered in 1803 by Smithson Tennant in England. The name comes from the Greek word iris, which means rainbow. Iridium metal is generally non-toxic due to its relative unreactivity, but iridium compounds should be considered highly toxic.':
+        '非常坚硬且易碎的银白色金属过渡元素，带有淡黄色调。铱的盐类颜色鲜艳。它是已知最耐腐蚀的金属，不受任何酸的侵蚀，但会被熔融盐侵蚀。铱有两种天然同位素和4种放射性同位素，其中最稳定的是Ir-192，半衰期为73.83天。Ir-192衰变为铂，而其他放射性同位素衰变为锇。铱用于高温设备、电触点，并作为铂的硬化剂。1803年由英国的史密森·坦南特发现。其名称来自希腊词iris，意为彩虹。由于铱的相对不活泼性，金属铱通常无毒，但铱化合物应被视为剧毒。',
+        # 铂元素
+        'Attractive greyish-white metal. When pure, it is malleable and ductile. Does not oxidize in air, insoluble in hydrochloric and nitric acid. Corroded by halogens, cyandies, sulphur and alkalis. Hydrogen and Oxygen react explosively in the presence of platinumpy. There are six stable isotopes and three radioisotopes, the most stable being Pt-193 with a half-life of 60 years. Platinum is used in jewelry, laboratory equipment, electrical contacts, dentistry, and anti-pollution devices in cars. PtCl2(NH3)2 is used to treat some forms of cancer. Platinum-Cobalt alloys have magnetic properties. It is also used in the definition of the Standard Hydrogen Electrode. Discovered by Antonio de Ulloa in South America in 1735. The name comes from the Spanish word platina which means silver. Platinum metal is generally not a health concern due to its unreactivity, however platinum compounds should be considered highly toxic.':
+        '有吸引力的灰白色金属。纯净时具有延展性和韧性。在空气中不氧化，不溶于盐酸和硝酸。受卤素、氰化物、硫和碱的腐蚀。在铂存在下，氢气和氧气会发生爆炸性反应。铂有六种稳定同位素和三种放射性同位素，其中最稳定的是Pt-193，半衰期为60年。铂用于珠宝、实验室设备、电触点、牙科以及汽车的防污染装置。PtCl2(NH3)2用于治疗某些形式的癌症。铂-钴合金具有磁性。它还用于标准氢电极的定义。1735年由安东尼奥·德·乌略亚在南美洲发现。其名称来自西班牙语词platina，意为银。由于铂的不活泼性，金属铂通常对健康无影响，但铂化合物应被视为剧毒。',
+        # 金元素
+        'Gold is gold colored. It is the most malleable and ductile metal known. There is only one stable isotope of gold, and five radioisotopes of gold, Au-195 being the most stable with a half-life of 186 days. Gold is used as a monetary standard, in jewelry, dentistry, electronics. Au-198 is used in treating cancer and some other medical conditions. Gold has been known to exist as far back as 2600 BC. Gold comes from the Anglo-Saxon word gold. Its symbol, Au, comes from the Latin word aurum, which means gold. Gold is not particularly toxic, however it is known to cause damage to the liver and kidneys in some.':
+        '金呈金色。它是已知最具延展性和韧性的金属。金只有一种稳定同位素和五种放射性同位素，其中最稳定的是Au-195，半衰期为186天。金用作货币标准，用于珠宝、牙科、电子设备。Au-198用于治疗癌症和其他一些医疗疾病。早在公元前2600年就已知金的存在。金的名称来自盎格鲁-撒克逊语的gold。其符号Au来自拉丁语aurum，意为金。金不是特别有毒，但已知会对某些人的肝脏和肾脏造成损害。',
+        # 汞元素
+        'Heavy silvery liquid metallic element, belongs to the zinc group. Used in thermometers, barometers and other scientific apparatus. Less reactive than zinc and cadmium, does not displace hydrogen from acids. Forms a number of complexes and organomercury compounds.':
+        '重的银白色液态金属元素，属于锌族。用于温度计、气压计和其他科学仪器。反应性比锌和镉低，不会从酸中置换出氢。形成多种配合物和有机汞化合物。',
+        # 铊元素
+        'Pure, unreacted thallium appears silvery-white and exhibits a metallic lustre. Upon reacting with air, it begins to turn bluish-grey and looks like lead. It is very malleable, and can be cut with a knife. There are two stable isotopes, and four radioisotopes, Tl-204 being the most stable with a half-life of 3.78 years. Thallium sulphate was used as a rodenticide. Thallium sulphine\'s conductivity changes with exposure to infrared light, this gives it a use in infrared detectors. Discovered by Sir William Crookes via spectroscopy. Its name comes from the Greek word thallos, which means green twig. Thallium and its compounds are toxic and can cause cancer.':
+        '纯净、未反应的铊呈现银白色，具有金属光泽。与空气反应后，它开始变成蓝灰色，看起来像铅。它非常有延展性，可以用刀切割。铊有两种稳定同位素和四种放射性同位素，其中最稳定的是Tl-204，半衰期为3.78年。硫酸铊曾被用作杀鼠剂。硫化铊的导电性随暴露于红外光而变化，这使其在红外探测器中有应用。由威廉·克鲁克斯爵士通过光谱学发现。其名称来自希腊词thallos，意为绿色嫩枝。铊及其化合物有毒，可致癌。',
+        # 铅元素
+        'Heavy dull grey ductile metallic element, belongs to group 14. Used in building construction, lead-place accumulators, bullets and shot, and is part of solder, pewter, bearing metals, type metals and fusible alloys.':
+        '重的暗灰色韧性金属元素，属于第14族。用于建筑施工、铅酸蓄电池、子弹和弹丸，也是焊料、锡铅合金、轴承金属、活字金属和易熔合金的组成部分。',
+        # 铋元素
+        'White crystalline metal with a pink tinge, belongs to group 15. Most diamagnetic of all metals and has the lowest thermal conductivity of all the elements except mercury. Lead-free bismuth compounds are used in cosmetics and medical procedures. Burns in the air and produces a blue flame. In 1753, C.G. Junine first demonstrated that it was different from lead.':
+        '带有粉红色调的白色结晶金属，属于第15族。是所有金属中最具抗磁性的，除汞外，其热导率是所有元素中最低的。无铅铋化合物用于化妆品和医疗程序。在空气中燃烧并产生蓝色火焰。1753年，C.G.朱宁首次证明它与铅不同。',
+        # 钋元素
+        'Rare radioactive metallic element, belongs to group 16 of the periodic table. Over 30 known isotopes exist, the most of all elements. Po-209 has a half-life of 103 years. Possible uses in heating spacecraft. Discovered by Marie Curie in 1898 in a sample of pitchblende.':
+        '稀有的放射性金属元素，属于元素周期表第16族。存在超过30种已知同位素，是所有元素中最多的。Po-209的半衰期为103年。可能用于太空船加热。1898年，玛丽·居里在沥青铀矿样品中发现了它。',
+        # 砹元素
+        'Radioactive halogen element. Occurs naturally from uranium and thorium decay. At least 20 known isotopes. At-210, the most stable, has a half-life of 8.3 hours. Synthesized by nuclear bombardment in 1940 by D.R. Corson, K.R. MacKenzie and E. Segre at the University of California.':
+        '放射性卤素元素。天然存在于铀和钍的衰变过程中。至少有20种已知同位素。最稳定的At-210半衰期为8.3小时。1940年，D.R.科尔森、K.R.麦肯齐和E.塞格雷在加利福尼亚大学通过核轰击合成了它。',
+        # 氡元素
+        'Colorless radioactive gaseous element, belongs to the noble gases. Of the twenty known isotopes, the most stable is Rn-222 with a half-life of 3.8 days. Formed by the radioactive decay of Radium-226. Radon itself decays into Polonium. Used in radiotherapy. As a noble gas, it is effectively inert, though radon fluoride has been synthesized. First isolated in 1908 by Ramsey and Gray.':
+        '无色放射性气态元素，属于稀有气体。在已知的二十种同位素中，最稳定的是Rn-222，半衰期为3.8天。由镭-226的放射性衰变形成。氡本身会衰变成钋。用于放射治疗。作为稀有气体，它实际上是惰性的，尽管已合成了氟化氡。1908年由拉姆齐和格雷首次分离。',
+        # 钫元素
+        'Radioactive element, belongs to group 1 of the periodic table. Found in uranium and thorium ores. The 22 known isotopes are all radioactive, with the most stable being Fr-223. Its existence was confirmed in 1939 by Marguerite Perey.':
+        '放射性元素，属于元素周期表第1族。存在于铀矿和钍矿中。已知的22种同位素均具有放射性，其中最稳定的是Fr-223。1939年由玛格丽特·佩雷确认其存在。',
+        # 镭元素
+        'Radioactive metallic transuranic element, belongs to group 2 of the periodic table. Most stable isotope, Ra-226 has a half-life of 1602 years, which decays into radon. Isolated from pitchblende in 1898 Marie and Pierre Curie.':
+        '放射性金属超铀元素，属于元素周期表第2族。最稳定的同位素Ra-226半衰期为1602年，会衰变成氡。1898年玛丽和皮埃尔·居里从沥青铀矿中分离出来。',
+        # 锕元素
+        'Silvery radioactive metallic element, belongs to group 3 of the periodic table. The most stable isotope, Ac-227, has a half-life of 217 years. Ac-228 (half-life of 6.13 hours) also occurs in nature. There are 22 other artificial isotopes, all radioactive and having very short half-lives. Chemistry similar to lanthanumpy. Used as a source of alpha particles. Discovered by A. Debierne in 1899.':
+        '银色放射性金属元素，属于元素周期表第3族。最稳定的同位素Ac-227半衰期为217年。Ac-228（半衰期6.13小时）也存在于自然界中。还有22种人工同位素，均具有放射性且半衰期非常短。化学性质与镧系元素相似。用作α粒子源。1899年由A.德比埃尔内发现。',
+        # 钍元素
+        'Grey radioactive metallic element. Belongs to actinoids. Found in monazite sand in Brazil, India and the US. Thorium-232 has a half-life of 1.39x10^10 years. Can be used as a nuclear fuel for breeder reactors. Thorium-232 captures slow Neutrons and breeds uranium-233. Discovered by Jons J. Berzelius in 1829.':
+        '灰色放射性金属元素。属于锕系元素。存在于巴西、印度和美国的独居石砂中。钍-232半衰期为1.39×10^10年。可用作增殖反应堆的核燃料。钍-232捕获慢中子并增殖铀-233。1829年由约恩斯·J·贝采利乌斯发现。',
+        # 镤元素
+        'Radioactive metallic element, belongs to the actinoids. The most stable isotope, Pa-231 has a half-life of 2.43*10^4 years. At least 10 other radioactive isotopes are known. No practical applications are known. Discovered in 1917 by Lise Meitner and Otto Hahn.':
+        '放射性金属元素，属于锕系元素。最稳定的同位素Pa-231半衰期为2.43×10^4年。已知至少还有10种放射性同位素。目前没有已知的实际应用。1917年由莉泽·迈特纳和奥托·哈恩发现。',
+        # 铀元素
+        'White radioactive metallic element belonging to the actinoids. Three natural isotopes, U-238, U-235 and U-234. Uranium-235 is used as the fuel for nuclear reactors and weapons. Discovered by Martin H. Klaproth in 1789.':
+        '白色放射性金属元素，属于锕系元素。有三种天然同位素：U-238、U-235和U-234。铀-235用作核反应堆和武器的燃料。1789年由马丁·H·克拉普罗特发现。',
+        # 镎元素
+        'Radioactive metallic transuranic element, belongs to the actinoids. Np-237, the most stable isotope, has a half-life of 2.2*10^6 years and is a by product of nuclear reactors. The other known isotopes have mass numbers 229 through 236, and 238 through 241. Np-236 has a half-life of 5*10^3 years. First produced by Edwin M. McMillan and P.H. Abelson in 1940.':
+        '放射性金属超铀元素，属于锕系元素。最稳定的同位素Np-237半衰期为2.2×10^6年，是核反应堆的副产品。其他已知同位素的质量数为229至236，以及238至241。Np-236半衰期为5×10^3年。1940年由埃德温·M·麦克米伦和P·H·艾贝尔森首次制备。',
+        # 钚元素
+        'Dense silvery radioactive metallic transuranic element, belongs to the actinoids. Pu-244 is the most stable isotope with a half-life of 7.6*10^7 years. Thirteen isotopes are known. Pu-239 is the most important, it undergoes nuclear fission with slow neutrons and is hence important to nuclear weapons and reactors. Plutonium production is monitored down to the gram to prevent military misuse. First produced by Gleen T. Seaborg, Edwin M. McMillan, J.W. Kennedy and A.C. Wahl in 1940.':
+        '致密的银白色放射性金属超铀元素，属于锕系元素。最稳定的同位素Pu-244半衰期为7.6×10^7年。已知有13种同位素。Pu-239最重要，它在慢中子作用下发生核裂变，因此对核武器和反应堆很重要。钚的生产被监控到克级，以防止军事滥用。1940年由格伦·T·西博格、埃德温·M·麦克米伦、J·W·肯尼迪和A·C·瓦尔首次制备。',
+        # 镅元素
+        'Radioactive metallic transuranic element, belongs to the actinoids. Ten known isotopes. Am-243 is the most stable isotope, with a half-life of 7.95*10^3 years. Discovered by Glenn T. Seaborg and associates in 1945, it was obtained by bombarding Uranium-238 with alpha particles.':
+        '放射性金属超铀元素，属于锕系元素。已知有10种同位素。Am-243是最稳定的同位素，半衰期为7.95×10^3年。1945年由格伦·T·西博格及其同事发现，通过用α粒子轰击铀-238获得。',
+        # 锔元素
+        'Radioactive metallic transuranic element. Belongs to actinoid series. Nine known isotopes, Cm-247 has a half-life of 1.64*10^7 years. First identified by Glenn T. Seaborg and associates in 1944, first produced by L.B. Werner and I. Perlman in 1947 by bombarding americium-241 with Neutrons. Named for Marie Curie.':
+        '放射性金属超铀元素。属于锕系元素。已知有9种同位素，Cm-247半衰期为1.64×10^7年。1944年由格伦·T·西博格及其同事首次鉴定，1947年由L·B·沃纳和I·珀尔曼通过用中子轰击镅-241首次制备。以玛丽·居里命名。',
+        # 锫元素
+        'Radioactive metallic transuranic element. Belongs to actinoid series. Eight known isotopes, the most common Bk-247, has a half-life of 1.4*10^3 years. First produced by Glenn T. Seaborg and associates in 1949 by bombarding americium-241 with alpha particles.':
+        '放射性金属超铀元素。属于锕系元素。已知有8种同位素，最常见的Bk-247半衰期为1.4×10^3年。1949年由格伦·T·西博格及其同事通过用α粒子轰击镅-241首次制备。',
+        # 锎元素
+        'Radioactive metallic transuranic element. Belongs to actinoid series. Cf-251 has a half life of about 700 years. Nine isotopes are known. Cf-252 is an intense Neutron source, which makes it an intense Neutron source and gives it a use in Neutron activation analysis and a possible use as a radiation source in medicine. First produced by Glenn T. Seaborg and associates in 1950.':
+        '放射性金属超铀元素。属于锕系元素。Cf-251的半衰期约为700年。已知有9种同位素。Cf-252是一种强烈的中子源，使其可用于中子活化分析，并可能作为医学中的辐射源。1950年由格伦·T·西博格及其同事首次制备。',
+        # 锿元素
+        'Appearance is unknown, however it is most probably metallic and silver or gray in color. Radioactive metallic transuranic element belonging to the actinoids. Es-254 has the longest half-life of the eleven known isotopes at 270 days. First identified by Albert Ghiorso and associates in the debris of the 1952 hydrogen bomb explosion. In 1961 the first microgram quantities of Es-232 were separated. While einsteinium never exists naturally, if a sufficient amount was assembled, it would pose a radiation hazard.':
+        '外观未知，但很可能是金属，呈银色或灰色。放射性金属超铀元素，属于锕系元素。在已知的11种同位素中，Es-254的半衰期最长，为270天。1952年由阿尔伯特·乔索及其同事在氢弹爆炸的碎片中首次发现。1961年分离出第一批微克级的Es-232。虽然锿在自然界中不存在，但如果聚集足够数量，它会构成辐射危害。',
+        # 镄元素
+        'Radioactive metallic transuranic element, belongs to the actinoids. Ten known isotopes, most stable is Fm-257 with a half-life of 10 days. First identified by Albert Ghiorso and associates in the debris of the first hydrogen-bomb explosion in 1952.':
+        '放射性金属超铀元素，属于锕系元素。已知有10种同位素，最稳定的是Fm-257，半衰期为10天。1952年由阿尔伯特·乔索及其同事在第一次氢弹爆炸的碎片中首次发现。',
+        # 钔元素
+        'Radioactive metallic transuranic element. Belongs to the actinoid series. Only known isotope, Md-256 has a half-life of 1.3 hours. First identified by Glenn T. Seaborg, Albert Ghiorso and associates in 1955. Alternative name Unnilunium has been proposed. Named after the \'inventor\' of the periodic table, Dmitri Mendeleev.':
+        '放射性金属超铀元素。属于锕系元素。仅知一种同位素Md-256，半衰期为1.3小时。1955年由格伦·T·西博格、阿尔伯特·乔索及其同事首次鉴定。曾提议使用Unnilunium作为替代名称。以元素周期表的“发明者”德米特里·门捷列夫命名。',
+        # 锘元素
+        'Radioactive metallic transuranic element, belongs to the actinoids. Seven known isotopes exist, the most stable being No-254 with a half-life of 255 seconds. First identified with certainty by Albert Ghiorso and Glenn T. Seaborg in 1966. Unnilbium has been proposed as an alternative name.':
+        '放射性金属超铀元素，属于锕系元素。已知有7种同位素，最稳定的是No-254，半衰期为255秒。1966年由阿尔伯特·乔索和格伦·T·西博格首次确定。曾提议使用Unnilbium作为替代名称。',
+        # 铹元素
+        'Appearance unknown, however it is most likely silvery-white or grey and metallic. Lawrencium is a synthetic rare-earth metal. There are eight known radioisotopes, the most stable being Lr-262 with a half-life of 3.6 hours. Due to the short half-life of lawrencium, and its radioactivity, there are no known uses for it. Identified by Albert Ghiorso in 1961 at Berkeley. It was produced by bombarding californium with boron ions. The name is temporary IUPAC nomenclature, the origin of the name comes from Ernest O. Lawrence, the inventor of the cyclotron. If sufficient amounts of lawrencium were produced, it would pose a radiation hazard.':
+        '外观未知，但很可能是银白色或灰色的金属。铹是一种合成的稀土金属。已知有8种放射性同位素，最稳定的是Lr-262，半衰期为3.6小时。由于铹的半衰期短且具有放射性，目前没有已知的用途。1961年由阿尔伯特·乔索在伯克利发现。通过用硼离子轰击锎产生。该名称是临时的IUPAC命名法，名称来源于回旋加速器的发明者欧内斯特·O·劳伦斯。如果产生足够数量的铹，它会构成辐射危害。',
+        # 钅卢元素
+        'Radioactive transactinide element. Expected to have similar chemical properties to those displayed by hafnium. Rf-260 was discovered by the Joint Nuclear Research Institute at Dubna (U.S.S.R.) in 1964. Researchers at Berkeley discovered Unq-257 and Unq-258 in 1964.':
+        '放射性超重元素。预计具有与铪相似的化学性质。1964年由苏联杜布纳联合核研究所发现了Rf-260。1964年伯克利的研究人员发现了Unq-257和Unq-258。',
+        # 钅杜元素
+        'Also known as Hahnium, Ha. Radioactive transactinide element. Half-life of 1.6s. Discovered in 1970 by Berkeley researchers. So far, seven isotopes have been discovered.':
+        '也称为钅罕（Ha）。放射性超重元素。半衰期为1.6秒。1970年由伯克利的研究人员发现。到目前为止，已发现7种同位素。',
+        # 钅喜元素
+        'Half-life of 0.9 +/- 0.2 s. Discovered by the Joint Institute for Nuclear Research at Dubna (U.S.S.R.) in June of 1974. Its existence was confirmed by the Lawrence Berkeley Laboratory and Livermore National Laboratory in September of 1974.':
+        '半衰期为0.9±0.2秒。1974年6月由苏联杜布纳联合核研究所发现。1974年9月，劳伦斯伯克利实验室和利弗莫尔国家实验室证实了其存在。',
+        # 钅波元素
+        'Radioactive transition metal. Half-life of approximately 1/500 s. Discovered by the Joint Institute for Nuclear Research at Dubna (U.S.S.R.) in 1976. Confirmed by West German physicists at the Heavy Ion Research Laboratory at Darmstadt.':
+        '放射性过渡金属。半衰期约为1/500秒。1976年由苏联杜布纳联合核研究所发现。由西德基森的重离子研究实验室的物理学家确认。',
+        # 钅黑元素
+        'Radioactive transition metal first synthesized in 1984 by a German research team led by Peter Armbruster and Gottfried Muenzenberg at the Institute for Heavy Ion Research at Darmstadt.':
+        '放射性过渡金属，1984年由彼得·阿姆布鲁斯特和戈特弗里德·明岑贝格领导的德国研究团队在达姆施塔特的重离子研究所首次合成。',
+        # 鿏元素
+        'Half-life of approximately 5 ms. The creation of this element demonstrated that fusion techniques could indeed be used to make new, heavy nuclei. Made and identified by physicists of the Heavy Ion Research Laboratory, Darmstadt, West Germany in 1982. Named in honor of Lise Meitner, the Austrian physicist.':
+        '半衰期约为5毫秒。该元素的创建证明了融合技术确实可以用来制造新的重核。1982年由西德达姆施塔特重离子研究实验室的物理学家制造和鉴定。以奥地利物理学家莉泽·迈特纳的名字命名。'
     }
     
     # 首先检查是否有完全匹配的完整句子翻译
