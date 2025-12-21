@@ -134,11 +134,40 @@ elements.forEach(element => {
     // 设置链接的文本内容
     link.textContent = element.name;
 
-    // 创建一个 <br> 标签
-    const br = document.createElement('br');
-
-    // 将 <br> 和 <a> 标签添加到导航元素中
-    elementList.appendChild(br);
+    // 将 <a> 标签添加到导航元素中
     elementList.appendChild(link);
-    elementList.appendChild(br.cloneNode());
+});
+
+// 添加搜索功能
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBox = document.getElementById('search-box');
+    const searchBtn = document.getElementById('search-btn');
+    const elementLinks = document.querySelectorAll('.element-link');
+
+    // 搜索函数
+    function searchElements() {
+        const searchTerm = searchBox.value.toLowerCase().trim();
+        
+        elementLinks.forEach(link => {
+            const elementName = link.textContent.toLowerCase().trim();
+            if (elementName.includes(searchTerm)) {
+                link.style.display = 'flex';
+            } else {
+                link.style.display = 'none';
+            }
+        });
+    }
+
+    // 搜索按钮点击事件
+    searchBtn.addEventListener('click', searchElements);
+
+    // 搜索框输入事件
+    searchBox.addEventListener('input', searchElements);
+
+    // 回车键搜索
+    searchBox.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchElements();
+        }
+    });
 });

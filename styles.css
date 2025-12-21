@@ -106,10 +106,52 @@ body {
     transition: var(--transition);
 }
 
+/* 搜索功能样式 */
+.search-container {
+    display: flex;
+    gap: 0.5rem;
+    margin: 2rem 0;
+    padding: 0 0 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.search-box {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-btn {
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
 /* 元素网格布局 */
 .element-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
     padding: 2rem 0;
 }
@@ -129,6 +171,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    flex: 0 0 calc(16.666% - 0.75rem); /* 6列布局 */
 }
 
 .element-link:hover {
@@ -315,9 +358,8 @@ tr:hover {
         display: flex;
     }
 
-    .element-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.6rem;
+    .element-link {
+        flex: 0 0 calc(33.333% - 0.75rem); /* 3列布局 */
     }
 
     .home-container h1 {
@@ -342,9 +384,8 @@ tr:hover {
 }
 
 @media (max-width: 480px) {
-    .element-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
+    .element-link {
+        flex: 0 0 calc(33.333% - 0.75rem); /* 3列布局 */
     }
 
     .home-container h1 {
