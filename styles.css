@@ -198,6 +198,7 @@ body {
     flex-wrap: wrap;
     gap: 0.75rem;
     padding: 2rem 0;
+    justify-content: center;
 }
 
 .element-link {
@@ -219,6 +220,8 @@ body {
     gap: 0.5rem;
     flex: 0 0 calc(16.666% - 0.75rem); /* 6列布局 */
     backdrop-filter: blur(25px);
+    min-width: 80px;
+    box-sizing: border-box;
 }
 
 .element-link:hover {
@@ -457,6 +460,18 @@ tr:hover {
         border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 8px;
         backdrop-filter: blur(10px);
+    }
+
+    /* 移动设备上将语言选择按钮移到汉堡菜单内 */
+    .navbar .apple-taskbar {
+        display: none;
+    }
+
+    .nav-links .apple-taskbar {
+        display: flex;
+        margin: 1rem 0;
+        width: 100%;
+        justify-content: center;
     }
 
     .element-link {

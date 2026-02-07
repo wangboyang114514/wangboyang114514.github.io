@@ -93,6 +93,37 @@
             margin: 40px 0;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             line-height: 1.2;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* 标题容器样式 */
+        .title-container {
+            position: relative;
+            overflow: hidden;
+            height: auto;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+
+        /* 标题滑动动画 */
+        .title-slide {
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transform: translateX(0);
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
+            word-wrap: break-word;
+            max-width: 100%;
         }
 
         /* iOS风格反馈按钮 */
@@ -266,6 +297,17 @@
                 margin: 30px 0;
             }
             
+            .title-slide {
+                font-size: 2.5rem;
+            }
+            
+            .title-container {
+                height: auto;
+                min-height: 100px;
+                margin: 30px 0;
+                padding: 0 15px;
+            }
+            
             .apple-taskbar {
                 min-width: 300px;
                 margin: 30px 0;
@@ -296,6 +338,17 @@
                 margin: 20px 0;
             }
             
+            .title-slide {
+                font-size: 2rem;
+            }
+            
+            .title-container {
+                height: auto;
+                min-height: 80px;
+                margin: 20px 0;
+                padding: 0 10px;
+            }
+            
             .apple-taskbar {
                 min-width: 240px;
                 padding: 6px;
@@ -314,6 +367,24 @@
             
             .logo {
                 width: 80px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            p {
+                font-size: 1.75rem;
+                margin: 15px 0;
+            }
+            
+            .title-slide {
+                font-size: 1.75rem;
+            }
+            
+            .title-container {
+                height: auto;
+                min-height: 70px;
+                margin: 15px 0;
+                padding: 0 10px;
             }
         }
     </style>
