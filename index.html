@@ -5,12 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemistry World 2.0</title>
     <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 导航栏和内容的延迟动画 */
+        .container {
+            animation: fadeInUp 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
         /* 全局变量 */
         :root {
             --primary-color: #2563eb;   /* 主色调：现代蓝 */
             --secondary-color: #10b981; /* 辅助色：清新绿 */
             --accent-color: #f59e0b;    /* 强调色：活力橙 */
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient: linear-gradient(135deg, #748ffc 40%, #9775fa 60%);
             --text-primary: #1f2937;    /* 主要文字色 */
             --text-secondary: #6b7280;  /* 次要文字色 */
             --white: #ffffff;
@@ -74,64 +95,168 @@
             line-height: 1.2;
         }
 
-        /* 按钮容器 */
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin: 40px 0;
-            flex-wrap: wrap;
-        }
-
-        /* 主按钮样式 */
-        .btn {
-            background: var(--white);
-            color: var(--primary-color);
-            padding: 16px 40px;
-            text-decoration: none;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            font-size: 1.125rem;
-            font-weight: 600;
-            box-shadow: var(--shadow-lg);
-            border: 2px solid transparent;
-        }
-
-        .btn:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-            background: var(--primary-color);
-            color: var(--white);
-        }
-
-        /* 反馈按钮 */
+        /* iOS风格反馈按钮 */
         .feedback-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: var(--white);
             padding: 12px 32px;
             text-decoration: none;
             border-radius: 30px;
-            transition: var(--transition);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.875rem;
             font-weight: 500;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .feedback-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         /* Logo样式 */
         .logo {
-            width: 120px;
+            width: 150px;
             height: auto;
             position: absolute;
             right: 20px;
             top: 20px;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        /* 标题容器样式 */
+        .title-container {
+            position: relative;
+            overflow: hidden;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        
+        /* 标题滑动动画 */
+        .title-slide {
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transform: translateX(0);
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
+        }
+        
+        .title-slide.slide-out {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        
+        .title-slide.slide-in {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        
+        /* iOS风格液态玻璃任务栏 */
+        .apple-taskbar {
+            display: flex;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 40px;
+            padding: 12px;
+            margin: 40px 0;
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            min-width: 280px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .taskbar-btn {
+            flex: 1;
+            background: transparent;
+            color: var(--primary-color);
+            padding: 14px 20px;
+            text-decoration: none;
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        
+        .taskbar-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* iOS风格滑动指示器 */
+        .slide-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: calc(50% - 12px);
+            height: calc(100% - 24px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 滑动指示器位置 */
+        .slide-indicator.chinese {
+            transform: translateX(0);
+        }
+        
+        .slide-indicator.english {
+            transform: translateX(100%);
+        }
+        
+        /* iOS风格进入网页按钮 */
+        .enter-btn {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--primary-color);
+            padding: 16px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 28px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 30px 0;
+            backdrop-filter: blur(25px);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .enter-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         /* 响应式设计 */
@@ -141,14 +266,21 @@
                 margin: 30px 0;
             }
             
-            .button-container {
-                gap: 16px;
+            .apple-taskbar {
+                min-width: 300px;
                 margin: 30px 0;
+                padding: 8px;
             }
             
-            .btn {
+            .taskbar-btn {
+                padding: 16px 20px;
+                font-size: 1rem;
+            }
+            
+            .enter-btn {
                 padding: 14px 32px;
                 font-size: 1rem;
+                margin: 25px 0;
             }
             
             .logo {
@@ -164,9 +296,20 @@
                 margin: 20px 0;
             }
             
-            .btn {
+            .apple-taskbar {
+                min-width: 240px;
+                padding: 6px;
+            }
+            
+            .taskbar-btn {
+                padding: 14px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .enter-btn {
                 padding: 12px 28px;
                 font-size: 0.9375rem;
+                margin: 20px 0;
             }
             
             .logo {
@@ -177,19 +320,99 @@
 </head>
 <body>
     <div class="container">
-        <h1>Thanks Fan Fan</h1>
         <img src="photo/loge.png" class="logo" alt="Logo">
         
-        <p>Welcome To Chemistry World</p>
-        
-        <div class="button-container">
-            <a href="chinese.html" class="btn">中文</a>
-            <a href="English.html" class="btn">English</a>
+        <!-- 标题容器，用于滑动动画 -->
+        <div class="title-container">
+            <p id="main-title" class="title-slide">Welcome To Chemistry World</p>
         </div>
+        
+        <!-- 苹果音乐风格任务栏 -->
+        <div class="apple-taskbar">
+            <button class="taskbar-btn" data-lang="chinese">中文</button>
+            <button class="taskbar-btn" data-lang="english">English</button>
+            <!-- 滑动指示器 -->
+            <div class="slide-indicator"></div>
+        </div>
+        
+        <!-- 进入网页按钮 -->
+        <button id="enter-btn" class="enter-btn">进入网页</button>
         
         <h2 style="text-align:center; margin-top:60px;">
             <a href="mailto:Wangboyang8@126.com" class="feedback-btn">Feedback</a>
         </h2>
+        
+        <script>
+            // 语言选择逻辑
+            const taskbarBtns = document.querySelectorAll('.taskbar-btn');
+            const mainTitle = document.getElementById('main-title');
+            const enterBtn = document.getElementById('enter-btn');
+            const slideIndicator = document.querySelector('.slide-indicator');
+            let selectedLang = 'english';
+            
+            // 语言标题映射
+            const titles = {
+                chinese: '欢迎来到化学世界',
+                english: 'Welcome To Chemistry World'
+            };
+            
+            // 语言按钮文本映射
+            const buttonTexts = {
+                chinese: '进入网页',
+                english: 'Enter Website'
+            };
+            
+            // 语言页面映射
+            const langPages = {
+                chinese: 'chinese.html',
+                english: 'English.html'
+            };
+            
+            // 初始化
+            function init() {
+                // 设置默认选中状态
+                slideIndicator.classList.add('english');
+                // 设置默认按钮文本
+                enterBtn.textContent = buttonTexts[selectedLang];
+            }
+            
+            // 处理语言选择
+            taskbarBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newLang = this.dataset.lang;
+                    if (newLang === selectedLang) return;
+                    
+                    // 更新选中的语言
+                    selectedLang = newLang;
+                    
+                    // 标题滑动动画
+                    mainTitle.classList.add('slide-out');
+                    setTimeout(() => {
+                        mainTitle.textContent = titles[selectedLang];
+                        // 更新按钮文本
+                        enterBtn.textContent = buttonTexts[selectedLang];
+                        mainTitle.classList.remove('slide-out');
+                        mainTitle.classList.add('slide-in');
+                        setTimeout(() => {
+                            mainTitle.classList.remove('slide-in');
+                        }, 100);
+                    }, 300);
+                    
+                    // 滑动指示器动画
+                    slideIndicator.className = 'slide-indicator';
+                    slideIndicator.classList.add(selectedLang);
+                });
+            });
+            
+            // 处理进入网页按钮点击
+            enterBtn.addEventListener('click', function() {
+                // 跳转到对应语言的页面
+                window.location.href = langPages[selectedLang];
+            });
+            
+            // 初始化
+            init();
+        </script>
     </div>
 </body>
 </html>

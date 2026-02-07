@@ -5,6 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemistry Elements | Chemistry World</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 导航栏和内容的延迟动画 */
+        .navbar {
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .container {
+            animation: fadeInUp 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+    </style>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -16,9 +44,13 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="chinese.html">中文</a></li>
-                <li><a href="English.html">English</a></li>
             </ul>
+            <!-- 苹果音乐app风格任务栏 -->
+            <div class="apple-taskbar">
+                <button class="taskbar-btn" data-lang="chinese">中文</button>
+                <button class="taskbar-btn" data-lang="english">English</button>
+                <div class="slide-indicator english"></div>
+            </div>
             <div class="menu-toggle" id="menuToggle">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -33,6 +65,7 @@
             <input type="text" id="search-box" class="search-box" placeholder="Search element names...">
             <button id="search-btn" class="search-btn">Search</button>
         </div>
+        
         <div class="element-grid" id="element-list"></div>
     </div>
 
@@ -49,6 +82,37 @@
 
         menuToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
+        });
+
+        // 语言选择功能
+        const taskbarBtns = document.querySelectorAll('.taskbar-btn');
+        const slideIndicator = document.querySelector('.slide-indicator');
+        let selectedLang = 'english';
+
+        // 语言页面映射
+        const langPages = {
+            chinese: 'chinese.html',
+            english: 'English.html'
+        };
+
+        // 处理语言选择
+        taskbarBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const newLang = this.dataset.lang;
+                if (newLang === selectedLang) return;
+                
+                // 更新选中的语言
+                selectedLang = newLang;
+                
+                // 滑动指示器动画
+                slideIndicator.className = 'slide-indicator';
+                slideIndicator.classList.add(selectedLang);
+                
+                // 跳转到对应语言的页面
+                setTimeout(() => {
+                    window.location.href = langPages[selectedLang];
+                }, 300);
+            });
         });
     </script>
 </body>

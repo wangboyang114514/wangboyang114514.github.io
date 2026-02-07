@@ -6,6 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rhenium</title>
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 导航栏和内容的延迟动画 */
+        .navbar {
+            animation: fadeInUp 0.5s ease-out 0.1s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .container {
+            animation: fadeInUp 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+    </style>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -17,7 +45,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="../index.html">Home</a></li>
-                <li><a href="../chinese.html">Element List</a></li>
+                <li><a href="../English.html">Element List</a></li>
             </ul>
             <div class="menu-toggle" id="menuToggle">
                 <span class="bar"></span>
