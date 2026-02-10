@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Games - Chemistry World</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 导航栏和内容的延迟动画 */
+        .navbar {
+            animation: fadeInUp 0.5s ease-out 0.1s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .container {
+            animation: fadeInUp 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        /* 游戏卡片样式 */
+        .games-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 1rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            flex: 0 0 calc(45% - 2rem);
+            min-width: 300px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-8px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .game-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .game-card p {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 问号按钮样式 */
+        .help-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* 帮助模态框 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .help-content p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            margin-top: 1rem;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="site-title">
+                <img src="../../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../English.html">Periodic Table</a></li>
+                <li><a href="games.html">Chemistry Games</a></li>
+            </ul>
+            <!-- 苹果音乐app风格任务栏 -->
+            <div class="apple-taskbar">
+                <button class="taskbar-btn" data-lang="chinese">中文</button>
+                <button class="taskbar-btn" data-lang="english">English</button>
+                <div class="slide-indicator english"></div>
+            </div>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <h1 style="text-align: center; color: var(--white); margin: 2rem 0;">Chemistry Games</h1>
+        
+        <div class="games-container">
+            <!-- 化学元素消消乐 -->
+            <div class="game-card" onclick="window.location.href='match_game.html'">
+                <div class="game-icon">🧪</div>
+                <h2>Element Match Game</h2>
+                <p>Match identical elements or related elements to clear blocks and learn element symbols and properties. Each match displays relevant chemistry knowledge.</p>
+            </div>
+
+            <!-- 化学版羊了个羊 -->
+            <div class="game-card" onclick="window.location.href='sheep_game.html'">
+                <div class="game-icon">🐑</div>
+                <h2>Chemistry Sheep Game</h2>
+                <p>A triple match game similar to Sheep a Sheep, but using chemical elements and compounds. Match elements based on chemical rules to challenge your chemistry knowledge.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问号按钮 -->
+    <div class="help-btn" id="helpBtn">?</div>
+
+    <!-- 帮助模态框 -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <h2>Instructions</h2>
+            <p><strong>Element Match Game:</strong></p>
+            <p>1. Click on identical element symbols to match and clear them</p>
+            <p>2. Or match related elements (such as elements from the same group)</p>
+            <p>3. Each matched group displays basic information about the element</p>
+            <p>4. The goal is to clear as many elements as possible before time runs out</p>
+            <p>5. Use the hint function if you need help</p>
+            
+            <p><strong>Chemistry Sheep Game:</strong></p>
+            <p>1. Click on elements to place them in the slots below</p>
+            <p>2. When there are three identical or related elements in the slots, they will be cleared</p>
+            <p>3. You can only have a maximum of 7 elements in the slots</p>
+            <p>4. The goal is to clear all element blocks</p>
+            <p>5. Use power-ups to help you complete the game</p>
+            
+            <p><strong>Learning Features:</strong></p>
+            <p>- The game will randomly display basic information about chemical elements</p>
+            <p>- After completing the game, you will see the chemistry knowledge you learned during gameplay</p>
+            <p>- You can adjust the difficulty and learning content in the game settings</p>
+            
+            <button class="close-btn" id="closeBtn">Close</button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // 语言选择功能
+        const taskbarBtns = document.querySelectorAll('.taskbar-btn');
+        const slideIndicator = document.querySelector('.slide-indicator');
+        let selectedLang = 'english';
+
+        // 语言页面映射
+        const langPages = {
+            chinese: '../../games/chinese/games.html',
+            english: 'games.html'
+        };
+
+        // 处理语言选择
+        taskbarBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const newLang = this.dataset.lang;
+                if (newLang === selectedLang) return;
+                
+                // 更新选中的语言
+                selectedLang = newLang;
+                
+                // 滑动指示器动画
+                slideIndicator.className = 'slide-indicator';
+                slideIndicator.classList.add(selectedLang);
+                
+                // 跳转到对应语言的页面
+                setTimeout(() => {
+                    window.location.href = langPages[selectedLang];
+                }, 300);
+            });
+        });
+
+        // 帮助按钮功能
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        helpBtn.addEventListener('click', () => {
+            helpModal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

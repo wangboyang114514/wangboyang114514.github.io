@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Sheep Game - Chemistry World</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 导航栏和内容的延迟动画 */
+        .navbar {
+            animation: fadeInUp 0.5s ease-out 0.1s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .container {
+            animation: fadeInUp 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        /* 游戏容器样式 */
+        .game-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 游戏信息栏 */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .score, .moves {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .restart-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 游戏区域 */
+        .game-area {
+            margin-bottom: 2rem;
+        }
+
+        /* 游戏网格 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .game-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .game-cell:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .game-cell.empty {
+            background: transparent;
+            cursor: default;
+            box-shadow: none;
+            border: none;
+        }
+
+        .game-cell.empty:hover {
+            transform: none;
+            background: transparent;
+        }
+
+        /* 槽位区域 */
+        .slots-area {
+            margin-bottom: 2rem;
+        }
+
+        .slots-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .slot {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .slot.filled {
+            background: rgba(37, 99, 235, 0.1);
+            cursor: pointer;
+        }
+
+        .slot.filled:hover {
+            transform: scale(1.05);
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .slot.filled .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: rgba(239, 68, 68, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 元素信息卡片 */
+        .element-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .element-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .element-info p {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        /* 游戏结束模态框 */
+        .game-over-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-over-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .game-over-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .game-over-content p {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .game-over-content .score-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        /* 问号按钮样式 */
+        .help-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* 帮助模态框 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .help-content p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            margin-top: 1rem;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+
+            .game-cell {
+                font-size: 1rem;
+            }
+
+            .slots-container {
+                gap: 8px;
+            }
+
+            .slot {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+
+            .game-info {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+            }
+
+            .game-cell {
+                font-size: 0.9rem;
+            }
+
+            .slots-container {
+                gap: 6px;
+                padding: 0.5rem;
+            }
+
+            .slot {
+                width: 40px;
+                height: 40px;
+                font-size: 0.8rem;
+            }
+
+            .game-container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="site-title">
+                <img src="../../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../English.html">Periodic Table</a></li>
+                <li><a href="games.html">Chemistry Games</a></li>
+            </ul>
+            <!-- 苹果音乐app风格任务栏 -->
+            <div class="apple-taskbar">
+                <button class="taskbar-btn" data-lang="chinese">中文</button>
+                <button class="taskbar-btn" data-lang="english">English</button>
+                <div class="slide-indicator english"></div>
+            </div>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <h1 style="text-align: center; color: var(--white); margin: 2rem 0;">Chemistry Sheep Game</h1>
+        
+        <div class="game-container">
+            <!-- 游戏信息栏 -->
+            <div class="game-info">
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="moves">Moves: <span id="moves">0</span></div>
+                <button class="restart-btn" id="restartBtn">Restart</button>
+            </div>
+
+            <!-- 游戏区域 -->
+            <div class="game-area">
+                <!-- 游戏网格 -->
+                <div class="game-grid" id="gameGrid"></div>
+            </div>
+
+            <!-- 槽位区域 -->
+            <div class="slots-area">
+                <h3>Element Slots (Max 7)</h3>
+                <div class="slots-container" id="slotsContainer">
+                    <!-- Slots will be generated dynamically via JavaScript -->
+                </div>
+            </div>
+
+            <!-- 元素信息卡片 -->
+            <div class="element-info" id="elementInfo">
+                <h3>Element Information</h3>
+                <p>Click on elements to place them in slots. When you have three identical or related elements in slots, they will be eliminated!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束模态框 -->
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="game-over-content">
+            <h2>Game Over!</h2>
+            <p>Your final score is:</p>
+            <div class="score-display" id="finalScore"></div>
+            <button class="close-btn" id="playAgainBtn">Play Again</button>
+            <button class="close-btn" id="backToGamesBtn">Back to Games</button>
+        </div>
+    </div>
+
+    <!-- 问号按钮 -->
+    <div class="help-btn" id="helpBtn">?</div>
+
+    <!-- 帮助模态框 -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <h2>Game Instructions</h2>
+            <p><strong>Game Rules:</strong></p>
+            <p>1. Click on elements in the game area to place them in the slots below</p>
+            <p>2. When you have three identical or related elements in the slots, they will be eliminated</p>
+            <p>3. You can have a maximum of 7 elements in the slots</p>
+            <p>4. The goal is to eliminate all element blocks</p>
+            <p>5. Each elimination earns 10 points, with bonus points for consecutive eliminations</p>
+            
+            <p><strong>Learning Features:</strong></p>
+            <p>- The game displays element symbols, names, atomic numbers, and other basic information</p>
+            <p>- After completing the game, you will see the chemistry knowledge you learned during gameplay</p>
+            <p>- You can deepen your understanding of the periodic table through gameplay</p>
+            
+            <button class="close-btn" id="closeBtn">Close</button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>&copy; 2024 Chemistry World. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // 语言选择功能
+        const taskbarBtns = document.querySelectorAll('.taskbar-btn');
+        const slideIndicator = document.querySelector('.slide-indicator');
+        let selectedLang = 'english';
+
+        // 语言页面映射
+        const langPages = {
+            chinese: '../../games/chinese/sheep_game.html',
+            english: 'sheep_game.html'
+        };
+
+        // 处理语言选择
+        taskbarBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const newLang = this.dataset.lang;
+                if (newLang === selectedLang) return;
+                
+                // 更新选中的语言
+                selectedLang = newLang;
+                
+                // 滑动指示器动画
+                slideIndicator.className = 'slide-indicator';
+                slideIndicator.classList.add(selectedLang);
+                
+                // 跳转到对应语言的页面
+                setTimeout(() => {
+                    window.location.href = langPages[selectedLang];
+                }, 300);
+            });
+        });
+
+        // 帮助按钮功能
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        helpBtn.addEventListener('click', () => {
+            helpModal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // 游戏数据
+        const elements = [
+            { symbol: 'H', name: 'Hydrogen', atomicNumber: 1, group: 1, period: 1, info: 'Hydrogen is the lightest element and the most abundant in the universe.' },
+            { symbol: 'He', name: 'Helium', atomicNumber: 2, group: 18, period: 1, info: 'Helium is an inert gas, lighter than air, commonly used in balloons.' },
+            { symbol: 'Li', name: 'Lithium', atomicNumber: 3, group: 1, period: 2, info: 'Lithium is the lightest metal element, used in battery manufacturing.' },
+            { symbol: 'Be', name: 'Beryllium', atomicNumber: 4, group: 2, period: 2, info: 'Beryllium is a toxic metal used in aerospace industry.' },
+            { symbol: 'B', name: 'Boron', atomicNumber: 5, group: 13, period: 2, info: 'Boron is used to make borax and boric acid, essential for plant growth.' },
+            { symbol: 'C', name: 'Carbon', atomicNumber: 6, group: 14, period: 2, info: 'Carbon is the basis of life, existing in multiple allotropes.' },
+            { symbol: 'N', name: 'Nitrogen', atomicNumber: 7, group: 15, period: 2, info: 'Nitrogen is the most abundant element in air, important component of proteins.' },
+            { symbol: 'O', name: 'Oxygen', atomicNumber: 8, group: 16, period: 2, info: 'Oxygen is the most abundant element in Earth\'s crust, vital for life.' },
+            { symbol: 'F', name: 'Fluorine', atomicNumber: 9, group: 17, period: 2, info: 'Fluorine is the most reactive non-metal, used in toothpaste and water treatment.' },
+            { symbol: 'Ne', name: 'Neon', atomicNumber: 10, group: 18, period: 2, info: 'Neon is an inert gas used in neon signs.' },
+            { symbol: 'Na', name: 'Sodium', atomicNumber: 11, group: 1, period: 3, info: 'Sodium is a reactive metal, combining with chlorine to form table salt.' },
+            { symbol: 'Mg', name: 'Magnesium', atomicNumber: 12, group: 2, period: 3, info: 'Magnesium is an important component of chlorophyll, vital for plant photosynthesis.' },
+            { symbol: 'Al', name: 'Aluminum', atomicNumber: 13, group: 13, period: 3, info: 'Aluminum is the most abundant metal in Earth\'s crust, used in various alloys.' },
+            { symbol: 'Si', name: 'Silicon', atomicNumber: 14, group: 14, period: 3, info: 'Silicon is the second most abundant element in Earth\'s crust, used in chips and glass.' },
+            { symbol: 'P', name: 'Phosphorus', atomicNumber: 15, group: 15, period: 3, info: 'Phosphorus is an important component of DNA and RNA, vital for life processes.' },
+            { symbol: 'S', name: 'Sulfur', atomicNumber: 16, group: 16, period: 3, info: 'Sulfur is a non-metal element used in sulfuric acid and rubber production.' }
+        ];
+
+        // 游戏变量
+        let gameGrid = [];
+        let slots = [];
+        let score = 0;
+        let moves = 0;
+        let consecutiveMatches = 0;
+        let gameOver = false;
+
+        // DOM 元素
+        const gameGridElement = document.getElementById('gameGrid');
+        const slotsContainer = document.getElementById('slotsContainer');
+        const scoreElement = document.getElementById('score');
+        const movesElement = document.getElementById('moves');
+        const elementInfoElement = document.getElementById('elementInfo');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScoreElement = document.getElementById('finalScore');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const backToGamesBtn = document.getElementById('backToGamesBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // 初始化游戏
+        function initGame() {
+            // 重置游戏变量
+            score = 0;
+            moves = 0;
+            slots = [];
+            consecutiveMatches = 0;
+            gameOver = false;
+            
+            // 更新显示
+            scoreElement.textContent = score;
+            movesElement.textContent = moves;
+            elementInfoElement.innerHTML = '<h3>Element Information</h3><p>Click on elements to place them in slots. When you have three identical or related elements in slots, they will be eliminated!</p>';
+            
+            // 生成游戏网格
+            generateGameGrid();
+            
+            // 生成槽位
+            generateSlots();
+        }
+
+        // 生成游戏网格
+        function generateGameGrid() {
+            // 清空网格
+            gameGridElement.innerHTML = '';
+            gameGrid = [];
+            
+            // 网格大小
+            const gridSize = 7 * 7;
+            
+            // 随机生成元素
+            for (let i = 0; i < gridSize; i++) {
+                // 随机决定是否为空单元格
+                if (Math.random() < 0.3) {
+                    // 空单元格
+                    const cell = document.createElement('div');
+                    cell.className = 'game-cell empty';
+                    gameGridElement.appendChild(cell);
+                    gameGrid.push(null);
+                } else {
+                    // 元素单元格
+                    const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                    const cell = document.createElement('div');
+                    cell.className = 'game-cell';
+                    cell.textContent = randomElement.symbol;
+                    cell.dataset.element = JSON.stringify(randomElement);
+                    
+                    cell.addEventListener('click', () => selectElement(cell));
+                    
+                    gameGridElement.appendChild(cell);
+                    gameGrid.push(randomElement);
+                }
+            }
+        }
+
+        // 生成槽位
+        function generateSlots() {
+            // 清空槽位
+            slotsContainer.innerHTML = '';
+            slots = [];
+            
+            // 生成7个槽位
+            for (let i = 0; i < 7; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.index = i;
+                
+                slotsContainer.appendChild(slot);
+                slots.push(null);
+            }
+        }
+
+        // 选择元素
+        function selectElement(cell) {
+            if (gameOver) return;
+            
+            const element = JSON.parse(cell.dataset.element);
+            
+            // 找到空槽位
+            const emptySlotIndex = slots.findIndex(slot => slot === null);
+            
+            if (emptySlotIndex === -1) {
+                // 槽位已满
+                alert('Slots are full! Please eliminate some elements first.');
+                return;
+            }
+            
+            // 放入槽位
+            slots[emptySlotIndex] = element;
+            updateSlots();
+            
+            // 增加步数
+            moves++;
+            movesElement.textContent = moves;
+            
+            // 检查是否可以消除
+            checkMatches();
+            
+            // 检查游戏是否结束
+            checkGameOver();
+        }
+
+        // 更新槽位显示
+        function updateSlots() {
+            slotsContainer.innerHTML = '';
+            
+            slots.forEach((element, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'slot' + (element ? ' filled' : '');
+                slot.dataset.index = index;
+                
+                if (element) {
+                    slot.textContent = element.symbol;
+                    
+                    // 添加删除按钮
+                    const removeBtn = document.createElement('div');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.textContent = '×';
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeFromSlot(index);
+                    });
+                    
+                    slot.appendChild(removeBtn);
+                }
+                
+                slotsContainer.appendChild(slot);
+            });
+        }
+
+        // 从槽位移除元素
+        function removeFromSlot(index) {
+            if (gameOver) return;
+            
+            slots[index] = null;
+            updateSlots();
+        }
+
+        // 检查是否可以消除
+        function checkMatches() {
+            // 统计槽位中的元素
+            const elementCounts = {};
+            slots.forEach(element => {
+                if (element) {
+                    const symbol = element.symbol;
+                    if (!elementCounts[symbol]) {
+                        elementCounts[symbol] = [];
+                    }
+                    elementCounts[symbol].push(element);
+                }
+            });
+            
+            // 检查是否有三个相同的元素
+            for (const symbol in elementCounts) {
+                if (elementCounts[symbol].length >= 3) {
+                    // 消除元素
+                    eliminateElements(symbol);
+                    return;
+                }
+            }
+        }
+
+        // 消除元素
+        function eliminateElements(symbol) {
+            // 从槽位中移除元素
+            slots = slots.filter(element => element && element.symbol !== symbol);
+            
+            // 补充空槽位
+            while (slots.length < 7) {
+                slots.push(null);
+            }
+            
+            // 更新槽位显示
+            updateSlots();
+            
+            // 更新分数
+            consecutiveMatches++;
+            const points = 10 * consecutiveMatches;
+            score += points;
+            scoreElement.textContent = score;
+            
+            // 更新元素信息
+            const element = elements.find(e => e.symbol === symbol);
+            if (element) {
+                updateElementInfo(element);
+            }
+        }
+
+        // 更新元素信息
+        function updateElementInfo(element) {
+            elementInfoElement.innerHTML = `
+                <h3>${element.name} (${element.symbol})</h3>
+                <p>Atomic Number: ${element.atomicNumber}</p>
+                <p>Group: ${element.group}, Period: ${element.period}</p>
+                <p>${element.info}</p>
+            `;
+        }
+
+        // 检查游戏是否结束
+        function checkGameOver() {
+            // 检查是否所有元素都被消除
+            const hasElements = gameGrid.some(element => element !== null);
+            const hasSlots = slots.some(element => element !== null);
+            
+            if (!hasElements && !hasSlots) {
+                // 游戏胜利
+                endGame(true);
+            } else if (slots.every(element => element !== null)) {
+                // 槽位已满，游戏失败
+                endGame(false);
+            }
+        }
+
+        // 结束游戏
+        function endGame(win) {
+            gameOver = true;
+            finalScoreElement.textContent = score;
+            gameOverModal.style.display = 'flex';
+        }
+
+        // 事件监听器
+        restartBtn.addEventListener('click', initGame);
+        playAgainBtn.addEventListener('click', () => {
+            gameOverModal.style.display = 'none';
+            initGame();
+        });
+        backToGamesBtn.addEventListener('click', () => {
+            window.location.href = 'games.html';
+        });
+
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>
