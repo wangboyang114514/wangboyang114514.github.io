@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物质性质大闯关 - 关卡1：酸的性质</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../interaction.js"></script>
+    <style>
+        /* 页面进入动画 */
+        body {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 导航栏和内容的延迟动画 */
+        .navbar {
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .container {
+            animation: fadeInUp 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        /* 游戏界面 */
+        .game-container {
+            position: relative;
+            width: 100%;
+            min-height: 80vh;
+            overflow: hidden;
+            margin: 2rem 0;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* 游戏地图 */
+        .game-map {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(135deg, #748ffc 30%, #9775fa 50%, #c77dff 70%);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        /* 游戏路径 */
+        .game-path {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%);
+            border-radius: 20px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* 检查点 */
+        .checkpoint {
+            position: absolute;
+            top: 50%;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--white);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .checkpoint:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        /* 化学小人 */
+        .player {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            width: 60px;
+            height: 60px;
+            transform: translateY(-50%);
+            transition: left 0.5s ease;
+            z-index: 10;
+        }
+
+        .player svg {
+            width: 100%;
+            height: 100%;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* 题目界面 */
+        .question-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .question-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .question-content p {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .question-options {
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .option.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--secondary-color);
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        /* 知识点提示 */
+        .hint-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            margin-right: 1rem;
+        }
+
+        .hint-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .hint-content {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 拖拽匹配任务 */
+        .drag-task {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drag-task-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .drag-item {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            user-select: none;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            padding: 1rem;
+            min-width: 200px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .drop-zone.filled {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--secondary-color);
+            border-style: solid;
+        }
+
+        /* 游戏控制 */
+        .game-controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 游戏信息 */
+        .game-info {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            padding: 1rem;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        /* 问号按钮样式 */
+        .help-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 帮助模态框 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .help-content p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            margin-top: 1rem;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="site-title">
+                <img src="../../photo/loge.png" class="logo" alt="Logo">
+                Chemistry World
+            </a>
+            <ul class="nav-links">
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../../chinese.html">元素周期表</a></li>
+                <li><a href="games.html">化学游戏</a></li>
+            </ul>
+            <!-- 苹果音乐app风格任务栏 -->
+            <div class="apple-taskbar">
+                <button class="taskbar-btn" data-lang="chinese">中文</button>
+                <button class="taskbar-btn" data-lang="english">English</button>
+                <div class="slide-indicator chinese"></div>
+            </div>
+            <div class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <h1 style="text-align: center; color: var(--white); margin: 2rem 0;">物质性质大闯关 - 关卡1：酸的性质</h1>
+        
+        <div class="game-container">
+            <div class="game-map">
+                <!-- 游戏路径 -->
+                <div class="game-path"></div>
+                
+                <!-- 检查点 -->
+                <div class="checkpoint" style="left: 20%;">1</div>
+                <div class="checkpoint" style="left: 40%;">2</div>
+                <div class="checkpoint" style="left: 60%;">3</div>
+                <div class="checkpoint" style="left: 80%;">4</div>
+                
+                <!-- 化学小人 -->
+                <div class="player" id="player">
+                    <svg width="60" height="60" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 头部 -->
+                        <circle cx="75" cy="50" r="30" fill="#748ffc" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <!-- 眼睛 -->
+                        <circle cx="65" cy="45" r="5" fill="white"/>
+                        <circle cx="85" cy="45" r="5" fill="white"/>
+                        <!-- 嘴巴 -->
+                        <path d="M60 60 Q75 70 90 60" stroke="white" stroke-width="2" fill="none"/>
+                        <!-- 身体 -->
+                        <rect x="60" y="80" width="30" height="40" rx="15" fill="#9775fa" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <!-- 手臂 -->
+                        <rect x="40" y="85" width="20" height="8" rx="4" fill="#9775fa" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <rect x="90" y="85" width="20" height="8" rx="4" fill="#9775fa" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <!-- 腿部 -->
+                        <rect x="65" y="120" width="8" height="20" rx="4" fill="#c77dff" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <rect x="77" y="120" width="8" height="20" rx="4" fill="#c77dff" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                        <!-- 化学符号 -->
+                        <text x="75" y="95" font-family="Arial" font-size="16" font-weight="bold" fill="white" text-anchor="middle">H₂O</text>
+                    </svg>
+                </div>
+                
+                <!-- 游戏信息 -->
+                <div class="game-info">
+                    <p>关卡：1/10</p>
+                    <p>题目：1/4</p>
+                    <p>得分：0</p>
+                </div>
+            </div>
+            
+            <!-- 游戏控制 -->
+            <div class="game-controls">
+                <button class="control-btn" onclick="movePlayer('left')">←</button>
+                <button class="control-btn" onclick="movePlayer('right')">→</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问号按钮 -->
+    <div class="help-btn" id="helpBtn">?</div>
+
+    <!-- 帮助模态框 -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <h2>游戏帮助</h2>
+            <p><strong>关卡1：酸的性质</strong></p>
+            <p>本关卡测试你对酸的基本性质的理解，包括酸的定义、常见酸的特性和酸的化学反应。</p>
+            
+            <p><strong>游戏操作：</strong></p>
+            <ul>
+                <li>使用方向键或点击控制按钮移动化学小人</li>
+                <li>到达检查点时会触发题目</li>
+                <li>点击选项进行答题</li>
+                <li>答题错误时需要完成拖拽匹配小任务</li>
+                <li>使用提示按钮获取知识点帮助</li>
+            </ul>
+            
+            <button class="close-btn" id="closeBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- 题目模态框 -->
+    <div class="question-modal" id="questionModal">
+        <div class="question-content">
+            <h2>问题 1/4</h2>
+            <p>下列关于酸的说法，正确的是：</p>
+            
+            <div class="question-options">
+                <div class="option" data-correct="false">A. 酸都具有强烈的腐蚀性</div>
+                <div class="option" data-correct="true">B. 酸能使紫色石蕊试液变红</div>
+                <div class="option" data-correct="false">C. 酸在水中都能完全电离</div>
+                <div class="option" data-correct="false">D. 酸的pH值都大于7</div>
+            </div>
+            
+            <button class="hint-btn" onclick="showHint()">显示提示</button>
+            <div class="hint-content" id="hintContent" style="display: none;">
+                <p>酸是在水溶液中电离出的阳离子全部是氢离子(H⁺)的化合物。酸的通性包括：能使紫色石蕊试液变红，能与活泼金属反应生成氢气，能与碱发生中和反应等。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拖拽匹配任务 -->
+    <div class="drag-task" id="dragTask">
+        <div class="drag-task-content">
+            <h2>拖拽匹配任务</h2>
+            <p>请将下列酸与其对应的化学式匹配起来：</p>
+            
+            <div class="drag-container">
+                <div class="drag-item" draggable="true" data-id="1">盐酸</div>
+                <div class="drag-item" draggable="true" data-id="2">硫酸</div>
+                <div class="drag-item" draggable="true" data-id="3">硝酸</div>
+                <div class="drag-item" draggable="true" data-id="4">碳酸</div>
+                
+                <div class="drop-zone" data-target="1">HCl</div>
+                <div class="drop-zone" data-target="2">H₂SO₄</div>
+                <div class="drop-zone" data-target="3">HNO₃</div>
+                <div class="drop-zone" data-target="4">H₂CO₃</div>
+            </div>
+            
+            <button class="close-btn" onclick="checkDragTask()">完成匹配</button>
+        </div>
+    </div>
+
+    <script>
+        // 汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // 语言选择功能
+        const taskbarBtns = document.querySelectorAll('.taskbar-btn');
+        const slideIndicator = document.querySelector('.slide-indicator');
+        let selectedLang = 'chinese';
+
+        // 语言页面映射
+        const langPages = {
+            chinese: 'adventure_level1.html',
+            english: '../english/adventure_level1.html'
+        };
+
+        // 处理语言选择
+        taskbarBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const newLang = this.dataset.lang;
+                if (newLang === selectedLang) return;
+                
+                // 更新选中的语言
+                selectedLang = newLang;
+                
+                // 滑动指示器动画
+                slideIndicator.className = 'slide-indicator';
+                slideIndicator.classList.add(selectedLang);
+                
+                // 跳转到对应语言的页面
+                setTimeout(() => {
+                    window.location.href = langPages[selectedLang];
+                }, 300);
+            });
+        });
+
+        // 游戏功能
+        let currentCheckpoint = -1;
+        let currentQuestion = 0;
+        let score = 0;
+        let playerPosition = 50;
+        
+        // 题目数据
+        const questions = [
+            {
+                question: "下列关于酸的说法，正确的是：",
+                options: [
+                    { text: "A. 酸都具有强烈的腐蚀性", correct: false },
+                    { text: "B. 酸能使紫色石蕊试液变红", correct: true },
+                    { text: "C. 酸在水中都能完全电离", correct: false },
+                    { text: "D. 酸的pH值都大于7", correct: false }
+                ],
+                hint: "酸是在水溶液中电离出的阳离子全部是氢离子(H⁺)的化合物。酸的通性包括：能使紫色石蕊试液变红，能与活泼金属反应生成氢气，能与碱发生中和反应等。"
+            },
+            {
+                question: "下列物质中，不属于酸的是：",
+                options: [
+                    { text: "A. HCl", correct: false },
+                    { text: "B. H₂SO₄", correct: false },
+                    { text: "C. NaOH", correct: true },
+                    { text: "D. HNO₃", correct: false }
+                ],
+                hint: "酸是在水溶液中电离出的阳离子全部是氢离子(H⁺)的化合物。NaOH在水溶液中电离出的阳离子是钠离子(Na⁺)，属于碱。"
+            },
+            {
+                question: "酸与活泼金属反应的产物是：",
+                options: [
+                    { text: "A. 盐和水", correct: false },
+                    { text: "B. 盐和氢气", correct: true },
+                    { text: "C. 盐和二氧化碳", correct: false },
+                    { text: "D. 盐和氧气", correct: false }
+                ],
+                hint: "酸与活泼金属反应生成盐和氢气，例如：Zn + 2HCl → ZnCl₂ + H₂↑"
+            },
+            {
+                question: "判断题：所有的酸都含有氢元素。",
+                options: [
+                    { text: "A. 正确", correct: true },
+                    { text: "B. 错误", correct: false }
+                ],
+                hint: "酸的定义是在水溶液中电离出的阳离子全部是氢离子(H⁺)的化合物，因此所有的酸都含有氢元素。"
+            }
+        ];
+
+        // 移动玩家
+        function movePlayer(direction) {
+            const player = document.getElementById('player');
+            const checkpoints = document.querySelectorAll('.checkpoint');
+            
+            if (direction === 'right') {
+                playerPosition += 20;
+                if (playerPosition > window.innerWidth - 100) {
+                    playerPosition = window.innerWidth - 100;
+                }
+            } else if (direction === 'left') {
+                playerPosition -= 20;
+                if (playerPosition < 50) {
+                    playerPosition = 50;
+                }
+            }
+            
+            player.style.left = playerPosition + 'px';
+            
+            // 检查是否到达检查点
+            checkpoints.forEach((checkpoint, index) => {
+                const checkpointRect = checkpoint.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+                
+                if (playerRect.left < checkpointRect.right && playerRect.right > checkpointRect.left) {
+                    if (index > currentCheckpoint) {
+                        currentCheckpoint = index;
+                        showQuestion(index);
+                    }
+                }
+            });
+        }
+
+        // 显示题目
+        function showQuestion(checkpointIndex) {
+            const questionModal = document.getElementById('questionModal');
+            const questionContent = questionModal.querySelector('.question-content');
+            const questionNumber = checkpointIndex + 1;
+            
+            if (questionNumber > questions.length) {
+                // 关卡完成
+                questionContent.innerHTML = `
+                    <h2>关卡1完成！</h2>
+                    <p>恭喜你完成了酸的性质关卡！</p>
+                    <p>你的得分：${score}</p>
+                    <p>你已经掌握了酸的基本性质、常见酸的识别、酸与金属反应产物、酸的组成元素等知识点。</p>
+                    <button class="close-btn" onclick="nextLevel()">进入下一关</button>
+                    <button class="close-btn" onclick="backToMenu()">返回菜单</button>
+                `;
+                questionModal.style.display = 'flex';
+                return;
+            }
+            
+            const question = questions[checkpointIndex];
+            
+            // 更新题目内容
+            questionContent.innerHTML = `
+                <h2>问题 ${questionNumber}/${questions.length}</h2>
+                <p>${question.question}</p>
+                <div class="question-options">
+                    ${question.options.map((option, index) => `
+                        <div class="option" data-correct="${option.correct}">${option.text}</div>
+                    `).join('')}
+                </div>
+                <button class="hint-btn" onclick="showHint(${checkpointIndex})">显示提示</button>
+                <div class="hint-content" id="hintContent" style="display: none;">
+                    <p>${question.hint}</p>
+                </div>
+            `;
+            
+            // 添加选项点击事件
+            const options = questionContent.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    checkAnswer(this, checkpointIndex);
+                });
+            });
+            
+            questionModal.style.display = 'flex';
+        }
+
+        // 显示提示
+        function showHint(questionIndex) {
+            const hintContent = document.getElementById('hintContent');
+            hintContent.style.display = 'block';
+        }
+
+        // 检查答案
+        function checkAnswer(option, questionIndex) {
+            const isCorrect = option.dataset.correct === 'true';
+            const questionModal = document.getElementById('questionModal');
+            
+            if (isCorrect) {
+                option.classList.add('correct');
+                score += 10;
+                updateScore();
+                
+                setTimeout(() => {
+                    questionModal.style.display = 'none';
+                    currentQuestion = questionIndex + 1;
+                    updateQuestionNumber();
+                }, 1000);
+            } else {
+                option.classList.add('incorrect');
+                
+                setTimeout(() => {
+                    questionModal.style.display = 'none';
+                    document.getElementById('dragTask').style.display = 'flex';
+                    initDragAndDrop();
+                }, 1000);
+            }
+        }
+
+        // 更新分数
+        function updateScore() {
+            const gameInfo = document.querySelector('.game-info');
+            gameInfo.querySelector('p:nth-child(3)').textContent = `得分：${score}`;
+        }
+
+        // 更新题目数量
+        function updateQuestionNumber() {
+            const gameInfo = document.querySelector('.game-info');
+            gameInfo.querySelector('p:nth-child(2)').textContent = `题目：${currentQuestion + 1}/${questions.length}`;
+        }
+
+        // 初始化拖拽和放置
+        function initDragAndDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.id);
+                });
+            });
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('active');
+                });
+                
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('active');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('active');
+                    
+                    const itemId = e.dataTransfer.getData('text/plain');
+                    const dragItem = document.querySelector(`.drag-item[data-id="${itemId}"]`);
+                    
+                    if (dragItem) {
+                        // 检查是否匹配
+                        if (itemId === this.dataset.target) {
+                            this.classList.add('filled');
+                            this.innerHTML = dragItem.textContent + '<br>' + this.innerHTML;
+                            dragItem.style.opacity = '0.5';
+                            dragItem.style.pointerEvents = 'none';
+                        }
+                    }
+                });
+            });
+        }
+
+        // 检查拖拽任务
+        function checkDragTask() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            const allFilled = Array.from(dropZones).every(zone => zone.classList.contains('filled'));
+            
+            if (allFilled) {
+                document.getElementById('dragTask').style.display = 'none';
+                // 允许继续游戏
+            } else {
+                alert('请完成所有匹配！');
+            }
+        }
+
+        // 键盘控制
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    movePlayer('left');
+                    break;
+                case 'ArrowRight':
+                    movePlayer('right');
+                    break;
+            }
+        });
+
+        // 帮助按钮功能
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        helpBtn.addEventListener('click', () => {
+            helpModal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+
+        // 点击模态框外部关闭
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        // 进入下一关
+        function nextLevel() {
+            // 暂时返回游戏菜单，后续可以添加关卡2
+            window.location.href = 'adventure_game.html';
+        }
+
+        // 返回菜单
+        function backToMenu() {
+            window.location.href = 'adventure_game.html';
+        }
+    </script>
+</body>
+</html>
