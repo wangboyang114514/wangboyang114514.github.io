@@ -1,6 +1,60 @@
 // 交互逻辑优化脚本
 
-// 1. 导航交互逻辑
+// 1. 页面加载和过渡动画
+function setupPageTransitions() {
+    // 创建加载覆盖层
+    function createLoadingOverlay() {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+        document.body.appendChild(loadingOverlay);
+        return loadingOverlay;
+    }
+    
+    // 创建页面过渡元素
+    function createPageTransition() {
+        const transitionElement = document.createElement('div');
+        transitionElement.className = 'page-transition';
+        document.body.appendChild(transitionElement);
+        return transitionElement;
+    }
+    
+    // 初始化加载状态
+    const loadingOverlay = createLoadingOverlay();
+    const pageTransition = createPageTransition();
+    
+    // 页面加载完成后隐藏加载覆盖层
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                loadingOverlay.remove();
+            }, 500);
+        }, 500);
+    });
+    
+    // 为所有链接添加页面过渡效果
+    const links = document.querySelectorAll('a[href]');
+    links.forEach(link => {
+        // 跳过锚点链接和外部链接
+        if (link.href.startsWith(window.location.origin) && !link.href.includes('#')) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetUrl = this.getAttribute('href');
+                
+                // 激活页面过渡
+                pageTransition.classList.add('active');
+                
+                // 延迟后跳转
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 300);
+            });
+        }
+    });
+}
+
+// 2. 导航交互逻辑
 function setupNavigation() {
     // 平滑滚动功能
     const navLinks = document.querySelectorAll('.nav-links a');
@@ -304,14 +358,228 @@ function setupKeyboardShortcuts() {
                 break;
             case 'Escape':
                 // 关闭所有展开的内容
-                // 这里可以添加关闭展开内容的逻辑
+                const comparePanel = document.querySelector('.compare-panel');
+                if (comparePanel && comparePanel.classList.contains('active')) {
+                    comparePanel.classList.remove('active');
+                }
                 break;
         }
     });
 }
 
+// 10. 化学相关装饰元素
+function setupChemicalDecorations() {
+    // 创建背景分子结构
+    function createMoleculeBackground() {
+        const moleculeBackground = document.createElement('div');
+        moleculeBackground.className = 'molecule-background';
+        
+        // 创建多个分子
+        for (let i = 0; i < 5; i++) {
+            const molecule = document.createElement('div');
+            molecule.className = 'molecule';
+            molecule.style.left = `${Math.random() * 100}%`;
+            molecule.style.top = `${Math.random() * 100}%`;
+            molecule.style.animationDelay = `${Math.random() * 5}s`;
+            molecule.style.animationDuration = `${15 + Math.random() * 10}s`;
+            
+            // 简单的分子结构SVG
+            molecule.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="5" fill="var(--primary-color)" />
+                    <circle cx="20" cy="30" r="3" fill="var(--secondary-color)" />
+                    <circle cx="80" cy="30" r="3" fill="var(--secondary-color)" />
+                    <circle cx="20" cy="70" r="3" fill="var(--secondary-color)" />
+                    <circle cx="80" cy="70" r="3" fill="var(--secondary-color)" />
+                    <line x1="50" y1="50" x2="20" y2="30" stroke="rgba(255,255,255,0.5)" stroke-width="1" />
+                    <line x1="50" y1="50" x2="80" y2="30" stroke="rgba(255,255,255,0.5)" stroke-width="1" />
+                    <line x1="50" y1="50" x2="20" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1" />
+                    <line x1="50" y1="50" x2="80" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1" />
+                </svg>
+            `;
+            
+            moleculeBackground.appendChild(molecule);
+        }
+        
+        document.body.appendChild(moleculeBackground);
+    }
+    
+    // 创建原子轨道线条
+    function createAtomicOrbitals() {
+        const atomicOrbitals = document.createElement('div');
+        atomicOrbitals.className = 'atomic-orbitals';
+        
+        // 创建多个轨道
+        for (let i = 1; i <= 3; i++) {
+            const orbital = document.createElement('div');
+            orbital.className = 'orbital';
+            const size = 100 * i;
+            orbital.style.width = `${size}px`;
+            orbital.style.height = `${size}px`;
+            orbital.style.left = `calc(50% - ${size / 2}px)`;
+            orbital.style.top = `calc(50% - ${size / 2}px)`;
+            orbital.style.animationDelay = `${Math.random() * 5}s`;
+            orbital.style.animationDuration = `${20 + Math.random() * 10}s`;
+            
+            atomicOrbitals.appendChild(orbital);
+        }
+        
+        document.body.appendChild(atomicOrbitals);
+    }
+    
+    createMoleculeBackground();
+    createAtomicOrbitals();
+}
+
+// 11. 收藏功能
+function setupFavoriteFunctionality() {
+    // 为元素详情页添加收藏按钮
+    const elementDetail = document.querySelector('.element-detail');
+    if (elementDetail) {
+        const elementName = document.querySelector('h1').textContent;
+        const favoriteBtn = document.createElement('button');
+        favoriteBtn.className = 'favorite-btn';
+        favoriteBtn.innerHTML = '❤️';
+        
+        // 检查是否已收藏
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        if (favorites.includes(elementName)) {
+            favoriteBtn.classList.add('favorited');
+        }
+        
+        // 收藏/取消收藏
+        favoriteBtn.addEventListener('click', function() {
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            if (favoriteBtn.classList.contains('favorited')) {
+                // 取消收藏
+                favorites = favorites.filter(item => item !== elementName);
+                favoriteBtn.classList.remove('favorited');
+                showToast('已取消收藏', 1000);
+            } else {
+                // 添加收藏
+                favorites.push(elementName);
+                favoriteBtn.classList.add('favorited');
+                showToast('已添加到收藏', 1000);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        });
+        
+        elementDetail.style.position = 'relative';
+        elementDetail.appendChild(favoriteBtn);
+    }
+}
+
+// 12. 元素对比功能
+function setupElementComparison() {
+    // 为元素详情页添加对比按钮
+    const elementDetail = document.querySelector('.element-detail');
+    if (elementDetail) {
+        const elementName = document.querySelector('h1').textContent;
+        const compareBtn = document.createElement('button');
+        compareBtn.className = 'compare-btn';
+        compareBtn.textContent = '添加到对比';
+        
+        // 添加到对比
+        compareBtn.addEventListener('click', function() {
+            let compareElements = JSON.parse(localStorage.getItem('compareElements') || '[]');
+            if (!compareElements.includes(elementName)) {
+                compareElements.push(elementName);
+                // 最多对比3个元素
+                if (compareElements.length > 3) {
+                    compareElements.shift();
+                }
+                localStorage.setItem('compareElements', JSON.stringify(compareElements));
+                showToast('已添加到对比', 1000);
+            } else {
+                showToast('该元素已在对比列表中', 1000);
+            }
+        });
+        
+        elementDetail.appendChild(compareBtn);
+    }
+    
+    // 创建对比面板
+    function createComparePanel() {
+        const comparePanel = document.createElement('div');
+        comparePanel.className = 'compare-panel';
+        comparePanel.innerHTML = `
+            <h3>元素对比</h3>
+            <div class="compare-content"></div>
+            <button class="close-compare">×</button>
+        `;
+        
+        document.body.appendChild(comparePanel);
+        
+        // 关闭按钮
+        const closeBtn = comparePanel.querySelector('.close-compare');
+        closeBtn.addEventListener('click', function() {
+            comparePanel.classList.remove('active');
+        });
+        
+        // 显示对比面板
+        const showCompareBtn = document.createElement('button');
+        showCompareBtn.textContent = '对比元素';
+        showCompareBtn.style.position = 'fixed';
+        showCompareBtn.style.bottom = '100px';
+        showCompareBtn.style.right = '20px';
+        showCompareBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+        showCompareBtn.style.color = 'var(--white)';
+        showCompareBtn.style.padding = '0.75rem 1.5rem';
+        showCompareBtn.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+        showCompareBtn.style.borderRadius = '32px';
+        showCompareBtn.style.fontWeight = '600';
+        showCompareBtn.style.cursor = 'pointer';
+        showCompareBtn.style.backdropFilter = 'blur(10px)';
+        showCompareBtn.style.zIndex = '1000';
+        
+        showCompareBtn.addEventListener('click', function() {
+            comparePanel.classList.add('active');
+            updateComparePanel();
+        });
+        
+        document.body.appendChild(showCompareBtn);
+    }
+    
+    // 更新对比面板
+    function updateComparePanel() {
+        const compareContent = document.querySelector('.compare-content');
+        if (compareContent) {
+            compareContent.innerHTML = '';
+            const compareElements = JSON.parse(localStorage.getItem('compareElements') || '[]');
+            
+            if (compareElements.length === 0) {
+                compareContent.innerHTML = '<p>暂无对比元素</p>';
+                return;
+            }
+            
+            compareElements.forEach(elementName => {
+                const elementDiv = document.createElement('div');
+                elementDiv.className = 'compare-element';
+                elementDiv.innerHTML = `<h3>${elementName}</h3><p>加载中...</p>`;
+                compareContent.appendChild(elementDiv);
+                
+                // 这里可以添加从API或本地数据加载元素信息的逻辑
+                // 暂时使用模拟数据
+                setTimeout(() => {
+                    elementDiv.innerHTML = `
+                        <h3>${elementName}</h3>
+                        <p>原子序数: ${Math.floor(Math.random() * 100) + 1}</p>
+                        <p>原子量: ${(Math.random() * 200 + 1).toFixed(2)}</p>
+                        <p>分类: ${['金属', '非金属', '类金属', '稀有气体'][Math.floor(Math.random() * 4)]}</p>
+                    `;
+                }, 500);
+            });
+        }
+    }
+    
+    createComparePanel();
+}
+
 // 初始化所有交互功能
 function initInteraction() {
+    // 页面加载和过渡动画
+    setupPageTransitions();
+    
     // 导航交互
     setupNavigation();
     
@@ -329,6 +597,15 @@ function initInteraction() {
     
     // 快捷键辅助功能
     setupKeyboardShortcuts();
+    
+    // 化学相关装饰元素
+    setupChemicalDecorations();
+    
+    // 收藏功能
+    setupFavoriteFunctionality();
+    
+    // 元素对比功能
+    setupElementComparison();
     
     // 添加防抖处理
     const debouncedScroll = debounce(() => {

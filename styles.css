@@ -1,26 +1,26 @@
 /* 全局变量 */
 :root {
-    --primary-color: #2563eb;   /* 主色调：现代蓝 */
-    --secondary-color: #10b981; /* 辅助色：清新绿 */
-    --accent-color: #f59e0b;    /* 强调色：活力橙 */
-    --bg-color: #f9fafb;        /* 背景色：浅灰 */
-    --bg-gradient: linear-gradient(135deg, #748ffc 30%, #9775fa 50%, #c77dff 70%);
-    --text-primary: #1f2937;    /* 主要文字色 */
-    --text-secondary: #6b7280;  /* 次要文字色 */
-    --text-light: #f9fafb;      /* 亮色文字 */
-    --border-color: #e5e7eb;    /* 边框色 */
+    --primary-color: #0f766e;   /* 主色调：深青色 */
+    --secondary-color: #14b8a6; /* 辅助色：青绿色 */
+    --accent-color: #06b6d4;    /* 强调色：天蓝色 */
+    --bg-color: #0f172a;        /* 背景色：深蓝灰 */
+    --bg-gradient: linear-gradient(135deg, #0f172a 30%, #1e293b 50%, #334155 70%);
+    --text-primary: #f8fafc;    /* 主要文字色 */
+    --text-secondary: #94a3b8;  /* 次要文字色 */
+    --text-light: #f8fafc;      /* 亮色文字 */
+    --border-color: #334155;    /* 边框色 */
     --white: #ffffff;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
     --border-radius: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     /* 液态玻璃效果变量 */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-bg-dark: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(255, 255, 255, 0.3);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-bg-dark: rgba(30, 41, 59, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
     --glass-backdrop: blur(10px);
 }
 
@@ -137,6 +137,79 @@ body {
     align-items: center;
 }
 
+/* 筛选按钮容器 */
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* 筛选按钮 */
+.filter-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.filter-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+/* 视图切换容器 */
+.view-toggle-container {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    justify-content: center;
+}
+
+/* 视图切换按钮 */
+.view-toggle-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 32px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.view-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.view-toggle-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
 .search-box {
     flex: 1;
     min-width: 200px;
@@ -220,8 +293,74 @@ body {
     gap: 0.5rem;
     flex: 0 0 calc(16.666% - 0.75rem); /* 6列布局 */
     backdrop-filter: blur(25px);
-    min-width: 80px;
+    min-width: 100px;
     box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.element-number {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    align-self: flex-start;
+    margin-left: 0.5rem;
+}
+
+.element-symbol {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+}
+
+.element-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* 元素分类颜色标识 */
+.element-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-color);
+}
+
+/* 碱金属 */
+.element-link.alkali-metal::before {
+    background: #ff6b6b;
+}
+
+/* 碱土金属 */
+.element-link.alkaline-earth-metal::before {
+    background: #4ecdc4;
+}
+
+/* 金属 */
+.element-link.metal::before {
+    background: #45b7d1;
+}
+
+/* 类金属 */
+.element-link.metalloid::before {
+    background: #96ceb4;
+}
+
+/* 非金属 */
+.element-link.nonmetal::before {
+    background: #ffeaa7;
+}
+
+/* 卤素 */
+.element-link.halogen::before {
+    background: #dda0dd;
+}
+
+/* 稀有气体 */
+.element-link.noble-gas::before {
+    background: #98d8c8;
 }
 
 .element-link:hover {
@@ -233,6 +372,101 @@ body {
     border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* 周期表视图 */
+.periodic-table {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 4px;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    overflow-x: auto;
+}
+
+.periodic-element {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 60px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.periodic-element:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.periodic-element .element-number {
+    font-size: 0.6rem;
+    opacity: 0.7;
+    align-self: flex-start;
+    margin-left: 0.25rem;
+}
+
+.periodic-element .element-symbol {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0.1rem 0;
+}
+
+.periodic-element .element-name {
+    font-size: 0.4rem;
+    font-weight: 500;
+}
+
+/* 周期表元素分类颜色标识 */
+.periodic-element::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.periodic-element.alkali-metal::before {
+    background: #ff6b6b;
+}
+
+.periodic-element.alkaline-earth-metal::before {
+    background: #4ecdc4;
+}
+
+.periodic-element.metal::before {
+    background: #45b7d1;
+}
+
+.periodic-element.metalloid::before {
+    background: #96ceb4;
+}
+
+.periodic-element.nonmetal::before {
+    background: #ffeaa7;
+}
+
+.periodic-element.halogen::before {
+    background: #dda0dd;
+}
+
+.periodic-element.noble-gas::before {
+    background: #98d8c8;
+}
+
 .element-link img {
     width: 80px;
     height: 80px;
@@ -241,7 +475,7 @@ body {
 
 /* 元素详情页样式 */
 .element-detail {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius);
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.1),
@@ -249,13 +483,85 @@ body {
     padding: 2rem;
     margin: 2rem 0;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .element-detail h1 {
     color: var(--primary-color);
     margin-bottom: 1.5rem;
-    font-size: 2rem;
+    font-size: 2.5rem;
+    text-align: center;
+}
+
+.element-detail p {
+    color: var(--text-primary);
+}
+
+/* 元素头部信息 */
+.element-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 元素图片区域 */
+.element-image {
+    flex: 1 1 300px;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.element-image img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+/* 元素基本信息 */
+.element-basic-info {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.basic-info-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.basic-info-card {
+    flex: 1 1 150px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.25rem;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.basic-info-card h3 {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.basic-info-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-primary);
 }
 
 .element-info {
@@ -266,34 +572,87 @@ body {
 }
 
 .info-card {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
     padding: 1.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     flex: 1 1 250px;
     min-width: 250px;
     backdrop-filter: blur(10px);
     box-shadow: 
         0 4px 16px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .info-card h3 {
-    color: var(--primary-color);
+    color: var(--secondary-color);
     margin-bottom: 0.5rem;
     font-size: 1.1rem;
 }
 
+.info-card p {
+    color: var(--text-primary);
+}
+
 .element-description {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
     padding: 1.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     line-height: 1.8;
     backdrop-filter: blur(10px);
     box-shadow: 
         0 4px 16px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    margin-bottom: 2rem;
+}
+
+.element-description p {
+    color: var(--text-primary);
+}
+
+/* 元素属性表格 */
+.element-properties {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.element-properties table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.element-properties th,
+.element-properties td {
+    padding: 1rem;
+    text-align: left;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.element-properties th {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.element-properties tr:last-child td {
+    border-bottom: none;
+}
+
+.element-properties tr:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* 表格样式 */
@@ -551,6 +910,243 @@ body {
     animation: fadeInUp 0.5s ease-out 0.2s forwards;
     opacity: 0;
     transform: translateY(50px);
+}
+
+/* 加载状态 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 页面过渡动画 */
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-gradient);
+    z-index: 9998;
+    transition: left 0.5s ease;
+}
+
+.page-transition.active {
+    left: 0;
+}
+
+/* 元素卡片动画 */
+.element-link {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.element-link:hover {
+    transform: translateY(-4px) scale(1.02);
+}
+
+/* 按钮动画 */
+.btn, .search-btn, .filter-btn, .view-toggle-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 化学相关装饰元素 */
+
+/* 背景分子结构动画 */
+.molecule-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    opacity: 0.3;
+}
+
+.molecule {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    animation: float 15s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(180deg);
+    }
+}
+
+/* 原子轨道线条 */
+.atomic-orbitals {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.2;
+}
+
+.orbital {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 收藏按钮样式 */
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.favorite-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.favorite-btn.favorited {
+    background: rgba(244, 63, 94, 0.8);
+    color: white;
+}
+
+/* 元素对比功能 */
+.compare-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    margin-top: 1rem;
+}
+
+.compare-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.compare-panel {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem;
+    transition: bottom 0.5s ease;
+    z-index: 1000;
+}
+
+.compare-panel.active {
+    bottom: 0;
+}
+
+.compare-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.compare-element {
+    flex: 1 1 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.compare-element h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.compare-element p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+.close-compare {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.close-compare:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
 /* 苹果音乐app风格任务栏 - 横向滑动按钮 */

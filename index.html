@@ -29,12 +29,13 @@
 
         /* 全局变量 */
         :root {
-            --primary-color: #2563eb;   /* 主色调：现代蓝 */
-            --secondary-color: #10b981; /* 辅助色：清新绿 */
-            --accent-color: #f59e0b;    /* 强调色：活力橙 */
-            --bg-gradient: linear-gradient(135deg, #748ffc 40%, #9775fa 60%);
-            --text-primary: #1f2937;    /* 主要文字色 */
-            --text-secondary: #6b7280;  /* 次要文字色 */
+            --primary-color: #0f766e;   /* 主色调：深青色 */
+            --secondary-color: #14b8a6; /* 辅助色：青绿色 */
+            --accent-color: #06b6d4;    /* 强调色：天蓝色 */
+            --bg-color: #0f172a;        /* 背景色：深蓝灰 */
+            --bg-gradient: linear-gradient(135deg, #0f172a 30%, #1e293b 50%, #334155 70%);
+            --text-primary: #f8fafc;    /* 主要文字色 */
+            --text-secondary: #cbd5e1;  /* 次要文字色 */
             --white: #ffffff;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -217,7 +218,7 @@
         .taskbar-btn {
             flex: 1;
             background: transparent;
-            color: var(--primary-color);
+            color: var(--white);
             padding: 14px 20px;
             text-decoration: none;
             border-radius: 24px;
@@ -234,7 +235,7 @@
         }
         
         .taskbar-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
         
@@ -266,10 +267,10 @@
         
         /* iOS风格进入网页按钮 */
         .enter-btn {
-            background: rgba(255, 255, 255, 0.3);
-            color: var(--primary-color);
+            background: rgba(15, 118, 110, 0.8);
+            color: var(--white);
             padding: 16px 40px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(20, 184, 166, 0.5);
             border-radius: 28px;
             font-size: 1.125rem;
             font-weight: 600;
@@ -283,9 +284,9 @@
         }
         
         .enter-btn:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(15, 118, 110, 0.9);
             transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(20, 184, 166, 0.8);
             box-shadow: 
                 0 12px 40px rgba(0, 0, 0, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.4);

@@ -68,7 +68,24 @@
             <button id="search-btn" class="search-btn">Search</button>
         </div>
         
+        <div class="view-toggle-container">
+            <button class="view-toggle-btn active" data-view="grid">Grid View</button>
+            <button class="view-toggle-btn" data-view="periodic">Periodic Table View</button>
+        </div>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="metal">Metal</button>
+            <button class="filter-btn" data-filter="nonmetal">Nonmetal</button>
+            <button class="filter-btn" data-filter="metalloid">Metalloid</button>
+            <button class="filter-btn" data-filter="noble-gas">Noble Gas</button>
+            <button class="filter-btn" data-filter="halogen">Halogen</button>
+            <button class="filter-btn" data-filter="alkali-metal">Alkali Metal</button>
+            <button class="filter-btn" data-filter="alkaline-earth-metal">Alkaline Earth Metal</button>
+        </div>
+        
         <div class="element-grid" id="element-list"></div>
+        <div class="periodic-table" id="periodic-table" style="display: none;"></div>
     </div>
 
     <!-- 页脚 -->
