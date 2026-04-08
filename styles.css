@@ -277,7 +277,7 @@ body {
 .element-link {
     background: rgba(255, 255, 255, 0.15);
     color: var(--white);
-    padding: 1rem;
+    padding: 1.5rem;
     text-decoration: none;
     border-radius: 24px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -290,13 +290,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    flex: 0 0 calc(16.666% - 0.75rem); /* 6列布局 */
+    gap: 0.75rem;
+    flex: 0 0 calc(20% - 0.75rem); /* 5列布局 */
     backdrop-filter: blur(25px);
-    min-width: 100px;
+    min-width: 120px;
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    height: 150px;
+    justify-content: center;
 }
 
 .element-number {
@@ -372,18 +374,41 @@ body {
     border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* 周期表容器 */
+.periodic-table-container {
+    overflow-x: auto;
+    margin: 2rem 0;
+}
+
+.periodic-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.periodic-table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.periodic-table-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.periodic-table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
 /* 周期表视图 */
 .periodic-table {
     display: grid;
     grid-template-columns: repeat(18, 1fr);
     gap: 4px;
-    margin: 2rem 0;
     padding: 1rem;
     background: rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
-    overflow-x: auto;
+    min-width: max-content;
 }
 
 .periodic-element {
@@ -1228,6 +1253,299 @@ html {
 .footer p {
     margin: 0;
     opacity: 0.9;
+}
+
+/* 首页样式 */
+.title-container {
+    position: relative;
+    overflow: hidden;
+    height: auto;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0;
+    padding: 0 20px;
+}
+
+.title-slide {
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateX(0);
+    text-align: center;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--white);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+.title-slide.slide-out {
+    opacity: 0;
+    transform: translateX(-50px);
+}
+
+.title-slide.slide-in {
+    opacity: 0;
+    transform: translateX(50px);
+}
+
+/* iOS风格液态玻璃任务栏 - 首页专用 */
+.home-apple-taskbar {
+    display: flex;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 40px;
+    padding: 12px;
+    margin: 40px 0;
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    min-width: 280px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.home-taskbar-btn {
+    flex: 1;
+    background: transparent;
+    color: var(--white);
+    padding: 14px 20px;
+    text-decoration: none;
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.home-taskbar-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* iOS风格滑动指示器 - 首页专用 */
+.home-slide-indicator {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: calc(50% - 12px);
+    height: calc(100% - 24px);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.home-slide-indicator.chinese {
+    transform: translateX(0);
+}
+
+.home-slide-indicator.english {
+    transform: translateX(100%);
+}
+
+/* iOS风格进入网页按钮 */
+.enter-btn {
+    background: rgba(15, 118, 110, 0.8);
+    color: var(--white);
+    padding: 16px 40px;
+    border: 1px solid rgba(20, 184, 166, 0.5);
+    border-radius: 28px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 30px auto;
+    display: block;
+    backdrop-filter: blur(25px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.enter-btn:hover {
+    background: rgba(15, 118, 110, 0.9);
+    transform: translateY(-3px);
+    border-color: rgba(20, 184, 166, 0.8);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 首页Logo样式 */
+.logo {
+    width: 150px;
+    height: auto;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+/* 首页响应式设计 */
+@media (max-width: 768px) {
+    .title-slide {
+        font-size: 2.5rem;
+    }
+    
+    .title-container {
+        height: auto;
+        min-height: 100px;
+        margin: 30px 0;
+        padding: 0 15px;
+    }
+    
+    .home-apple-taskbar {
+        min-width: 300px;
+        margin: 30px 0;
+        padding: 8px;
+    }
+    
+    .home-taskbar-btn {
+        padding: 16px 20px;
+        font-size: 1rem;
+    }
+    
+    .enter-btn {
+        padding: 14px 32px;
+        font-size: 1rem;
+        margin: 25px auto;
+    }
+    
+    .logo {
+        width: 100px;
+        right: 15px;
+        top: 15px;
+    }
+}
+
+/* Feedback 按钮样式 */
+.feedback-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 12px 32px;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.feedback-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 收藏夹页面样式 */
+.favorites-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2rem 0;
+    justify-content: center;
+}
+
+.favorite-card {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    text-align: center;
+    min-width: 250px;
+    backdrop-filter: blur(25px);
+}
+
+.favorite-card h3 {
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+.favorite-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.no-favorites {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 2rem 0;
+}
+
+@media (max-width: 480px) {
+    .title-slide {
+        font-size: 2rem;
+    }
+    
+    .title-container {
+        height: auto;
+        min-height: 80px;
+        margin: 20px 0;
+        padding: 0 10px;
+    }
+    
+    .home-apple-taskbar {
+        min-width: 240px;
+        padding: 6px;
+    }
+    
+    .home-taskbar-btn {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .enter-btn {
+        padding: 12px 28px;
+        font-size: 0.9375rem;
+        margin: 20px 0;
+    }
+    
+    .logo {
+        width: 80px;
+    }
+}
+
+@media (max-width: 360px) {
+    .title-slide {
+        font-size: 1.75rem;
+    }
+    
+    .title-container {
+        height: auto;
+        min-height: 70px;
+        margin: 15px 0;
+        padding: 0 10px;
+    }
 }
 
 /* 登录页面样式 */
