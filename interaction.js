@@ -523,7 +523,8 @@ const ChemistryWorld = {
                 // 检查是否已收藏
                 try {
                     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-                    if (favorites.includes(elementName)) {
+                    const isFavorited = favorites.some(item => item.name === elementName);
+                    if (isFavorited) {
                         favoriteBtn.classList.add('favorited');
                     }
                 } catch (e) {
@@ -534,14 +535,29 @@ const ChemistryWorld = {
                 favoriteBtn.addEventListener('click', () => {
                     try {
                         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+                        
+                        // 提取元素信息
+                        const elementInfo = {
+                            name: elementName,
+                            symbol: document.querySelector('.element-symbol')?.textContent || '',
+                            atomicNumber: parseInt(document.querySelector('.element-number')?.textContent || '0'),
+                            category: elementDetail.classList.contains('metal') ? 'metal' : 
+                                      elementDetail.classList.contains('nonmetal') ? 'nonmetal' : 
+                                      elementDetail.classList.contains('metalloid') ? 'metalloid' : 
+                                      elementDetail.classList.contains('noble-gas') ? 'noble-gas' : 
+                                      elementDetail.classList.contains('alkali-metal') ? 'alkali-metal' : 
+                                      elementDetail.classList.contains('alkaline-earth-metal') ? 'alkaline-earth-metal' : 
+                                      elementDetail.classList.contains('halogen') ? 'halogen' : 'other'
+                        };
+                        
                         if (favoriteBtn.classList.contains('favorited')) {
                             // 取消收藏
-                            favorites = favorites.filter(item => item !== elementName);
+                            favorites = favorites.filter(item => item.name !== elementName);
                             favoriteBtn.classList.remove('favorited');
                             ChemistryWorld.utils.showToast('已取消收藏', 1000);
                         } else {
                             // 添加收藏
-                            favorites.push(elementName);
+                            favorites.push(elementInfo);
                             favoriteBtn.classList.add('favorited');
                             ChemistryWorld.utils.showToast('已添加到收藏', 1000);
                         }

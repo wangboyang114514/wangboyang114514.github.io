@@ -114,7 +114,9 @@
                 "noble-gas": "稀有气体",
                 halogen: "卤素",
                 "alkali-metal": "碱金属",
-                "alkaline-earth-metal": "碱土金属"
+                "alkaline-earth-metal": "碱土金属",
+                "no-results": "无匹配结果",
+                "search-history": "搜索历史"
             },
             english: {
                 home: "Home",
@@ -130,8 +132,26 @@
                 "noble-gas": "Noble Gas",
                 halogen: "Halogen",
                 "alkali-metal": "Alkali Metal",
-                "alkaline-earth-metal": "Alkaline Earth Metal"
+                "alkaline-earth-metal": "Alkaline Earth Metal",
+                "no-results": "No matching results",
+                "search-history": "Search History"
             }
+        };
+
+        // 拼音映射表（用于拼音搜索）
+        const pinyinMap = {
+            '氢': 'qing', '氦': 'hai', '锂': 'li', '铍': 'pi', '硼': 'peng', '碳': 'tan', '氮': 'dan', '氧': 'yang', '氟': 'fu', '氖': 'nai',
+            '钠': 'na', '镁': 'mei', '铝': 'lv', '硅': 'gui', '磷': 'lin', '硫': 'liu', '氯': 'lv', '氩': 'ya', '钾': 'jia', '钙': 'gai',
+            '钪': 'kang', '钛': 'tai', '钒': 'fan', '铬': 'ge', '锰': 'meng', '铁': 'tie', '钴': 'gu', '镍': 'nie', '铜': 'tong', '锌': 'xin',
+            '镓': 'jia', '锗': 'zhe', '砷': 'shen', '硒': 'xi', '溴': 'xiu', '氪': 'ke', '铷': 'ru', '锶': 'si', '钇': 'yi', '锆': 'gao',
+            '铌': 'ni', '钼': 'mu', '锝': 'de', '钌': 'liao', '铑': 'lao', '钯': 'ba', '银': 'yin', '镉': 'ge', '铟': 'yin', '锡': 'xi',
+            '锑': 'ti', '碲': 'di', '碘': 'dian', '氙': 'xian', '铯': 'se', '钡': 'bei', '镧': 'lan', '铈': 'shi', '镨': 'pu', '钕': 'nv',
+            '钷': 'po', '钐': 'shan', '铕': 'you', '钆': 'ga', '铽': 'te', '镝': 'di', '钬': 'huo', '铒': 'er', '铥': 'diu', '镱': 'yi',
+            '镥': 'lu', '铪': 'ha', '钽': 'tan', '钨': 'wu', '铼': 'lai', '锇': 'e', '铱': 'yi', '铂': 'bo', '金': 'jin', '汞': 'gong',
+            '铊': 'ta', '铅': 'qian', '铋': 'bi', '钋': 'po', '砹': 'ai', '氡': 'dong', '钫': 'fang', '镭': 'lei', '锕': 'a', '钍': 'tu',
+            '镤': 'pu', '铀': 'you', '镎': 'na', '钚': 'bu', '镅': 'mei', '锔': 'ju', '锫': 'pei', '锎': 'kai', '锿': 'ai', '镄': 'fei',
+            '钔': 'men', '锘': 'nuo', '铹': 'lao', '𬬻': 'lu', '𬭊': 'du', '𬭳': 'xi', '𬭛': 'bo', '𬭶': 'hei', '鿏': 'mai', '𫟼': 'dao',
+            '𬬭': 'lun', '鿔': 'ge', '鿭': 'na', '𫓧': 'fu', '镆': 'mo', '𫟷': 'li', '鿬': 'tian', '鿫': 'ao'
         };
 
         // 元素数据
@@ -469,26 +489,99 @@
             // 搜索功能
             const searchBox = document.getElementById('search-box');
             const searchBtn = document.getElementById('search-btn');
-            if (searchBox && searchBtn) {
+            const elementList = document.getElementById('element-list');
+            if (searchBox && searchBtn && elementList) {
+                // 搜索历史
+                function getSearchHistory() {
+                    try {
+                        return JSON.parse(localStorage.getItem('searchHistory') || '[]');
+                    } catch (e) {
+                        console.error('Error getting search history:', e);
+                        return [];
+                    }
+                }
+
+                function addToSearchHistory(term) {
+                    if (!term) return;
+                    try {
+                        let history = getSearchHistory();
+                        // 移除重复项
+                        history = history.filter(item => item !== term);
+                        // 添加到开头
+                        history.unshift(term);
+                        // 保留最近5次搜索
+                        history = history.slice(0, 5);
+                        localStorage.setItem('searchHistory', JSON.stringify(history));
+                    } catch (e) {
+                        console.error('Error adding to search history:', e);
+                    }
+                }
+
+                // 高亮匹配结果
+                function highlightText(text, searchTerm) {
+                    if (!searchTerm) return text;
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    return text.replace(regex, '<span class="highlight">$1</span>');
+                }
+
+                // 检查拼音匹配
+                function matchesPinyin(elementName, searchTerm) {
+                    if (currentLang !== 'chinese') return false;
+                    const pinyin = pinyinMap[elementName] || '';
+                    return pinyin.includes(searchTerm) || 
+                           pinyin.split('').map(char => char[0]).join('').includes(searchTerm); // 首字母匹配
+                }
+
                 function searchElements() {
                     const searchTerm = searchBox.value.toLowerCase().trim();
                     const elementLinks = document.querySelectorAll('.element-link');
+                    let hasResults = false;
+
+                    // 保存搜索历史
+                    if (searchTerm) {
+                        addToSearchHistory(searchTerm);
+                    }
 
                     elementLinks.forEach(link => {
-                        const elementName = link.textContent.toLowerCase().trim();
+                        const elementName = link.querySelector('.element-name').textContent;
                         const elementSymbol = link.querySelector('.element-symbol').textContent.toLowerCase().trim();
                         const elementNumber = link.querySelector('.element-number').textContent.trim();
 
-                        const matchesSearch = elementName.includes(searchTerm) || 
-                                           elementSymbol.includes(searchTerm) || 
-                                           elementNumber.includes(searchTerm);
+                        const matchesName = elementName.toLowerCase().includes(searchTerm);
+                        const matchesSymbol = elementSymbol.includes(searchTerm);
+                        const matchesNumber = elementNumber.includes(searchTerm);
+                        const matchesPinyinResult = matchesPinyin(elementName, searchTerm);
+
+                        const matchesSearch = matchesName || matchesSymbol || matchesNumber || matchesPinyinResult;
 
                         if (matchesSearch) {
                             link.style.display = 'flex';
+                            hasResults = true;
+                            
+                            // 高亮匹配结果
+                            if (searchTerm) {
+                                link.querySelector('.element-name').innerHTML = highlightText(elementName, searchTerm);
+                                link.querySelector('.element-symbol').innerHTML = highlightText(link.querySelector('.element-symbol').textContent, searchTerm);
+                                link.querySelector('.element-number').innerHTML = highlightText(link.querySelector('.element-number').textContent, searchTerm);
+                            }
                         } else {
                             link.style.display = 'none';
                         }
                     });
+
+                    // 显示无结果提示
+                    const noResultsElement = document.getElementById('no-results');
+                    if (noResultsElement) {
+                        noResultsElement.remove();
+                    }
+
+                    if (!hasResults && searchTerm) {
+                        const noResults = document.createElement('div');
+                        noResults.id = 'no-results';
+                        noResults.className = 'no-results';
+                        noResults.textContent = translations[currentLang]['no-results'] || '无匹配结果';
+                        elementList.parentNode.insertBefore(noResults, elementList.nextSibling);
+                    }
                 }
 
                 searchBtn.addEventListener('click', searchElements);
@@ -496,6 +589,48 @@
                 searchBox.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         searchElements();
+                    }
+                });
+
+                // 搜索历史提示
+                searchBox.addEventListener('focus', () => {
+                    const history = getSearchHistory();
+                    if (history.length > 0) {
+                        const historyElement = document.createElement('div');
+                        historyElement.className = 'search-history';
+                        historyElement.id = 'search-history';
+                        
+                        historyElement.innerHTML = `
+                            <div class="history-title">${translations[currentLang]['search-history'] || '搜索历史'}</div>
+                            <ul>
+                                ${history.map(term => `<li>${term}</li>`).join('')}
+                            </ul>
+                        `;
+                        
+                        // 移除已存在的历史提示
+                        const existingHistory = document.getElementById('search-history');
+                        if (existingHistory) {
+                            existingHistory.remove();
+                        }
+                        
+                        searchBox.parentNode.appendChild(historyElement);
+                        
+                        // 点击历史项
+                        historyElement.querySelectorAll('li').forEach(item => {
+                            item.addEventListener('click', () => {
+                                searchBox.value = item.textContent;
+                                searchElements();
+                                historyElement.remove();
+                            });
+                        });
+                    }
+                });
+
+                // 点击其他地方关闭历史提示
+                document.addEventListener('click', (e) => {
+                    const historyElement = document.getElementById('search-history');
+                    if (historyElement && !searchBox.contains(e.target) && !historyElement.contains(e.target)) {
+                        historyElement.remove();
                     }
                 });
             }
