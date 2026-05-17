@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>𬭳(Sg)</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../interaction.js"></script>
     <style>
-        /* 页面进入动画 */
         body {
             opacity: 0;
             transform: translateY(50px);
@@ -20,7 +20,6 @@
             }
         }
         
-        /* 导航栏和内容的延迟动画 */
         .navbar {
             animation: fadeInUp 0.5s ease-out 0.1s forwards;
             opacity: 0;
@@ -33,10 +32,8 @@
             transform: translateY(50px);
         }
     </style>
-    <script src="../interaction.js"></script>
-
+</head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
             <a href="../index.html" class="site-title">
@@ -55,49 +52,127 @@
         </div>
     </nav>
 
-    <!-- 主要内容 -->
     <div class="container">
         <div class="element-detail">
             <h1>𬭳 (Sg)</h1>
             
+            <div class="element-header">
+                <div class="element-image">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=𬭳_element_Sg_visualization_scientific&image_size=square_hd" alt="𬭳元素">
+                </div>
+                
+                <div class="element-basic-info">
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>原子序数</h3>
+                            <p>106</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>原子量</h3>
+                            <p>103.0 g/mol</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>元素符号</h3>
+                            <p>Sg</p>
+                        </div>
+                    </div>
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>分类</h3>
+                            <p>过渡金属</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>族</h3>
+                            <p>16</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>周期</h3>
+                            <p>7</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="element-info">
                 <div class="info-card">
-                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                    <h3>物理性质</h3>
+                    <p><strong>状态：</strong>固体</p>
+                    <p><strong>熔点：</strong>未知</p>
+                    <p><strong>沸点：</strong>未知</p>
+                    <p><strong>密度：</strong>未知</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>分子式：</strong>Sg</p>
-                    <p><strong>分子量：</strong>271.0 g/mol</p>
+                    <h3>化学性质</h3>
+                    <p><strong>电子构型：</strong>未知</p>
+                    <p><strong>电负性：</strong>未知</p>
+                    <p><strong>氧化态：</strong>未知</p>
+                    <p><strong>反应性：</strong>中等</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>CAS号：</strong>无CAS号</p>
-                    <p><strong>同义词：</strong>无同义词</p>
+                    <h3>发现与用途</h3>
+                    <p><strong>发现者：</strong>未知</p>
+                    <p><strong>发现年份：</strong>未知</p>
+                    <p><strong>主要用途：</strong>研究用途</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>创建日期：</strong>2024-01-01</p>
+                    <h3>安全信息</h3>
+                    <p><strong>危险类别：</strong>放射性</p>
+                    <p><strong>CAS号：</strong>未知</p>
                 </div>
             </div>
             
             <div class="element-description">
                 <h3>描述</h3>
-                <p>半衰期为0.9±0.2秒。1974年6月由苏联杜布纳联合核研究所发现。1974年9月，劳伦斯伯克利实验室和利弗莫尔国家实验室证实了其存在。</p>
+                <p>𬭳是元素周期表中第106号元素，属于过渡金属。</p>
+            </div>
+            
+            <div class="element-properties">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>性质</th>
+                            <th>数值</th>
+                            <th>单位</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>共价半径</td>
+                            <td>未知</td>
+                            <td>pm</td>
+                        </tr>
+                        <tr>
+                            <td>第一电离能</td>
+                            <td>未知</td>
+                            <td>eV</td>
+                        </tr>
+                        <tr>
+                            <td>电子亲和能</td>
+                            <td>未知</td>
+                            <td>kJ/mol</td>
+                        </tr>
+                        <tr>
+                            <td>热导率</td>
+                            <td>未知</td>
+                            <td>W/(m·K)</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
     <footer class="footer">
         <p>&copy; 2024 Chemistry World. All rights reserved.</p>
     </footer>
 
     <script>
-        // 汉堡菜单功能
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.querySelector('.nav-links');
-
-        menuToggle.addEventListener('click', () => {
+        menuToggle.addEventListener('click', function() {
             navLinks.classList.toggle('active');
         });
     </script>

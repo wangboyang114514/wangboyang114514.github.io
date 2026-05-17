@@ -250,16 +250,9 @@ const ChemistryWorld = {
                 }
             }, 200));
             
-            // 页面加载时恢复滚动位置
+            // 页面加载时滚动到顶部
             window.addEventListener('load', () => {
-                try {
-                    const savedPosition = localStorage.getItem('scrollPosition');
-                    if (savedPosition) {
-                        window.scrollTo(0, parseInt(savedPosition));
-                    }
-                } catch (e) {
-                    console.error('LocalStorage error:', e);
-                }
+                window.scrollTo(0, 0);
             });
         },
         

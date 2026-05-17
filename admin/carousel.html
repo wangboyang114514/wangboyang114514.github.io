@@ -83,8 +83,18 @@
                 </div>
                 <div class="form-group">
                     <label for="carousel-image">轮播图图片</label>
-                    <input type="text" id="carousel-image" placeholder="请输入图片URL">
+                    <div class="image-upload-container">
+                        <input type="text" id="carousel-image" placeholder="请输入图片URL或选择本地图片" style="flex: 1;">
+                        <label class="btn btn-secondary upload-btn">
+                            <span>📁</span> 选择图片
+                            <input type="file" id="image-file-input" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
                     <img id="image-preview" class="image-preview" src="" alt="" style="display: none;">
+                    <div id="image-base64-container" style="display: none;">
+                        <input type="hidden" id="carousel-image-base64">
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">图片已转换为Base64格式存储</p>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="carousel-link">跳转链接</label>
@@ -128,6 +138,9 @@
                 document.getElementById('modal-title').textContent = '添加轮播图';
                 document.getElementById('carousel-form').reset();
                 document.getElementById('image-preview').style.display = 'none';
+                document.getElementById('image-base64-container').style.display = 'none';
+                document.getElementById('carousel-image-base64').value = '';
+                document.getElementById('image-file-input').value = '';
                 document.getElementById('carousel-modal').classList.add('active');
             });
             
@@ -147,8 +160,34 @@
                 if (url) {
                     preview.src = url;
                     preview.style.display = 'block';
+                    document.getElementById('image-base64-container').style.display = 'none';
+                    document.getElementById('carousel-image-base64').value = '';
                 } else {
                     preview.style.display = 'none';
+                }
+            });
+            
+            // 本地图片上传处理
+            document.getElementById('image-file-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // 检查文件大小（限制5MB）
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('图片大小不能超过5MB');
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const base64 = event.target.result;
+                        document.getElementById('carousel-image').value = base64;
+                        document.getElementById('carousel-image-base64').value = base64;
+                        document.getElementById('image-preview').src = base64;
+                        document.getElementById('image-preview').style.display = 'block';
+                        document.getElementById('image-base64-container').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
             
@@ -207,6 +246,14 @@
                 if (item.image) {
                     preview.src = item.image;
                     preview.style.display = 'block';
+                    // 检查是否是Base64图片
+                    if (item.image.startsWith('data:image')) {
+                        document.getElementById('image-base64-container').style.display = 'block';
+                        document.getElementById('carousel-image-base64').value = item.image;
+                    } else {
+                        document.getElementById('image-base64-container').style.display = 'none';
+                        document.getElementById('carousel-image-base64').value = '';
+                    }
                 }
                 
                 document.getElementById('carousel-modal').classList.add('active');

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>铍(Be)</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../interaction.js"></script>
     <style>
-        /* 页面进入动画 */
         body {
             opacity: 0;
             transform: translateY(50px);
@@ -20,7 +20,6 @@
             }
         }
         
-        /* 导航栏和内容的延迟动画 */
         .navbar {
             animation: fadeInUp 0.5s ease-out 0.1s forwards;
             opacity: 0;
@@ -33,10 +32,8 @@
             transform: translateY(50px);
         }
     </style>
-    <script src="../interaction.js"></script>
-
+</head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
             <a href="../index.html" class="site-title">
@@ -55,49 +52,127 @@
         </div>
     </nav>
 
-    <!-- 主要内容 -->
     <div class="container">
         <div class="element-detail">
             <h1>铍 (Be)</h1>
             
+            <div class="element-header">
+                <div class="element-image">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=铍_element_Be_visualization_scientific&image_size=square_hd" alt="铍元素">
+                </div>
+                
+                <div class="element-basic-info">
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>原子序数</h3>
+                            <p>4</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>原子量</h3>
+                            <p>9.0122 g/mol</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>元素符号</h3>
+                            <p>Be</p>
+                        </div>
+                    </div>
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>分类</h3>
+                            <p>碱土金属</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>族</h3>
+                            <p>2</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>周期</h3>
+                            <p>2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="element-info">
                 <div class="info-card">
-                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                    <h3>物理性质</h3>
+                    <p><strong>状态：</strong>固体</p>
+                    <p><strong>熔点：</strong>1287°C</p>
+                    <p><strong>沸点：</strong>2469°C</p>
+                    <p><strong>密度：</strong>1.85 g/cm³</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>分子式：</strong>Be</p>
-                    <p><strong>分子量：</strong>9.0121831 g/mol</p>
+                    <h3>化学性质</h3>
+                    <p><strong>电子构型：</strong>[He] 2s²</p>
+                    <p><strong>电负性：</strong>1.57</p>
+                    <p><strong>氧化态：</strong>+2</p>
+                    <p><strong>反应性：</strong>中等</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>CAS号：</strong>无CAS号</p>
-                    <p><strong>同义词：</strong>无同义词</p>
+                    <h3>发现与用途</h3>
+                    <p><strong>发现者：</strong>弗雷德里希·维勒</p>
+                    <p><strong>发现年份：</strong>1828</p>
+                    <p><strong>主要用途：</strong>航空航天材料、核反应堆</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>创建日期：</strong>2024-01-01</p>
+                    <h3>安全信息</h3>
+                    <p><strong>危险类别：</strong>致癌物</p>
+                    <p><strong>CAS号：</strong>7440-41-7</p>
                 </div>
             </div>
             
             <div class="element-description">
                 <h3>描述</h3>
-                <p>元素周期表第2族的灰色金属元素。有毒，可引起严重的肺部疾病和皮炎。具有高度的共价性。1828年由F·沃勒和A·A·比西独立分离。</p>
+                <p>铍是一种轻质、坚硬的灰色金属。</p>
+            </div>
+            
+            <div class="element-properties">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>性质</th>
+                            <th>数值</th>
+                            <th>单位</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>共价半径</td>
+                            <td>90</td>
+                            <td>pm</td>
+                        </tr>
+                        <tr>
+                            <td>第一电离能</td>
+                            <td>9.3227</td>
+                            <td>eV</td>
+                        </tr>
+                        <tr>
+                            <td>电子亲和能</td>
+                            <td>0</td>
+                            <td>kJ/mol</td>
+                        </tr>
+                        <tr>
+                            <td>热导率</td>
+                            <td>200</td>
+                            <td>W/(m·K)</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
     <footer class="footer">
         <p>&copy; 2024 Chemistry World. All rights reserved.</p>
     </footer>
 
     <script>
-        // 汉堡菜单功能
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.querySelector('.nav-links');
-
-        menuToggle.addEventListener('click', () => {
+        menuToggle.addEventListener('click', function() {
             navLinks.classList.toggle('active');
         });
     </script>

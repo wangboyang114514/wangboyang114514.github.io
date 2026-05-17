@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>铬(Cr)</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../interaction.js"></script>
     <style>
-        /* 页面进入动画 */
         body {
             opacity: 0;
             transform: translateY(50px);
@@ -20,7 +20,6 @@
             }
         }
         
-        /* 导航栏和内容的延迟动画 */
         .navbar {
             animation: fadeInUp 0.5s ease-out 0.1s forwards;
             opacity: 0;
@@ -33,10 +32,8 @@
             transform: translateY(50px);
         }
     </style>
-    <script src="../interaction.js"></script>
-
+</head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
             <a href="../index.html" class="site-title">
@@ -55,49 +52,127 @@
         </div>
     </nav>
 
-    <!-- 主要内容 -->
     <div class="container">
         <div class="element-detail">
             <h1>铬 (Cr)</h1>
             
+            <div class="element-header">
+                <div class="element-image">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=铬_element_Cr_visualization_scientific&image_size=square_hd" alt="铬元素">
+                </div>
+                
+                <div class="element-basic-info">
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>原子序数</h3>
+                            <p>24</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>原子量</h3>
+                            <p>52.00 g/mol</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>元素符号</h3>
+                            <p>Cr</p>
+                        </div>
+                    </div>
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>分类</h3>
+                            <p>金属</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>族</h3>
+                            <p>6</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>周期</h3>
+                            <p>4</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="element-info">
                 <div class="info-card">
-                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                    <h3>物理性质</h3>
+                    <p><strong>状态：</strong>固体</p>
+                    <p><strong>熔点：</strong>1907°C</p>
+                    <p><strong>沸点：</strong>2671°C</p>
+                    <p><strong>密度：</strong>7.15 g/cm³</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>分子式：</strong>Cr</p>
-                    <p><strong>分子量：</strong>51.9961 g/mol</p>
+                    <h3>化学性质</h3>
+                    <p><strong>电子构型：</strong>[Ar] 3d⁵ 4s¹</p>
+                    <p><strong>电负性：</strong>1.66</p>
+                    <p><strong>氧化态：</strong>+2, +3, +6</p>
+                    <p><strong>反应性：</strong>中等</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>CAS号：</strong>无CAS号</p>
-                    <p><strong>同义词：</strong>无同义词</p>
+                    <h3>发现与用途</h3>
+                    <p><strong>发现者：</strong>路易·沃克兰</p>
+                    <p><strong>发现年份：</strong>1797</p>
+                    <p><strong>主要用途：</strong>不锈钢、电镀</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>创建日期：</strong>2024-01-01</p>
+                    <h3>安全信息</h3>
+                    <p><strong>危险类别：</strong>致癌物</p>
+                    <p><strong>CAS号：</strong>7440-47-3</p>
                 </div>
             </div>
             
             <div class="element-description">
                 <h3>描述</h3>
-                <p>坚硬的银白色过渡元素。用于装饰性电镀。1797年由沃克兰发现。</p>
+                <p>铬是一种坚硬的银白色金属。</p>
+            </div>
+            
+            <div class="element-properties">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>性质</th>
+                            <th>数值</th>
+                            <th>单位</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>共价半径</td>
+                            <td>127</td>
+                            <td>pm</td>
+                        </tr>
+                        <tr>
+                            <td>第一电离能</td>
+                            <td>6.7665</td>
+                            <td>eV</td>
+                        </tr>
+                        <tr>
+                            <td>电子亲和能</td>
+                            <td>64.3</td>
+                            <td>kJ/mol</td>
+                        </tr>
+                        <tr>
+                            <td>热导率</td>
+                            <td>93.7</td>
+                            <td>W/(m·K)</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
     <footer class="footer">
         <p>&copy; 2024 Chemistry World. All rights reserved.</p>
     </footer>
 
     <script>
-        // 汉堡菜单功能
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.querySelector('.nav-links');
-
-        menuToggle.addEventListener('click', () => {
+        menuToggle.addEventListener('click', function() {
             navLinks.classList.toggle('active');
         });
     </script>

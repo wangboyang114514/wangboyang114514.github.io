@@ -46,12 +46,12 @@ const AdminSystem = {
 
     users: null,
 
-    login(_0x4d5e, _0x6e7f, _0x8g9h) {
+    login(_0x4d5e, _0x6e7f) {
         if (!this.users) {
             this.users = this.getUsers();
         }
         const _0xa1b2 = this.users[_0x4d5e];
-        if (_0xa1b2 && _0xa1b2.password === _0x6e7f && _0xa1b2.role === _0x8g9h) {
+        if (_0xa1b2 && _0xa1b2.password === _0x6e7f) {
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('adminUser', JSON.stringify({
                 username: _0xa1b2.username,
@@ -151,6 +151,33 @@ const AdminSystem = {
                 { key: 'edit', name: '编辑权限' },
                 { key: 'delete', name: '删除权限' }
             ];
+        },
+
+        // 创建访客用户
+        createUser(username, password) {
+            const users = AdminSystem.getUsers();
+            if (users[username]) {
+                return false;
+            }
+            users[username] = {
+                username: username,
+                password: password,
+                role: 'visitor',
+                permissions: ['carousel', 'notice']
+            };
+            AdminSystem.saveUsers(users);
+            return true;
+        },
+
+        // 删除用户
+        deleteUser(username) {
+            const users = AdminSystem.getUsers();
+            if (users[username] && users[username].role !== 'admin') {
+                delete users[username];
+                AdminSystem.saveUsers(users);
+                return true;
+            }
+            return false;
         }
     },
 

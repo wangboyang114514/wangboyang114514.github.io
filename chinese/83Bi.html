@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>铋(Bi)</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../interaction.js"></script>
     <style>
-        /* 页面进入动画 */
         body {
             opacity: 0;
             transform: translateY(50px);
@@ -20,7 +20,6 @@
             }
         }
         
-        /* 导航栏和内容的延迟动画 */
         .navbar {
             animation: fadeInUp 0.5s ease-out 0.1s forwards;
             opacity: 0;
@@ -33,10 +32,8 @@
             transform: translateY(50px);
         }
     </style>
-    <script src="../interaction.js"></script>
-
+</head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
             <a href="../index.html" class="site-title">
@@ -55,49 +52,127 @@
         </div>
     </nav>
 
-    <!-- 主要内容 -->
     <div class="container">
         <div class="element-detail">
             <h1>铋 (Bi)</h1>
             
+            <div class="element-header">
+                <div class="element-image">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=铋_element_Bi_visualization_scientific&image_size=square_hd" alt="铋元素">
+                </div>
+                
+                <div class="element-basic-info">
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>原子序数</h3>
+                            <p>83</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>原子量</h3>
+                            <p>91.5 g/mol</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>元素符号</h3>
+                            <p>Bi</p>
+                        </div>
+                    </div>
+                    <div class="basic-info-row">
+                        <div class="basic-info-card">
+                            <h3>分类</h3>
+                            <p>金属</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>族</h3>
+                            <p>11</p>
+                        </div>
+                        <div class="basic-info-card">
+                            <h3>周期</h3>
+                            <p>6</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="element-info">
                 <div class="info-card">
-                    <p><strong>危险类别：</strong>无特殊危害信息</p>
+                    <h3>物理性质</h3>
+                    <p><strong>状态：</strong>固体</p>
+                    <p><strong>熔点：</strong>未知</p>
+                    <p><strong>沸点：</strong>未知</p>
+                    <p><strong>密度：</strong>未知</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>分子式：</strong>Bi</p>
-                    <p><strong>分子量：</strong>208.9804 g/mol</p>
+                    <h3>化学性质</h3>
+                    <p><strong>电子构型：</strong>未知</p>
+                    <p><strong>电负性：</strong>未知</p>
+                    <p><strong>氧化态：</strong>未知</p>
+                    <p><strong>反应性：</strong>中等</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>CAS号：</strong>无CAS号</p>
-                    <p><strong>同义词：</strong>无同义词</p>
+                    <h3>发现与用途</h3>
+                    <p><strong>发现者：</strong>未知</p>
+                    <p><strong>发现年份：</strong>未知</p>
+                    <p><strong>主要用途：</strong>研究用途</p>
                 </div>
 
                 <div class="info-card">
-                    <p><strong>创建日期：</strong>2024-01-01</p>
+                    <h3>安全信息</h3>
+                    <p><strong>危险类别：</strong>无特殊危害</p>
+                    <p><strong>CAS号：</strong>未知</p>
                 </div>
             </div>
             
             <div class="element-description">
                 <h3>描述</h3>
-                <p>带有粉红色调的白色结晶金属，属于第15族。是所有金属中最具抗磁性的，除汞外，其热导率是所有元素中最低的。无铅铋化合物用于化妆品和医疗程序。在空气中燃烧并产生蓝色火焰。1753年，C.G.朱宁首次证明它与铅不同。</p>
+                <p>铋是元素周期表中第83号元素，属于金属。</p>
+            </div>
+            
+            <div class="element-properties">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>性质</th>
+                            <th>数值</th>
+                            <th>单位</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>共价半径</td>
+                            <td>未知</td>
+                            <td>pm</td>
+                        </tr>
+                        <tr>
+                            <td>第一电离能</td>
+                            <td>未知</td>
+                            <td>eV</td>
+                        </tr>
+                        <tr>
+                            <td>电子亲和能</td>
+                            <td>未知</td>
+                            <td>kJ/mol</td>
+                        </tr>
+                        <tr>
+                            <td>热导率</td>
+                            <td>未知</td>
+                            <td>W/(m·K)</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
     <footer class="footer">
         <p>&copy; 2024 Chemistry World. All rights reserved.</p>
     </footer>
 
     <script>
-        // 汉堡菜单功能
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.querySelector('.nav-links');
-
-        menuToggle.addEventListener('click', () => {
+        menuToggle.addEventListener('click', function() {
             navLinks.classList.toggle('active');
         });
     </script>

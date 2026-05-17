@@ -498,6 +498,26 @@ body {
     object-fit: cover;
 }
 
+/* 图片上传容器 */
+.image-upload-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.image-upload-container input[type="text"] {
+    flex: 1;
+}
+
+/* 上传按钮 */
+.upload-btn {
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* 拖拽排序 */
 .sortable-item {
     cursor: move;

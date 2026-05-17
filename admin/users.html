@@ -40,6 +40,9 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>用户列表</h2>
+                        <button id="add-user-btn" class="btn btn-primary" style="display: none;">
+                            <span>+</span> 创建访客账号
+                        </button>
                     </div>
                     <div class="card-body">
                         <div id="user-list" class="user-list">
@@ -116,6 +119,34 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 创建用户弹窗 -->
+                <div id="create-user-modal" class="modal-overlay" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3>创建访客账号</h3>
+                            <button class="modal-close" onclick="closeCreateUserModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="create-username">用户名</label>
+                                <input type="text" id="create-username" placeholder="请输入用户名" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="create-password">密码</label>
+                                <input type="password" id="create-password" placeholder="请输入密码" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="create-confirm-password">确认密码</label>
+                                <input type="password" id="create-confirm-password" placeholder="请再次输入密码" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" onclick="closeCreateUserModal()">取消</button>
+                            <button class="btn btn-primary" onclick="createUser()">创建</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -129,6 +160,12 @@
             AdminSystem.init();
             loadUserList();
             updateUserInfo();
+
+            // 管理员显示创建用户按钮
+            if (AdminSystem.isAdmin()) {
+                document.getElementById('add-user-btn').style.display = 'inline-flex';
+                document.getElementById('add-user-btn').addEventListener('click', openCreateUserModal);
+            }
         });
 
         // 更新用户信息显示
@@ -176,6 +213,7 @@
                                 <button class="action-btn edit-btn" onclick="openUsernameModal('${user.username}')">修改用户名</button>
                                 <button class="action-btn password-btn" onclick="openPasswordModal('${user.username}')">修改密码</button>
                                 ${user.role !== 'admin' ? `<button class="action-btn permission-btn" onclick="openPermissionModal('${user.username}')">设置权限</button>` : ''}
+                                ${user.role !== 'admin' ? `<button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">删除账号</button>` : ''}
                             ` : key === currentUser.username ? `
                                 <button class="action-btn edit-btn" onclick="openUsernameModal('${user.username}')">修改用户名</button>
                                 <button class="action-btn password-btn" onclick="openPasswordModal('${user.username}')">修改密码</button>
@@ -310,6 +348,61 @@
                 loadUserList();
             } else {
                 alert('权限设置失败！');
+            }
+        }
+
+        // 打开创建用户弹窗
+        function openCreateUserModal() {
+            document.getElementById('create-username').value = '';
+            document.getElementById('create-password').value = '';
+            document.getElementById('create-confirm-password').value = '';
+            document.getElementById('create-user-modal').style.display = 'flex';
+        }
+
+        // 关闭创建用户弹窗
+        function closeCreateUserModal() {
+            document.getElementById('create-user-modal').style.display = 'none';
+        }
+
+        // 删除用户
+        function deleteUser(username) {
+            if (confirm(`确定要删除访客账号"${username}"吗？此操作不可恢复！`)) {
+                if (AdminSystem.userManagement.deleteUser(username)) {
+                    alert('账号删除成功！');
+                    loadUserList();
+                } else {
+                    alert('删除失败！');
+                }
+            }
+        }
+
+        // 创建用户
+        function createUser() {
+            const username = document.getElementById('create-username').value.trim();
+            const password = document.getElementById('create-password').value;
+            const confirmPassword = document.getElementById('create-confirm-password').value;
+
+            if (!username) {
+                alert('用户名不能为空！');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('密码长度不能少于6位！');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致！');
+                return;
+            }
+
+            if (AdminSystem.userManagement.createUser(username, password)) {
+                alert('访客账号创建成功！');
+                closeCreateUserModal();
+                loadUserList();
+            } else {
+                alert('创建失败，用户名可能已存在！');
             }
         }
     </script>
