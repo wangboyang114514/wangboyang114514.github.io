@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 主页</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>化学世界管理</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html" class="active">管理首页</a></li>
+                <li><a href="carousel.html">轮播图管理</a></li>
+                <li><a href="notice.html">公告管理</a></li>
+                <li><a href="users.html">用户管理</a></li>
+                <li><a href="stats.html">访客统计</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="logout-btn">退出登录</button>
+            </div>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">管理首页</h1>
+                <div class="user-info">
+                    <span id="user-role" class="user-role"></span>
+                </div>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="carousel-count">0</div>
+                    <div class="stat-label">轮播图数量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="notice-count">0</div>
+                    <div class="stat-label">公告数量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-carousel">0</div>
+                    <div class="stat-label">启用轮播图</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-notice">0</div>
+                    <div class="stat-label">启用公告</div>
+                </div>
+            </div>
+            
+            <!-- 快捷操作 -->
+            <div class="quick-actions">
+                <h2>快捷操作</h2>
+                <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                    <a href="carousel.html" class="btn btn-primary">
+                        <span>+</span> 添加轮播图
+                    </a>
+                    <a href="notice.html" class="btn btn-primary">
+                        <span>+</span> 添加公告
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 权限提示 -->
+            <div class="permission-tip" style="margin-top: 30px; padding: 20px; background: rgba(20, 184, 166, 0.1); border-radius: 15px; border: 1px solid rgba(20, 184, 166, 0.3);">
+                <h3 style="color: var(--secondary-color); margin-bottom: 10px;">权限说明</h3>
+                <ul style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 20px;">
+                    <li><strong>超级管理员：</strong>拥有全部权限，可以添加、编辑、删除轮播图和公告</li>
+                    <li><strong>访客（只读）：</strong>仅能查看数据，无法进行编辑操作</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // 页面加载完成后更新统计数据
+        document.addEventListener('DOMContentLoaded', () => {
+            // 更新用户角色显示
+            const user = AdminSystem.getCurrentUser();
+            const roleElement = document.getElementById('user-role');
+            if (user) {
+                roleElement.textContent = user.role === 'admin' ? '超级管理员' : '访客';
+            }
+            
+            // 更新轮播图统计
+            const carouselList = AdminSystem.carousel.getList();
+            document.getElementById('carousel-count').textContent = carouselList.length;
+            document.getElementById('active-carousel').textContent = carouselList.filter(item => item.status === 1).length;
+            
+            // 更新公告统计
+            const noticeList = AdminSystem.notice.getList();
+            document.getElementById('notice-count').textContent = noticeList.length;
+            document.getElementById('active-notice').textContent = noticeList.filter(item => item.status === 1).length;
+        });
+    </script>
+</body>
+</html>

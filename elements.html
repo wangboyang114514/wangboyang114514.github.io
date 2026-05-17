@@ -7,6 +7,32 @@
     <link rel="stylesheet" href="styles.css">
     <script src="interaction.js"></script>
     <style>
+        /* 跑马灯样式 */
+        .marquee-container {
+            background: var(--glass-bg);
+            padding: 10px 0;
+            overflow: hidden;
+            border-bottom: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .marquee-content {
+            white-space: nowrap;
+            animation: marquee-scroll 30s linear infinite;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @keyframes marquee-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
         /* 页面进入动画 */
         body {
             opacity: 0;
@@ -36,6 +62,11 @@
     </style>
 </head>
 <body>
+    <!-- 跑马灯公告 -->
+    <div id="marquee-container" class="marquee-container">
+        <div class="marquee-content" id="marquee-content">欢迎来到化学世界！探索元素的奥秘。</div>
+    </div>
+    
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="container">
@@ -402,11 +433,85 @@
         let currentLang = 'chinese';
         let currentElements = elementsData[currentLang];
 
+        // 加载跑马灯公告
+        function loadMarqueeNotice() {
+            const data = localStorage.getItem('noticeList');
+            let notices = [];
+            if (data) {
+                notices = JSON.parse(data).filter(item => item.type === 'marquee' && item.status === 1);
+            }
+            
+            // 如果没有公告，使用默认公告
+            if (notices.length === 0) {
+                notices = [{ content: '欢迎来到化学世界！探索元素的奥秘。' }, { content: '新增元素游戏功能，快来体验！' }];
+            }
+            
+            const container = document.getElementById('marquee-container');
+            const content = document.getElementById('marquee-content');
+            
+            container.style.display = 'block';
+            content.innerHTML = notices.map(n => n.content).join('    |    ');
+        }
+
+        // 主题切换功能
+        function initTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (!themeToggle) return;
+            
+            // 读取保存的主题设置
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                themeToggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span id="theme-text">深色模式</span>
+                `;
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                const root = document.documentElement;
+                const isLight = root.classList.contains('light-mode');
+                
+                if (isLight) {
+                    root.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                    this.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <span id="theme-text">浅色模式</span>
+                    `;
+                } else {
+                    root.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                    this.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <span id="theme-text">深色模式</span>
+                    `;
+                }
+            });
+        }
+
         // 初始化
         function init() {
             updateLanguageUI();
             renderElements();
             setupEventListeners();
+            loadMarqueeNotice();
         }
 
         // 更新语言UI

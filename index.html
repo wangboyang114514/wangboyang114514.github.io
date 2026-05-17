@@ -6,10 +6,150 @@
     <title>Chemistry World 2.0</title>
     <link rel="stylesheet" href="styles.css">
     <script src="interaction.js"></script>
+    <style>
+        /* 跑马灯样式 */
+        .marquee-container {
+            background: var(--glass-bg);
+            padding: 10px 0;
+            overflow: hidden;
+            border-bottom: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .marquee-content {
+            white-space: nowrap;
+            animation: marquee-scroll 30s linear infinite;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @keyframes marquee-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        /* 轮播图样式 */
+        .carousel-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .carousel-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+        }
+        
+        .carousel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicator.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-nav:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .carousel-prev {
+            left: 10px;
+        }
+        
+        .carousel-next {
+            right: 10px;
+        }
+        
+        .container {
+            padding-top: 40px;
+        }
+    </style>
 </head>
 <body>
+    <!-- 跑马灯公告 -->
+    <div id="marquee-container" class="marquee-container" style="display: none;">
+        <div class="marquee-content" id="marquee-content"></div>
+    </div>
+    
     <div class="container">
         <img src="photo/loge.png" class="logo" alt="Logo">
+        
+        <!-- 轮播图区域 -->
+        <div id="carousel-container" class="carousel-container">
+            <div class="carousel-track" id="carousel-track">
+                <!-- 动态生成轮播图 -->
+            </div>
+            <button class="carousel-nav carousel-prev" onclick="prevSlide()">&#8249;</button>
+            <button class="carousel-nav carousel-next" onclick="nextSlide()">&#8250;</button>
+            <div class="carousel-indicators" id="carousel-indicators"></div>
+        </div>
         
         <!-- 标题容器，用于滑动动画 -->
         <div class="title-container">
@@ -32,6 +172,110 @@
         </h2>
         
         <script>
+            // 轮播图数据管理
+            let currentSlideIndex = 0;
+            let carouselList = [];
+            let carouselInterval = null;
+            
+            // 获取轮播图列表
+            function getCarouselList() {
+                const data = localStorage.getItem('carouselList');
+                if (data) {
+                    return JSON.parse(data).filter(item => item.status === 1);
+                }
+                // 默认轮播图
+                return [
+                    { id: 1, title: '欢迎来到化学世界', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemistry%20periodic%20table%20colorful%20background%20modern%20science&image_size=landscape_16_9', link: '#', sort: 1, status: 1 },
+                    { id: 2, title: '探索元素奥秘', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemical%20elements%20atoms%20molecules%203d%20render%20science&image_size=landscape_16_9', link: '#', sort: 2, status: 1 },
+                    { id: 3, title: '趣味化学游戏', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemistry%20game%20colorful%20fun%20education%20kids&image_size=landscape_16_9', link: '#', sort: 3, status: 1 }
+                ];
+            }
+            
+            // 渲染轮播图
+            function renderCarousel() {
+                carouselList = getCarouselList();
+                const track = document.getElementById('carousel-track');
+                const indicators = document.getElementById('carousel-indicators');
+                
+                if (carouselList.length === 0) {
+                    document.getElementById('carousel-container').style.display = 'none';
+                    return;
+                }
+                
+                // 渲染轮播图内容
+                track.innerHTML = carouselList.map(item => `
+                    <div class="carousel-slide">
+                        <img src="${item.image}" alt="${item.title}">
+                        <div class="carousel-overlay">
+                            <div class="carousel-title">${item.title}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // 渲染指示器
+                indicators.innerHTML = carouselList.map((_, index) => `
+                    <span class="carousel-indicator ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></span>
+                `).join('');
+                
+                // 启动自动轮播
+                startAutoCarousel();
+            }
+            
+            // 下一张
+            function nextSlide() {
+                currentSlideIndex = (currentSlideIndex + 1) % carouselList.length;
+                updateCarousel();
+            }
+            
+            // 上一张
+            function prevSlide() {
+                currentSlideIndex = (currentSlideIndex - 1 + carouselList.length) % carouselList.length;
+                updateCarousel();
+            }
+            
+            // 跳转到指定轮播图
+            function goToSlide(index) {
+                currentSlideIndex = index;
+                updateCarousel();
+            }
+            
+            // 更新轮播图显示
+            function updateCarousel() {
+                const track = document.getElementById('carousel-track');
+                const indicators = document.querySelectorAll('.carousel-indicator');
+                
+                track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentSlideIndex);
+                });
+            }
+            
+            // 自动轮播
+            function startAutoCarousel() {
+                if (carouselInterval) clearInterval(carouselInterval);
+                carouselInterval = setInterval(nextSlide, 5000);
+            }
+            
+            // 获取跑马灯公告
+            function loadMarqueeNotice() {
+                const data = localStorage.getItem('noticeList');
+                let notices = [];
+                if (data) {
+                    notices = JSON.parse(data).filter(item => item.type === 'marquee' && item.status === 1);
+                }
+                
+                // 如果没有公告，添加默认公告
+                if (notices.length === 0) {
+                    notices = [{ content: '欢迎来到化学世界！探索元素的奥秘。' }, { content: '新增元素游戏功能，快来体验！' }];
+                }
+                
+                const container = document.getElementById('marquee-container');
+                const content = document.getElementById('marquee-content');
+                
+                container.style.display = 'block';
+                content.innerHTML = notices.map(n => n.content).join('    |    ');
+            }
+            
             // 语言选择逻辑
             const taskbarBtns = document.querySelectorAll('.home-taskbar-btn');
             const mainTitle = document.getElementById('main-title');
@@ -57,12 +301,69 @@
                 english: 'elements.html'
             };
             
+            // 主题切换功能
+            function initTheme() {
+                const themeToggle = document.getElementById('theme-toggle');
+                const themeText = document.getElementById('theme-text');
+                
+                // 读取保存的主题设置
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                
+                if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light-mode');
+                    themeText.textContent = '深色模式';
+                    themeToggle.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <span id="theme-text">深色模式</span>
+                    `;
+                }
+                
+                themeToggle.addEventListener('click', function() {
+                    const root = document.documentElement;
+                    const isLight = root.classList.contains('light-mode');
+                    
+                    if (isLight) {
+                        root.classList.remove('light-mode');
+                        localStorage.setItem('theme', 'dark');
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            <span id="theme-text">浅色模式</span>
+                        `;
+                    } else {
+                        root.classList.add('light-mode');
+                        localStorage.setItem('theme', 'light');
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                            <span id="theme-text">深色模式</span>
+                        `;
+                    }
+                });
+            }
+
             // 初始化
             function init() {
                 // 设置默认选中状态
                 slideIndicator.classList.add('english');
                 // 设置默认按钮文本
                 enterBtn.textContent = buttonTexts[selectedLang];
+                // 加载轮播图
+                renderCarousel();
+                // 加载跑马灯公告
+                loadMarqueeNotice();
             }
             
             // 处理语言选择

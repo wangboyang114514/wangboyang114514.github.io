@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 轮播图管理</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>化学世界管理</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">管理首页</a></li>
+                <li><a href="carousel.html" class="active">轮播图管理</a></li>
+                <li><a href="notice.html">公告管理</a></li>
+                <li><a href="users.html">用户管理</a></li>
+                <li><a href="stats.html">访客统计</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="logout-btn">退出登录</button>
+            </div>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">轮播图管理</h1>
+                <div class="user-info">
+                    <span id="user-role" class="user-role"></span>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button id="add-carousel-btn" class="btn btn-primary" style="display: none;">
+                    <span>+</span> 添加轮播图
+                </button>
+                <button id="refresh-btn" class="btn btn-secondary">
+                    <span>↻</span> 刷新列表
+                </button>
+            </div>
+            
+            <!-- 轮播图列表 -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>排序</th>
+                        <th>图片预览</th>
+                        <th>标题</th>
+                        <th>链接</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="carousel-list-body">
+                    <!-- 动态渲染 -->
+                </tbody>
+            </table>
+            
+            <div id="empty-state" style="text-align: center; padding: 50px; color: var(--text-secondary); display: none;">
+                <p>暂无轮播图数据</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加/编辑轮播图模态框 -->
+    <div id="carousel-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">添加轮播图</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="carousel-form" class="modal-form">
+                <input type="hidden" id="carousel-id">
+                <div class="form-group">
+                    <label for="carousel-title">轮播图标题</label>
+                    <input type="text" id="carousel-title" required placeholder="请输入轮播图标题">
+                </div>
+                <div class="form-group">
+                    <label for="carousel-image">轮播图图片</label>
+                    <input type="text" id="carousel-image" placeholder="请输入图片URL">
+                    <img id="image-preview" class="image-preview" src="" alt="" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label for="carousel-link">跳转链接</label>
+                    <input type="text" id="carousel-link" placeholder="请输入跳转链接">
+                </div>
+                <div class="form-group">
+                    <label for="carousel-status">状态</label>
+                    <select id="carousel-status">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentEditId = null;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 更新用户角色显示
+            const user = AdminSystem.getCurrentUser();
+            const roleElement = document.getElementById('user-role');
+            if (user) {
+                roleElement.textContent = user.role === 'admin' ? '超级管理员' : '访客';
+            }
+            
+            // 管理员显示添加按钮
+            if (AdminSystem.isAdmin()) {
+                document.getElementById('add-carousel-btn').style.display = 'inline-flex';
+            }
+            
+            // 绑定添加按钮
+            document.getElementById('add-carousel-btn').addEventListener('click', () => {
+                currentEditId = null;
+                document.getElementById('modal-title').textContent = '添加轮播图';
+                document.getElementById('carousel-form').reset();
+                document.getElementById('image-preview').style.display = 'none';
+                document.getElementById('carousel-modal').classList.add('active');
+            });
+            
+            // 绑定刷新按钮
+            document.getElementById('refresh-btn').addEventListener('click', renderCarouselList);
+            
+            // 绑定表单提交
+            document.getElementById('carousel-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveCarousel();
+            });
+            
+            // 图片URL输入预览
+            document.getElementById('carousel-image').addEventListener('input', (e) => {
+                const url = e.target.value;
+                const preview = document.getElementById('image-preview');
+                if (url) {
+                    preview.src = url;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+            });
+            
+            // 渲染轮播图列表
+            renderCarouselList();
+        });
+        
+        // 渲染轮播图列表
+        function renderCarouselList() {
+            const list = AdminSystem.carousel.getList();
+            const tbody = document.getElementById('carousel-list-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (list.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = list.map(item => `
+                <tr class="sortable-item" data-id="${item.id}">
+                    <td>${item.sort}</td>
+                    <td><img src="${item.image}" alt="${item.title}" style="width: 80px; height: 45px; object-fit: cover; border-radius: 5px;"></td>
+                    <td>${item.title}</td>
+                    <td><a href="${item.link}" target="_blank" style="color: var(--secondary-color);">${item.link || '无'}</a></td>
+                    <td><span class="status-badge ${item.status === 1 ? 'status-active' : 'status-inactive'}">${item.status === 1 ? '启用' : '禁用'}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            ${AdminSystem.isAdmin() ? `
+                            <button onclick="editCarousel(${item.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">编辑</button>
+                            <button onclick="deleteCarousel(${item.id})" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">删除</button>
+                            <button onclick="toggleCarouselStatus(${item.id}, ${item.status})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">${item.status === 1 ? '禁用' : '启用'}</button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 编辑轮播图
+        function editCarousel(id) {
+            const list = AdminSystem.carousel.getList();
+            const item = list.find(item => item.id === id);
+            if (item) {
+                currentEditId = id;
+                document.getElementById('modal-title').textContent = '编辑轮播图';
+                document.getElementById('carousel-id').value = item.id;
+                document.getElementById('carousel-title').value = item.title;
+                document.getElementById('carousel-image').value = item.image;
+                document.getElementById('carousel-link').value = item.link;
+                document.getElementById('carousel-status').value = item.status;
+                
+                // 显示图片预览
+                const preview = document.getElementById('image-preview');
+                if (item.image) {
+                    preview.src = item.image;
+                    preview.style.display = 'block';
+                }
+                
+                document.getElementById('carousel-modal').classList.add('active');
+            }
+        }
+        
+        // 删除轮播图
+        function deleteCarousel(id) {
+            if (confirm('确定要删除这个轮播图吗？')) {
+                AdminSystem.carousel.delete(id);
+                renderCarouselList();
+            }
+        }
+        
+        // 切换状态
+        function toggleCarouselStatus(id, currentStatus) {
+            AdminSystem.carousel.update(id, { status: currentStatus === 1 ? 0 : 1 });
+            renderCarouselList();
+        }
+        
+        // 保存轮播图
+        function saveCarousel() {
+            const data = {
+                title: document.getElementById('carousel-title').value,
+                image: document.getElementById('carousel-image').value,
+                link: document.getElementById('carousel-link').value,
+                status: parseInt(document.getElementById('carousel-status').value)
+            };
+            
+            if (currentEditId) {
+                AdminSystem.carousel.update(currentEditId, data);
+            } else {
+                AdminSystem.carousel.add(data);
+            }
+            
+            closeModal();
+            renderCarouselList();
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('carousel-modal').classList.remove('active');
+            currentEditId = null;
+        }
+    </script>
+</body>
+</html>

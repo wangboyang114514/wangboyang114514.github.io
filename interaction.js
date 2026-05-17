@@ -727,8 +727,123 @@ const ChemistryWorld = {
             
             // 元素对比功能
             this.elementComparison.init();
+            
+            // 访客统计功能
+            this.visitorStats.init();
         } catch (error) {
             console.error('Initialization error:', error);
+        }
+    },
+    
+    // 访客统计模块
+    visitorStats: {
+        sessionStart: null,
+        maxScrollDepth: 0,
+        isTrackable: false,
+        
+        init() {
+            // 只在可统计的页面统计（首页和元素页面）
+            const currentPage = window.location.pathname;
+            const trackablePages = ['index.html', 'elements.html', '/', ''];
+            
+            if (trackablePages.some(page => currentPage.endsWith(page))) {
+                this.isTrackable = true;
+                this.sessionStart = Date.now();
+                this.recordVisit();
+                this.setupEventListeners();
+            }
+        },
+        
+        setupEventListeners() {
+            if (!this.isTrackable) return;
+            
+            // 监听页面滚动，记录最大滚动深度
+            window.addEventListener('scroll', this.utils.debounce(() => {
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const currentScroll = window.pageYOffset;
+                const scrollPercent = scrollHeight > 0 ? (currentScroll / scrollHeight) * 100 : 0;
+                if (scrollPercent > this.maxScrollDepth) {
+                    this.maxScrollDepth = Math.round(scrollPercent);
+                }
+            }, 100));
+            
+            // 页面离开时记录访问时长
+            window.addEventListener('beforeunload', () => {
+                this.recordVisitEnd();
+            });
+            
+            // 隐藏页面时也记录（移动端切换tab）
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    this.recordVisitEnd();
+                }
+            });
+        },
+        
+        recordVisit() {
+            const visitData = {
+                date: new Date().toISOString().split('T')[0],
+                timestamp: new Date().toISOString(),
+                page: window.location.pathname.split('/').pop() || 'index.html',
+                userAgent: navigator.userAgent.substring(0, 100),
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height
+            };
+            
+            let stats = this.getStats();
+            if (!stats.dailyVisits) {
+                stats.dailyVisits = {};
+            }
+            
+            const today = visitData.date;
+            if (!stats.dailyVisits[today]) {
+                stats.dailyVisits[today] = {
+                    visits: 0,
+                    totalDuration: 0,
+                    avgDuration: 0
+                };
+            }
+            
+            stats.dailyVisits[today].visits++;
+            stats.currentSession = {
+                startTime: visitData.timestamp,
+                scrollDepth: 0
+            };
+            
+            this.saveStats(stats);
+        },
+        
+        recordVisitEnd() {
+            if (!this.sessionStart || !this.isTrackable) return;
+            
+            const duration = Date.now() - this.sessionStart;
+            const stats = this.getStats();
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (stats.dailyVisits && stats.dailyVisits[today]) {
+                stats.dailyVisits[today].totalDuration += duration;
+                stats.dailyVisits[today].avgDuration = Math.round(
+                    stats.dailyVisits[today].totalDuration / stats.dailyVisits[today].visits
+                );
+                
+                if (stats.currentSession) {
+                    stats.dailyVisits[today].lastScrollDepth = this.maxScrollDepth;
+                }
+            }
+            
+            stats.currentSession = null;
+            this.saveStats(stats);
+            
+            this.sessionStart = null;
+        },
+        
+        getStats() {
+            const data = localStorage.getItem('visitorStats');
+            return data ? JSON.parse(data) : { dailyVisits: {}, totalVisits: 0 };
+        },
+        
+        saveStats(stats) {
+            localStorage.setItem('visitorStats', JSON.stringify(stats));
         }
     }
 };

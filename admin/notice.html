@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 公告管理</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>化学世界管理</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">管理首页</a></li>
+                <li><a href="carousel.html">轮播图管理</a></li>
+                <li><a href="notice.html" class="active">公告管理</a></li>
+                <li><a href="users.html">用户管理</a></li>
+                <li><a href="stats.html">访客统计</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="logout-btn">退出登录</button>
+            </div>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">公告管理</h1>
+                <div class="user-info">
+                    <span id="user-role" class="user-role"></span>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button id="add-notice-btn" class="btn btn-primary" style="display: none;">
+                    <span>+</span> 添加公告
+                </button>
+                <button id="refresh-btn" class="btn btn-secondary">
+                    <span>↻</span> 刷新列表
+                </button>
+            </div>
+            
+            <!-- 公告列表 -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>内容</th>
+                        <th>类型</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="notice-list-body">
+                    <!-- 动态渲染 -->
+                </tbody>
+            </table>
+            
+            <div id="empty-state" style="text-align: center; padding: 50px; color: var(--text-secondary); display: none;">
+                <p>暂无公告数据</p>
+            </div>
+            
+            <!-- 跑马灯预览 -->
+            <div style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px; color: var(--text-primary);">跑马灯预览</h3>
+                <div style="padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                    <div id="marquee-preview" style="white-space: nowrap; animation: marquee 30s linear infinite;">
+                        <!-- 跑马灯内容 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加/编辑公告模态框 -->
+    <div id="notice-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">添加公告</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="notice-form" class="modal-form">
+                <input type="hidden" id="notice-id">
+                <div class="form-group">
+                    <label for="notice-title">公告标题</label>
+                    <input type="text" id="notice-title" required placeholder="请输入公告标题">
+                </div>
+                <div class="form-group">
+                    <label for="notice-content">公告内容</label>
+                    <textarea id="notice-content" required placeholder="请输入公告内容（跑马灯显示此内容）"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="notice-type">公告类型</label>
+                    <select id="notice-type">
+                        <option value="marquee">跑马灯</option>
+                        <option value="top">顶部公告</option>
+                        <option value="normal">普通公告</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notice-status">状态</label>
+                    <select id="notice-status">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentEditId = null;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 更新用户角色显示
+            const user = AdminSystem.getCurrentUser();
+            const roleElement = document.getElementById('user-role');
+            if (user) {
+                roleElement.textContent = user.role === 'admin' ? '超级管理员' : '访客';
+            }
+            
+            // 管理员显示添加按钮
+            if (AdminSystem.isAdmin()) {
+                document.getElementById('add-notice-btn').style.display = 'inline-flex';
+            }
+            
+            // 绑定添加按钮
+            document.getElementById('add-notice-btn').addEventListener('click', () => {
+                currentEditId = null;
+                document.getElementById('modal-title').textContent = '添加公告';
+                document.getElementById('notice-form').reset();
+                document.getElementById('notice-modal').classList.add('active');
+            });
+            
+            // 绑定刷新按钮
+            document.getElementById('refresh-btn').addEventListener('click', renderNoticeList);
+            
+            // 绑定表单提交
+            document.getElementById('notice-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveNotice();
+            });
+            
+            // 渲染公告列表
+            renderNoticeList();
+            updateMarqueePreview();
+        });
+        
+        // 渲染公告列表
+        function renderNoticeList() {
+            const list = AdminSystem.notice.getList();
+            const tbody = document.getElementById('notice-list-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (list.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = list.map(item => `
+                <tr data-id="${item.id}">
+                    <td>${item.title}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.content}</td>
+                    <td><span class="status-badge ${getTypeColor(item.type)}">${getTypeLabel(item.type)}</span></td>
+                    <td><span class="status-badge ${item.status === 1 ? 'status-active' : 'status-inactive'}">${item.status === 1 ? '启用' : '禁用'}</span></td>
+                    <td>${formatDate(item.createdAt)}</td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            ${AdminSystem.isAdmin() ? `
+                            <button onclick="editNotice(${item.id})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">编辑</button>
+                            <button onclick="deleteNotice(${item.id})" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">删除</button>
+                            <button onclick="toggleNoticeStatus(${item.id}, ${item.status})" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">${item.status === 1 ? '禁用' : '启用'}</button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 获取类型标签
+        function getTypeLabel(type) {
+            const labels = {
+                marquee: '跑马灯',
+                top: '顶部公告',
+                normal: '普通公告'
+            };
+            return labels[type] || type;
+        }
+        
+        // 获取类型颜色
+        function getTypeColor(type) {
+            const colors = {
+                marquee: 'status-active',
+                top: 'warning-color',
+                normal: 'status-inactive'
+            };
+            return colors[type] || 'status-inactive';
+        }
+        
+        // 格式化日期
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+        
+        // 编辑公告
+        function editNotice(id) {
+            const list = AdminSystem.notice.getList();
+            const item = list.find(item => item.id === id);
+            if (item) {
+                currentEditId = id;
+                document.getElementById('modal-title').textContent = '编辑公告';
+                document.getElementById('notice-id').value = item.id;
+                document.getElementById('notice-title').value = item.title;
+                document.getElementById('notice-content').value = item.content;
+                document.getElementById('notice-type').value = item.type;
+                document.getElementById('notice-status').value = item.status;
+                document.getElementById('notice-modal').classList.add('active');
+            }
+        }
+        
+        // 删除公告
+        function deleteNotice(id) {
+            if (confirm('确定要删除这个公告吗？')) {
+                AdminSystem.notice.delete(id);
+                renderNoticeList();
+                updateMarqueePreview();
+            }
+        }
+        
+        // 切换状态
+        function toggleNoticeStatus(id, currentStatus) {
+            AdminSystem.notice.update(id, { status: currentStatus === 1 ? 0 : 1 });
+            renderNoticeList();
+            updateMarqueePreview();
+        }
+        
+        // 保存公告
+        function saveNotice() {
+            const data = {
+                title: document.getElementById('notice-title').value,
+                content: document.getElementById('notice-content').value,
+                type: document.getElementById('notice-type').value,
+                status: parseInt(document.getElementById('notice-status').value)
+            };
+            
+            if (currentEditId) {
+                AdminSystem.notice.update(currentEditId, data);
+            } else {
+                AdminSystem.notice.add(data);
+            }
+            
+            closeModal();
+            renderNoticeList();
+            updateMarqueePreview();
+        }
+        
+        // 更新跑马灯预览
+        function updateMarqueePreview() {
+            const activeNotices = AdminSystem.notice.getActiveMarquee();
+            const preview = document.getElementById('marquee-preview');
+            
+            if (activeNotices.length === 0) {
+                preview.innerHTML = '<span style="color: var(--text-secondary);">暂无启用的跑马灯公告</span>';
+            } else {
+                const content = activeNotices.map(n => n.content).join('    |    ');
+                preview.innerHTML = `<span style="color: var(--secondary-color);">${content}</span>`;
+            }
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('notice-modal').classList.remove('active');
+            currentEditId = null;
+        }
+    </script>
+    
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .warning-color {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+    </style>
+</body>
+</html>
