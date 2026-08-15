@@ -246,7 +246,7 @@
         }
 
         // 保存密码
-        function savePassword() {
+        async function savePassword() {
             const username = document.getElementById('password-user-id').value;
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
@@ -261,7 +261,8 @@
                 return;
             }
 
-            if (AdminSystem.userManagement.changePassword(username, newPassword)) {
+            const success = await AdminSystem.userManagement.changePassword(username, newPassword);
+            if (success) {
                 alert('密码修改成功！');
                 closePasswordModal();
                 loadUserList();
@@ -377,7 +378,7 @@
         }
 
         // 创建用户
-        function createUser() {
+        async function createUser() {
             const username = document.getElementById('create-username').value.trim();
             const password = document.getElementById('create-password').value;
             const confirmPassword = document.getElementById('create-confirm-password').value;
@@ -397,7 +398,8 @@
                 return;
             }
 
-            if (AdminSystem.userManagement.createUser(username, password)) {
+            const success = await AdminSystem.userManagement.createUser(username, password);
+            if (success) {
                 alert('访客账号创建成功！');
                 closeCreateUserModal();
                 loadUserList();

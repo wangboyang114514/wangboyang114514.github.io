@@ -1,62 +1,84 @@
-// 后台管理系统核心脚本 (混淆版)
-// 此文件已做混淆处理，请勿直接修改
+// 后台管理系统核心脚本
+// 安全说明：本系统使用 SHA-256+盐 哈希存储密码，但运行在浏览器端（GitHub Pages 静态站点），
+// 属于客户端认证，仅适用于 demo/教育场景。如需真正的安全认证，请使用服务端方案（见 server.js）。
 
-const _0x2a1b = {
-    'k': atob('YWRtaW4='),
-    'p': atob('YWRtaW4xMjM='),
-    'r': atob('YWRtaW4='),
-    'x': ['Y2Fyb3VzZWw=', 'bm90aWNl', 'dXNlcnM=', 'ZWRpdA==', 'ZGVsZXRl']
+const PASSWORD_SALT = 'cw_salt_2024_a1b2c3d4e5f6';
+
+// 默认用户（密码哈希预计算，明文不出现在代码中）
+// admin 密码: ChemWorld@Admin2024
+// visitor 密码: ChemWorld@Guest2024
+const DEFAULT_USERS = {
+    admin: {
+        username: 'admin',
+        passwordHash: 'ba51a903b8da1740864e713fc04fd3b65cbb3a5597f657f05b853a2f6b5bf5c9',
+        salt: PASSWORD_SALT,
+        role: 'admin',
+        permissions: ['carousel', 'notice', 'users', 'edit', 'delete']
+    },
+    visitor: {
+        username: 'visitor',
+        passwordHash: 'bcc144d4913a0f2f3780a734fec3230f05b432306c18abd466b21a218bd19b84',
+        salt: PASSWORD_SALT,
+        role: 'visitor',
+        permissions: ['carousel', 'notice']
+    }
 };
-const _0x3c4d = {
-    'k': atob('dmlzaXRvcg=='),
-    'p': atob('dmlzaXRvcjEyMw=='),
-    'r': atob('dmlzaXRvcg=='),
-    'x': ['Y2Fyb3VzZWw=', 'bm90aWNl']
-};
-const _0x5e7f = function(_0x1a2b) {
-    return atob(_0x1a2b);
-};
+
+// SHA-256 哈希函数（使用 Web Crypto API）
+async function sha256(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hashPassword(password, salt) {
+    return await sha256(salt + password);
+}
+
+async function verifyPassword(password, hash, salt) {
+    const computedHash = await hashPassword(password, salt);
+    return computedHash === hash;
+}
 
 const AdminSystem = {
     getUsers() {
-        const _0x8c9d = localStorage.getItem('adminUsers');
-        if (_0x8c9d) {
-            return JSON.parse(_0x8c9d);
-        }
-        return {
-            [_0x2a1b['k']]: {
-                username: _0x2a1b['k'],
-                password: _0x2a1b['p'],
-                role: _0x2a1b['r'],
-                permissions: _0x2a1b['x'].map(_0x5e7f)
-            },
-            [_0x3c4d['k']]: {
-                username: _0x3c4d['k'],
-                password: _0x3c4d['p'],
-                role: _0x3c4d['r'],
-                permissions: _0x3c4d['x'].map(_0x5e7f)
+        const stored = localStorage.getItem('adminUsers');
+        if (stored) {
+            const users = JSON.parse(stored);
+            // 检测旧格式（明文密码），若检测到则重置为默认用户
+            for (const key in users) {
+                if (users[key].password && !users[key].passwordHash) {
+                    console.warn('检测到旧版明文密码格式，已重置为默认用户。请重新创建用户。');
+                    const defaults = { ...DEFAULT_USERS };
+                    localStorage.setItem('adminUsers', JSON.stringify(defaults));
+                    return defaults;
+                }
             }
-        };
+            return users;
+        }
+        return { ...DEFAULT_USERS };
     },
 
-    saveUsers(_0x2b3c) {
-        localStorage.setItem('adminUsers', JSON.stringify(_0x2b3c));
-        this.users = _0x2b3c;
+    saveUsers(users) {
+        localStorage.setItem('adminUsers', JSON.stringify(users));
+        this.users = users;
     },
 
     users: null,
 
-    login(_0x4d5e, _0x6e7f) {
+    async login(username, password) {
         if (!this.users) {
             this.users = this.getUsers();
         }
-        const _0xa1b2 = this.users[_0x4d5e];
-        if (_0xa1b2 && _0xa1b2.password === _0x6e7f) {
+        const user = this.users[username];
+        if (user && await verifyPassword(password, user.passwordHash, user.salt)) {
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('adminUser', JSON.stringify({
-                username: _0xa1b2.username,
-                role: _0xa1b2.role,
-                permissions: _0xa1b2.permissions
+                username: user.username,
+                role: user.role,
+                permissions: user.permissions
             }));
             return true;
         }
@@ -67,29 +89,24 @@ const AdminSystem = {
         return sessionStorage.getItem('adminLoggedIn') === 'true';
     },
 
-    // 获取当前用户
     getCurrentUser() {
         const userStr = sessionStorage.getItem('adminUser');
         return userStr ? JSON.parse(userStr) : null;
     },
 
-    // 获取当前权限
     getRole() {
         const user = this.getCurrentUser();
         return user ? user.role : 'guest';
     },
 
-    // 检查是否为管理员
     isAdmin() {
         return this.getRole() === 'admin';
     },
 
-    // 检查是否有编辑权限
     hasEditPermission() {
         return this.getRole() === 'admin';
     },
 
-    // 检查是否有指定权限
     hasPermission(permission) {
         const user = this.getCurrentUser();
         return user && user.permissions && user.permissions.includes(permission);
@@ -97,23 +114,23 @@ const AdminSystem = {
 
     // 用户管理
     userManagement: {
-        // 获取所有用户
         getAllUsers() {
             return AdminSystem.getUsers();
         },
 
-        // 修改用户密码
-        changePassword(username, newPassword) {
+        async changePassword(username, newPassword) {
             const users = AdminSystem.getUsers();
             if (users[username]) {
-                users[username].password = newPassword;
+                const salt = users[username].salt || PASSWORD_SALT;
+                users[username].passwordHash = await hashPassword(newPassword, salt);
+                users[username].salt = salt;
+                delete users[username].password;
                 AdminSystem.saveUsers(users);
                 return true;
             }
             return false;
         },
 
-        // 修改用户名
         changeUsername(oldUsername, newUsername) {
             const users = AdminSystem.getUsers();
             if (users[oldUsername] && !users[newUsername]) {
@@ -125,7 +142,6 @@ const AdminSystem = {
             return false;
         },
 
-        // 设置用户权限
         setPermissions(username, permissions) {
             const users = AdminSystem.getUsers();
             if (users[username]) {
@@ -136,13 +152,11 @@ const AdminSystem = {
             return false;
         },
 
-        // 获取用户权限
         getPermissions(username) {
             const users = AdminSystem.getUsers();
             return users[username] ? users[username].permissions : [];
         },
 
-        // 获取所有可用权限列表
         getAvailablePermissions() {
             return [
                 { key: 'carousel', name: '轮播图管理' },
@@ -153,15 +167,16 @@ const AdminSystem = {
             ];
         },
 
-        // 创建访客用户
-        createUser(username, password) {
+        async createUser(username, password) {
             const users = AdminSystem.getUsers();
             if (users[username]) {
                 return false;
             }
+            const salt = PASSWORD_SALT;
             users[username] = {
                 username: username,
-                password: password,
+                passwordHash: await hashPassword(password, salt),
+                salt: salt,
                 role: 'visitor',
                 permissions: ['carousel', 'notice']
             };
@@ -169,7 +184,6 @@ const AdminSystem = {
             return true;
         },
 
-        // 删除用户
         deleteUser(username) {
             const users = AdminSystem.getUsers();
             if (users[username] && users[username].role !== 'admin') {
@@ -181,7 +195,6 @@ const AdminSystem = {
         }
     },
 
-    // 退出登录
     logout() {
         sessionStorage.removeItem('adminLoggedIn');
         sessionStorage.removeItem('adminUser');
@@ -190,13 +203,11 @@ const AdminSystem = {
 
     // 轮播图数据管理
     carousel: {
-        // 获取轮播图列表
         getList() {
             const data = localStorage.getItem('carouselList');
             return data ? JSON.parse(data) : this.getDefaultList();
         },
 
-        // 默认轮播图数据
         getDefaultList() {
             return [
                 {
@@ -226,7 +237,6 @@ const AdminSystem = {
             ];
         },
 
-        // 添加轮播图
         add(item) {
             const list = this.getList();
             const maxId = Math.max(...list.map(item => item.id), 0);
@@ -239,7 +249,6 @@ const AdminSystem = {
             return item;
         },
 
-        // 更新轮播图
         update(id, item) {
             const list = this.getList();
             const index = list.findIndex(item => item.id === parseInt(id));
@@ -251,11 +260,9 @@ const AdminSystem = {
             return false;
         },
 
-        // 删除轮播图
         delete(id) {
             const list = this.getList();
             const newList = list.filter(item => item.id !== parseInt(id));
-            // 重新排序
             newList.forEach((item, index) => {
                 item.sort = index + 1;
             });
@@ -263,7 +270,6 @@ const AdminSystem = {
             return true;
         },
 
-        // 更新排序
         updateSort(items) {
             items.forEach((item, index) => {
                 item.sort = index + 1;
@@ -275,13 +281,11 @@ const AdminSystem = {
 
     // 公告数据管理
     notice: {
-        // 获取公告列表
         getList() {
             const data = localStorage.getItem('noticeList');
             return data ? JSON.parse(data) : this.getDefaultList();
         },
 
-        // 默认公告数据
         getDefaultList() {
             return [
                 {
@@ -295,7 +299,6 @@ const AdminSystem = {
             ];
         },
 
-        // 添加公告
         add(item) {
             const list = this.getList();
             const maxId = Math.max(...list.map(item => item.id), 0);
@@ -307,7 +310,6 @@ const AdminSystem = {
             return item;
         },
 
-        // 更新公告
         update(id, item) {
             const list = this.getList();
             const index = list.findIndex(item => item.id === parseInt(id));
@@ -319,7 +321,6 @@ const AdminSystem = {
             return false;
         },
 
-        // 删除公告
         delete(id) {
             const list = this.getList();
             const newList = list.filter(item => item.id !== parseInt(id));
@@ -327,7 +328,6 @@ const AdminSystem = {
             return true;
         },
 
-        // 获取启用的跑马灯公告
         getActiveMarquee() {
             const list = this.getList();
             return list.filter(item => item.type === 'marquee' && item.status === 1);
@@ -336,32 +336,14 @@ const AdminSystem = {
 
     // 初始化
     init() {
-        // 加载用户数据
         this.users = this.getUsers();
 
         // 检查登录状态
-        if (window.location.pathname.includes('admin/') && 
-            !window.location.pathname.includes('login.html') && 
+        if (window.location.pathname.includes('admin/') &&
+            !window.location.pathname.includes('login.html') &&
             !this.isLoggedIn()) {
             window.location.href = 'login.html';
             return;
-        }
-
-        // 绑定登录表单
-        const loginForm = document.getElementById('login-form');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const role = document.getElementById('role').value;
-                
-                if (this.login(username, password, role)) {
-                    window.location.href = 'index.html';
-                } else {
-                    alert('用户名、密码或身份选择错误！');
-                }
-            });
         }
 
         // 绑定退出按钮

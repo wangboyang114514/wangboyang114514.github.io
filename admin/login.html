@@ -28,16 +28,24 @@
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', function(e) {
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const loginBtn = this.querySelector('.login-btn');
 
-            if (AdminSystem.login(username, password)) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登录中...';
+
+            const success = await AdminSystem.login(username, password);
+
+            if (success) {
                 window.location.href = 'index.html';
             } else {
                 alert('用户名或密码错误');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
             }
         });
     </script>
