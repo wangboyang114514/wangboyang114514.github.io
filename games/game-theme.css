@@ -1,0 +1,581 @@
+/* ============================================================================
+   game-theme.css — 化学世界 · 游戏共享视觉主题层
+   ----------------------------------------------------------------------------
+   适用：games/chinese/* 与 games/english/* 三个游戏页（<link> 引入）
+   规范：docs/visual/game-visual-spec.md  v1.2
+   约束：纯 CSS / SVG；无 canvas / WebGL / 外部库 / CDN 字体；
+         不修改 styles.css 的任何全局变量与选择器。
+
+   ⚠️⚠️⚠️ 三条铁律（改动前必读）⚠️⚠️⚠️
+
+   ① 【metal-d / metal-f / metal-p 仅用于视觉取色，严禁进入匹配逻辑】
+      它们是把站点 category "metal"（80/118 个元素）按原子序数拆出的
+      视觉亚族（familyOf()，见 spec §1.1）。同族三连规则里 metal 作为
+      整体被排除——若把 metal-d 误当 category 用，Z21-30/39-48/72-80 约
+      30 个元素会变成可任意互换的巨桶，直接触发主导策略、毁掉关卡平衡
+      （GDD §4.5 / 风险 R13）。
+
+   ② 【遮挡遮罩走 inset box-shadow，不走多层 background-image】
+      实测（无头 Edge，spec §4.7）：多层 background-image 里若有一层用
+      var() 引遮罩色，Chromium 会把整条 background-image 判为无效
+      （computed = none，瓦片直接透明）。inset box-shadow 绘制在文字
+      之下、background 之上，遮罩语义完全等价且可平滑过渡——本文件全
+      部遮罩（遮挡态 + 深度掩埋）都走这条路。请勿改回多层 background。
+
+   ③ 【所有选择器均为游戏专属，不含任何全局选择器】
+      本文件没有 body / * / .navbar / .container / .game-card 等站点已
+      占用的选择器；自定义属性前缀 --f- / --sg- 也不与 styles.css 的
+      22 个全局变量冲突（已逐一核对，spec §8.1）。
+
+   JS 需写入的最小契约（全部一次性写入，无逐帧）：
+     .sg-tile        data-fam data-tier data-pol data-blocked
+                     style="--gx --gy --layer"（半格坐标）
+     .sg-board       style="--boardW"（该关最宽列数）
+     .sg-tile__face  style="--depth"（0..N，距堆顶层数）
+   ============================================================================ */
+
+
+/* ============================================================
+   1. 作用域 token（挂在 .game-root 上，游戏页根容器须有此类）
+   ============================================================ */
+.game-root {
+  /* 牌桌底色（比站点 --bg-color 略偏蓝黑，衬托族色） */
+  --sg-board-bg: #131e33;
+
+  /* 瓦片尺寸：JS 注入 --boardW（该关最宽列数），无百分比 → 无循环依赖
+     375px / boardW=6（最宽盘 L4/L6）→ 54.5px；768px+ 封顶 72px */
+  --tile: clamp(44px, (100vw - 48px) / var(--boardW, 6), 72px);
+
+  /* 缓动曲线库（与 spec §5.1 一致，勿临时发明） */
+  --sg-ease-soft:  cubic-bezier(.4, 0, .2, 1);     /* 通用状态过渡 */
+  --sg-ease-quint: cubic-bezier(.22, .61, .36, 1); /* 入槽飞行 */
+  --sg-ease-spring: cubic-bezier(.34, 1.56, .64, 1); /* 回弹（选中/落位） */
+  --sg-ease-expand: cubic-bezier(.16, 1, .3, 1);   /* 爆裂扩散环 */
+  --sg-ease-shake: cubic-bezier(.36, .07, .19, .97); /* 连锁震屏 */
+
+  /* 槽位压力（★ 琥珀用 #f5b942，不用 #e08a3c——后者是 metal-p 描边色，
+     同色会让「槽位告急」和「青铜牌」混淆，spec §5.5） */
+  --sg-warn-calm:  rgba(20, 184, 166, .85);
+  --sg-warn-mild:  rgba(245, 185, 66, .85);
+  --sg-warn-crit:  rgba(255, 107, 107, .9);
+  --sg-warn-dead:  rgba(255, 107, 107, 1);
+}
+
+
+/* ============================================================
+   2. 九族色（源：styles.css L519-552 的 7 个族色 + 2 个派生亚族）
+      每族 8 个值：
+        --f-h/s/l    瓦片顶色 HSL（档位 data-tier 覆盖 --f-l）
+        --f-bh/bs/bl 瓦片底色 HSL（168° 渐变终点）
+        --f-rgb      描边/辉光用 RGB 三元组（★ 族恒定，不随档位漂移
+                     ——它是族身份通道，色盲三重编码依赖它）
+        --f-fg       文字色（深底族 #f8fafc / 浅底族 #0f172a）
+        --f-scrim    遮挡态遮罩 RGB（深底族用暗化 / 浅底族必须洗白，
+                     否则 nonmetal 遮挡态对比度掉到 3.38，spec §4.7）
+   ============================================================ */
+
+[data-fam="alkali-metal"] {         /* 碱金属 · 源 #ff6b6b */
+  --f-h: 0;     --f-s: 100%;  --f-l: 30%;
+  --f-bh: 0;    --f-bs: 100%; --f-bl: 17.1%;
+  --f-rgb: 255, 102, 102;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="alkaline-earth-metal"] { /* 碱土金属 · 源 #4ecdc4 */
+  --f-h: 176.5; --f-s: 55.7%; --f-l: 23.9%;
+  --f-bh: 175.5;--f-bs: 55.6%;--f-bl: 14.1%;
+  --f-rgb: 136, 221, 215;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="metal-d"] {              /* 过渡金属 · 源 #45b7d1 · Z21-30/39-48/72-80/104-112 */
+  --f-h: 191;   --f-s: 60.8%; --f-l: 30%;
+  --f-bh: 191.3;--f-bs: 60.9%;--f-bl: 17.1%;
+  --f-rgb: 132, 208, 225;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="metal-p"] {              /* 后过渡金属 · 派生 #e08a3c · 其余金属 */
+  --f-h: 28.5;  --f-s: 72%;   --f-l: 28%;
+  --f-bh: 28.5; --f-bs: 72.8%;--f-bl: 15.9%;
+  --f-rgb: 234, 176, 123;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="metal-f"] {              /* 镧系·锕系 · 派生 #7c8bf0 · Z57-71/89-103 */
+  --f-h: 232.4; --f-s: 79.7%; --f-l: 31%;
+  --f-bh: 231.8;--f-bs: 80.2%;--f-bl: 17.8%;
+  --f-rgb: 118, 133, 239;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="metalloid"] {            /* 类金属 · 源 #96ceb4 */
+  --f-h: 151.5; --f-s: 36.1%; --f-l: 33.1%;
+  --f-bh: 152.6;--f-bs: 36.1%;--f-bl: 19%;
+  --f-rgb: 151, 206, 180;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="halogen"] {              /* 卤素 · 源 #dda0dd */
+  --f-h: 300;   --f-s: 46.9%; --f-l: 28%;
+  --f-bh: 300;  --f-bs: 46.3%;--f-bl: 16.1%;
+  --f-rgb: 215, 142, 215;  --f-fg: #f8fafc;  --f-scrim-rgb: 11, 17, 30;
+}
+[data-fam="nonmetal"] {             /* 非金属 · 源 #ffeaa7 · ★浅底深字极性 */
+  --f-h: 45.7;  --f-s: 100%;  --f-l: 72%;
+  --f-bh: 45.8; --f-bs: 100%; --f-bl: 62%;
+  --f-rgb: 224, 171, 0;    --f-fg: #0f172a;  --f-scrim-rgb: 241, 245, 249;
+}
+[data-fam="noble-gas"] {            /* 稀有气体 · 源 #98d8c8 · ★浅底深字极性 */
+  --f-h: 165.2; --f-s: 45.1%; --f-l: 70%;
+  --f-bh: 165;  --f-bs: 45.1%;--f-bl: 60%;
+  --f-rgb: 62, 163, 137;   --f-fg: #0f172a;  --f-scrim-rgb: 241, 245, 249;
+}
+
+/* ------------------------------------------------------------
+   2b. 族内明度档（R18 裁决，spec §2.6）
+   JS 按该关牌池内同族成员的 Z 升序赋 data-tier 0..3；
+   同一 symbol 的所有副本必须同档（否则同元素三消无法配对）。
+   档距已按各族对比度余量封顶：metal-d/metalloid/alkaline-earth
+   余量小所以档距小；全表 9 族 × 4 档的活/遮挡对比度见 spec §2.6。
+   硬约束：每关同族不同 symbol 数 ≤ 4，且 metal-d ≤ 3
+   （metal-d T3 是全表唯一低于 4.5 的组合：4.42）。
+   ------------------------------------------------------------ */
+[data-fam="alkali-metal"][data-tier="0"]        { --f-l:30%;   --f-bl:17.1%; }
+[data-fam="alkali-metal"][data-tier="1"]        { --f-l:34%;   --f-bl:21.1%; }
+[data-fam="alkali-metal"][data-tier="2"]        { --f-l:38%;   --f-bl:25.1%; }
+[data-fam="alkali-metal"][data-tier="3"]        { --f-l:42%;   --f-bl:29.1%; }
+[data-fam="alkaline-earth-metal"][data-tier="0"]{ --f-l:23.9%; --f-bl:14.1%; }
+[data-fam="alkaline-earth-metal"][data-tier="1"]{ --f-l:25.9%; --f-bl:16.1%; }
+[data-fam="alkaline-earth-metal"][data-tier="2"]{ --f-l:27.9%; --f-bl:18.1%; }
+[data-fam="alkaline-earth-metal"][data-tier="3"]{ --f-l:29.9%; --f-bl:20.1%; }
+[data-fam="metal-d"][data-tier="0"]             { --f-l:30%;   --f-bl:17.1%; }
+[data-fam="metal-d"][data-tier="1"]             { --f-l:32%;   --f-bl:19.1%; }
+[data-fam="metal-d"][data-tier="2"]             { --f-l:34%;   --f-bl:21.1%; }
+[data-fam="metal-d"][data-tier="3"]             { --f-l:36%;   --f-bl:23.1%; }
+[data-fam="metal-p"][data-tier="0"]             { --f-l:28%;   --f-bl:15.9%; }
+[data-fam="metal-p"][data-tier="1"]             { --f-l:31%;   --f-bl:18.9%; }
+[data-fam="metal-p"][data-tier="2"]             { --f-l:34%;   --f-bl:21.9%; }
+[data-fam="metal-p"][data-tier="3"]             { --f-l:37%;   --f-bl:24.9%; }
+[data-fam="metal-f"][data-tier="0"]             { --f-l:31%;   --f-bl:17.8%; }
+[data-fam="metal-f"][data-tier="1"]             { --f-l:35%;   --f-bl:21.8%; }
+[data-fam="metal-f"][data-tier="2"]             { --f-l:39%;   --f-bl:25.8%; }
+[data-fam="metal-f"][data-tier="3"]             { --f-l:43%;   --f-bl:29.8%; }
+[data-fam="metalloid"][data-tier="0"]           { --f-l:33.1%; --f-bl:19%; }
+[data-fam="metalloid"][data-tier="1"]           { --f-l:34.1%; --f-bl:20%; }
+[data-fam="metalloid"][data-tier="2"]           { --f-l:35.1%; --f-bl:21%; }
+[data-fam="metalloid"][data-tier="3"]           { --f-l:36.1%; --f-bl:22%; }
+[data-fam="halogen"][data-tier="0"]             { --f-l:28%;   --f-bl:16.1%; }
+[data-fam="halogen"][data-tier="1"]             { --f-l:32%;   --f-bl:20.1%; }
+[data-fam="halogen"][data-tier="2"]             { --f-l:36%;   --f-bl:24.1%; }
+[data-fam="halogen"][data-tier="3"]             { --f-l:40%;   --f-bl:28.1%; }
+[data-fam="nonmetal"][data-tier="0"]            { --f-l:72%;   --f-bl:62%; }
+[data-fam="nonmetal"][data-tier="1"]            { --f-l:76%;   --f-bl:66%; }
+[data-fam="nonmetal"][data-tier="2"]            { --f-l:80%;   --f-bl:70%; }
+[data-fam="nonmetal"][data-tier="3"]            { --f-l:84%;   --f-bl:74%; }
+[data-fam="noble-gas"][data-tier="0"]           { --f-l:70%;   --f-bl:60%; }
+[data-fam="noble-gas"][data-tier="1"]           { --f-l:74%;   --f-bl:64%; }
+[data-fam="noble-gas"][data-tier="2"]           { --f-l:78%;   --f-bl:68%; }
+[data-fam="noble-gas"][data-tier="3"]           { --f-l:82%;   --f-bl:72%; }
+
+
+/* ============================================================
+   3. 牌堆与瓦片
+   ============================================================ */
+.sg-board {
+  position: relative;
+  isolation: isolate;          /* ★ 必写：内部 z-index 再大也不与
+                                  .navbar{z-index:100} 竞争（spec §4.5） */
+  width: 100%;
+  background: var(--sg-board-bg);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* 定位容器（命中区 = 整张瓦片） */
+.sg-tile {
+  position: absolute;
+  left: calc(var(--gx) * var(--tile) / 2);
+  top:  calc(var(--gy) * var(--tile) / 2);
+  width: var(--tile);
+  height: var(--tile);
+  z-index: calc(var(--layer) * 100 + var(--gy));   /* GDD §S3 定稿 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 视觉卡片（inset 2px 由 gutter 提供，不引入 gap 变量） */
+.sg-tile__face {
+  position: absolute;
+  inset: 2px;
+  --face: calc(var(--tile) - 4px);   /* 字号基准用 face，不用 tile */
+  --depth: 0;                        /* JS 写入：0 = 顶层 */
+  --lift: calc(1 - min(var(--depth), 4) / 4);   /* 1 → 0，封顶 4 层 */
+  --occlude: 0;                      /* 遮挡态遮罩 α，0 = 可点 */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  border-radius: calc(var(--tile) * 0.22);
+  border: max(1px, calc(var(--tile) * 0.028)) solid rgba(var(--f-rgb), calc(0.92 - var(--depth) * 0.14));
+  color: var(--f-fg);
+  /* 单层 background-image + HSL 分量 var —— 已实测安全；
+     多层 + var 遮罩色才会触发 Chromium 失效（铁律②） */
+  background-image: linear-gradient(168deg,
+    hsl(var(--f-h), var(--f-s), var(--f-l)),
+    hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+
+  /* 五段 box-shadow，index 对齐保证可平滑过渡（2/3/4 段均为 inset）：
+     [0] 外投影（随深度变长变实）
+     [1] 族色辉光（「浮起来」的主力，仅顶牌可见）
+     [2] 深度掩埋（连续，随 --depth 加深）
+     [3] 遮挡态遮罩（二值，data-blocked 驱动 α 0 ↔ .55）
+     [4] 内高光（顶边 1px 亮线，玻璃厚度感） */
+  box-shadow:
+    0 calc(2px + var(--depth) * 2.5px) calc(6px + var(--depth) * 3px)
+      rgba(2, 6, 16, calc(0.34 + var(--depth) * 0.07)),
+    0 0 calc(20px * var(--lift))
+      rgba(var(--f-rgb), calc(0.42 * var(--lift))),
+    inset 0 0 0 9999px
+      rgba(var(--f-scrim-rgb), calc(min(var(--depth), 4) * 0.045)),
+    inset 0 0 0 9999px
+      rgba(var(--f-scrim-rgb), var(--occlude)),
+    inset 0 1px 0
+      rgba(255, 255, 255, calc(0.22 * var(--lift)));
+
+  transform: translateY(calc(var(--depth) * 2.5px))
+             scale(calc(1 - var(--depth) * 0.008));
+
+  transition:
+    transform   180ms var(--sg-ease-soft),
+    box-shadow  180ms var(--sg-ease-soft),
+    border-color 180ms var(--sg-ease-soft);
+}
+
+/* ---- 纹样层（§2.5，非颜色区分通道）：仅 4 个族有纹样。
+   用字面量 gradient 写在多层第一层——4 条规则里没有任何 var 遮罩色，
+   避开铁律②；渐变体重复 5 处是有意为之的安全取舍。 ---- */
+[data-fam="metal-d"] .sg-tile__face {      /* 横线 */
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.055) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+}
+[data-fam="metalloid"] .sg-tile__face {    /* 45° 斜线 */
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+}
+[data-fam="metal-p"] .sg-tile__face {      /* 135° 斜线（与 alkali-metal 红区分的色盲通道） */
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.055) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+}
+[data-fam="noble-gas"] .sg-tile__face {    /* 点阵 */
+  background-image:
+    radial-gradient(rgba(15,23,42,.10) 1px, transparent 1.4px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+  background-size: 7px 7px, 100% 100%;
+}
+
+
+/* ============================================================
+   4. 可点态 / 遮挡态（GDD §3.3 引用；数值定稿见 spec §4.7）
+   ============================================================ */
+
+/* 可点态：亮描边 + 族色辉光（「浮起来」的主力是辉光，不是阴影） */
+.sg-tile[data-blocked="false"] .sg-tile__face {
+  border-color: rgba(var(--f-rgb), .92);
+}
+.sg-tile[data-blocked="false"]:hover .sg-tile__face {
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* 遮挡态：零 filter（filter 会把符号一起压暗，9 族里 4 族跌破 4.5）。
+   遮罩 α 0 → .55 走 box-shadow 第 [3] 段，可平滑过渡；
+   描边塌缩 0.92 → 0.26 是「在下面」的最强信号（Δ 3.5–7.6，spec §4.7）。 */
+.sg-tile[data-blocked="true"] {
+  cursor: default;
+}
+.sg-tile[data-blocked="true"] .sg-tile__face {
+  --occlude: .55;
+  border-color: rgba(var(--f-rgb), .26);
+  transform: scale(.94);
+  box-shadow:
+    0 1px 3px rgba(2, 6, 16, .28),
+    0 0 0 rgba(var(--f-rgb), 0),                       /* 辉光移除（与 [1] 对齐） */
+    inset 0 0 0 9999px
+      rgba(var(--f-scrim-rgb), calc(min(var(--depth), 4) * 0.045)),
+    inset 0 0 0 9999px
+      rgba(var(--f-scrim-rgb), .55),
+    inset 0 2px 6px rgba(0, 0, 0, .45);                /* 内凹 */
+}
+
+/* 遮挡态下符号仍须可读：遮罩在文字之下，符号保持全亮。
+   （实测遮挡态对比度 9 族全部 ≥ 10.2，spec §4.7 / §2.6） */
+
+
+/* ============================================================
+   5. 卡面排版（--face 三档分档；55px 基准 = L4/L6 最宽盘）
+   ============================================================ */
+.sg-tile__sym {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               "Noto Sans SC", sans-serif;
+  font-size: calc(var(--face) * 0.42);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sg-tile__num {
+  position: absolute;
+  top: calc(var(--face) * 0.10);
+  left: calc(var(--face) * 0.11);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               "Noto Sans SC", sans-serif;
+  font-size: calc(var(--face) * 0.20);
+  font-weight: 600;
+  opacity: .72;
+  letter-spacing: .02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sg-tile__name {
+  position: absolute;
+  bottom: calc(var(--face) * 0.09);
+  left: 0; right: 0;
+  text-align: center;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               "Noto Sans SC", sans-serif;
+  font-size: calc(var(--face) * 0.17);
+  font-weight: 500;
+  opacity: .80;
+  line-height: 1;
+}
+
+/* 分档显示（<48px 序号只有 ~8px，归为非必要辅助信息）：
+   320px→45px 仅符号 / 375px→55px 符号+序号 / 768px+→72px 三样全开
+   视觉降级不影响语义：aria-label 始终含完整信息（GDD §6.7） */
+@media (max-width: 360px) { .sg-tile__num  { display: none; } }
+@media (max-width: 480px) { .sg-tile__name { display: none; } }
+
+
+/* ============================================================
+   6. 动效（全部 transition / @keyframes，零 rAF）
+   编号对应 spec §5.2；触发由 JS 加/摘类，不写内联样式
+   ============================================================ */
+
+/* A1+A2 选中上浮 / 按下回弹 */
+.sg-tile.is-selected { z-index: 1000; }
+.sg-tile.is-selected .sg-tile__face {
+  transform: translateY(-8px) scale(1.06);
+  transition: transform 120ms var(--sg-ease-spring);
+}
+.sg-tile.is-selected.is-pressed .sg-tile__face {
+  transform: translateY(-4px) scale(1.02);
+  transition: transform 90ms var(--sg-ease-soft);
+}
+
+/* A3 入槽飞行（克隆节点；JS 写一次 --dx/--dy/--ds） */
+.sg-fly-token {
+  position: absolute;
+  z-index: 1100;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: calc(var(--tile) * 0.22);
+  border: max(1px, calc(var(--tile) * 0.028)) solid rgba(var(--f-rgb), .92);
+  background-image: linear-gradient(168deg,
+    hsl(var(--f-h), var(--f-s), var(--f-l)),
+    hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+  box-shadow: 0 0 24px rgba(var(--f-rgb), .5);
+  pointer-events: none;
+  --dx: 0px; --dy: 0px; --ds: 1;
+  animation: sg-fly 260ms var(--sg-ease-quint) forwards;
+}
+@keyframes sg-fly {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  55%  { transform: translate3d(calc(var(--dx) * .55), calc(var(--dy) * .55 - 14px), 0)
+                    scale(calc((1 + var(--ds)) / 2)); }  /* 抛物弧抬升 14px */
+  100% { transform: translate3d(var(--dx), var(--dy), 0) scale(var(--ds)); }
+}
+
+/* A4 入槽落位 */
+.sg-slot-tile.is-landing { animation: sg-land 140ms var(--sg-ease-spring); }
+@keyframes sg-land {
+  0%   { transform: scale(.88); }
+  100% { transform: scale(1); }
+}
+
+/* A5+A6+A7 三消爆裂（::before 空闲，可用于扩散环） */
+.sg-tile.is-bursting { pointer-events: none; z-index: 1200; }
+.sg-tile.is-bursting .sg-tile__face {
+  animation:
+    sg-burst 340ms var(--sg-ease-soft) forwards,
+    sg-halo  460ms var(--sg-ease-soft) forwards;
+}
+@keyframes sg-burst {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(.55); opacity: 0; }
+}
+@keyframes sg-halo {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--f-rgb), .50); }
+  100% { box-shadow: 0 0 0 26px rgba(var(--f-rgb), 0); }
+}
+.sg-tile.is-bursting::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid rgba(var(--f-rgb), .95);
+  pointer-events: none;
+  animation: sg-ring 420ms var(--sg-ease-expand) forwards;
+}
+@keyframes sg-ring {
+  0%   { transform: scale(.72); opacity: .95; }
+  100% { transform: scale(2.05); opacity: 0; }
+}
+
+/* A8 连锁震屏（挂 .sg-board；强度 JS 写 --shake，封顶 8——超过会晕） */
+.sg-board.is-shaking { animation: sg-shake 260ms var(--sg-ease-shake); }
+@keyframes sg-shake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  18% { transform: translate3d(calc(var(--shake, 4) * -1px), calc(var(--shake, 4) * .35px), 0); }
+  38% { transform: translate3d(calc(var(--shake, 4) * 1px),  calc(var(--shake, 4) * -.30px), 0); }
+  58% { transform: translate3d(calc(var(--shake, 4) * -.7px), calc(var(--shake, 4) * .22px), 0); }
+  78% { transform: translate3d(calc(var(--shake, 4) * .45px), 0, 0); }
+}
+
+/* A12 牌堆首屏入场（JS 写 --i 序号，上限 20 张） */
+.sg-tile.is-entering .sg-tile__face {
+  animation: sg-enter 420ms var(--sg-ease-quint) backwards;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+@keyframes sg-enter {
+  0%   { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+
+/* ============================================================
+   7. 槽位压力可视化（四档；★ 槽位是纯展示容器，零触控交互
+      ——「点槽位撤回」已在 GDD v2 删除，撤牌能力由道具承担）
+   ============================================================ */
+.sg-slot-rail {
+  --warn-c: var(--sg-warn-calm);
+  display: flex;
+  gap: 5px;
+  /* ★ 主理人裁决：槽位条左右出血到屏幕边缘，水平 padding 归零。
+     375px 下槽位 = (375 − 3(边框) − 6×5(gap)) / 7 ≈ 48.9px，
+     高于 44.7px（16px 页边距口径）与 44px，Apple HIG 判定翻转为满足 */
+  padding: 8px 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .04);
+  border: 1.5px solid var(--warn-c);
+  transition: border-color 240ms var(--sg-ease-soft);
+}
+.sg-slot-rail[data-fill="4"],
+.sg-slot-rail[data-fill="5"] { --warn-c: var(--sg-warn-mild); }
+.sg-slot-rail[data-fill="6"] { --warn-c: var(--sg-warn-crit); }
+.sg-slot-rail[data-fill="7"] { --warn-c: var(--sg-warn-dead); }
+
+/* 6/7 档呼吸：只脉动 border-color 与 box-shadow，
+   不用 opacity 闪整块——光敏性癫痫风险（spec §5.5） */
+.sg-slot-rail[data-fill="6"] { animation: sg-warn 900ms ease-in-out infinite; }
+.sg-slot-rail[data-fill="7"] { animation: sg-warn 380ms ease-in-out infinite; }
+@keyframes sg-warn {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 107, .10); }
+  50%      { box-shadow: 0 0 22px rgba(255, 107, 107, .30),
+                         inset 0 0 18px rgba(255, 107, 107, .12); }
+}
+
+/* 最后一格独有脉冲（仅 6/7 档） */
+.sg-slot-rail[data-fill="6"] .sg-slot:nth-child(7)::after,
+.sg-slot-rail[data-fill="7"] .sg-slot:nth-child(7)::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid rgba(255, 107, 107, .9);
+  opacity: 0;
+  animation: sg-last 900ms ease-out infinite;
+}
+@keyframes sg-last {
+  0%   { transform: scale(.9);  opacity: .9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+/* 槽位（展示容器） */
+.sg-slot {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: calc((100% - 6 * 5px) / 7);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
+  border: 1px dashed rgba(148, 163, 184, .26);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;         /* 纯展示，零触控交互 */
+}
+.sg-slot.is-filled {
+  border-style: solid;
+  border-color: rgba(var(--f-rgb), .8);
+  background-image: linear-gradient(168deg,
+    hsl(var(--f-h), var(--f-s), var(--f-l)),
+    hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+  box-shadow: 0 0 10px rgba(var(--f-rgb), .35),
+              inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+/* A11 槽位入位高亮 */
+.sg-slot.is-landing {
+  border-color: rgba(var(--f-rgb), .9);
+  transition: border-color 200ms var(--sg-ease-soft);
+}
+
+
+/* ============================================================
+   8. 可访问性降级
+   ============================================================ */
+
+/* 减少动效：保留状态语义（颜色/描边），只砍运动 */
+@media (prefers-reduced-motion: reduce) {
+  .sg-tile__face,
+  .sg-fly-token,
+  .sg-slot-rail,
+  .sg-board.is-shaking {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .sg-tile.is-bursting .sg-tile__face { animation: none !important; opacity: 0; }
+  .sg-tile.is-bursting::before { display: none; }
+  .sg-slot-rail[data-fill="6"],
+  .sg-slot-rail[data-fill="7"] {
+    animation: none !important;
+    border-color: rgba(255, 107, 107, .9);   /* 降级为静态告急色 */
+  }
+  .sg-slot-rail[data-fill="6"] .sg-slot:nth-child(7)::after,
+  .sg-slot-rail[data-fill="7"] .sg-slot:nth-child(7)::after { display: none; }
+  .sg-tile.is-selected .sg-tile__face,
+  .sg-tile[data-blocked="false"]:hover .sg-tile__face { transform: none; }
+}
+
+/* 高对比：描边加粗加亮，纹样加深（不引入新颜色） */
+@media (prefers-contrast: more) {
+  .sg-tile__face { border-width: 2px; }
+  .sg-tile[data-blocked="true"] .sg-tile__face {
+    border-color: rgba(var(--f-rgb), .55);
+  }
+  [data-fam="metal-d"] .sg-tile__face   { background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl))); }
+  [data-fam="metalloid"] .sg-tile__face { background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.13) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl))); }
+  [data-fam="metal-p"] .sg-tile__face   { background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.12) 0 1px, transparent 1px 5px),
+    linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                            hsl(var(--f-bh), var(--f-bs), var(--f-bl))); }
+}

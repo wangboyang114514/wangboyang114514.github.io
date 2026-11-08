@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视觉样板 · 化学版羊了个羊 v2 — Chemistry World</title>
+<style>
+/* ============================================================
+   视觉样板 · 自包含 / 无外部依赖 / 无游戏逻辑
+   对应文档：docs/visual/game-visual-spec.md
+   ============================================================ */
+
+/* ---------- 站点既有变量（照抄 styles.css :root，未修改） ---------- */
+:root {
+  --primary-color: #0f766e;
+  --secondary-color: #14b8a6;
+  --accent-color: #06b6d4;
+  --bg-color: #0f172a;
+  --bg-gradient: linear-gradient(135deg, #0f172a 30%, #1e293b 50%, #334155 70%);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+
+  /* ---------- 游戏族色 · 9 族（本档新增，作用域内声明） ---------- */
+  --fam-alkali-metal-top: #990000;        --fam-alkali-metal-bot: #570000;
+  --fam-alkali-metal-edge: #ff6666;       --fam-alkali-metal-rgb: 255, 102, 102;
+  --fam-alkali-metal-fg: #f8fafc;
+
+  --fam-alkaline-earth-metal-top: #1b5f5b; --fam-alkaline-earth-metal-bot: #103835;
+  --fam-alkaline-earth-metal-edge: #88ddd7;--fam-alkaline-earth-metal-rgb: 136, 221, 215;
+  --fam-alkaline-earth-metal-fg: #f8fafc;
+
+  --fam-metal-d-top: #1e6a7b;             --fam-metal-d-bot: #113c46;
+  --fam-metal-d-edge: #84d0e1;            --fam-metal-d-rgb: 132, 208, 225;
+  --fam-metal-d-fg: #f8fafc;
+
+  --fam-metal-p-top: #7b4514;             --fam-metal-p-bot: #46270b;
+  --fam-metal-p-edge: #eab07b;            --fam-metal-p-rgb: 234, 176, 123;
+  --fam-metal-p-fg: #f8fafc;
+
+  --fam-metal-f-top: #10208e;             --fam-metal-f-bot: #091352;
+  --fam-metal-f-edge: #7685ef;            --fam-metal-f-rgb: 118, 133, 239;
+  --fam-metal-f-fg: #f8fafc;
+
+  --fam-metalloid-top: #367356;           --fam-metalloid-bot: #1f4232;
+  --fam-metalloid-edge: #97ceb4;          --fam-metalloid-rgb: 151, 206, 180;
+  --fam-metalloid-fg: #f8fafc;
+
+  --fam-halogen-top: #692669;             --fam-halogen-bot: #3c163c;
+  --fam-halogen-edge: #d78ed7;            --fam-halogen-rgb: 215, 142, 215;
+  --fam-halogen-fg: #f8fafc;
+
+  --fam-nonmetal-top: #ffdd70;            --fam-nonmetal-bot: #ffd13d;
+  --fam-nonmetal-edge: #e0ab00;           --fam-nonmetal-rgb: 224, 171, 0;
+  --fam-nonmetal-fg: #0f172a;
+
+  --fam-noble-gas-top: #90d5c4;           --fam-noble-gas-bot: #6bc7b0;
+  --fam-noble-gas-edge: #3ea389;          --fam-noble-gas-rgb: 62, 163, 137;
+  --fam-noble-gas-fg: #0f172a;
+
+  /* ---------- 牌桌与缓动 ---------- */
+  --board-bg: #131e33;
+  --tile-max: 92px;
+  --ease-out-soft: cubic-bezier(.4, 0, .2, 1);
+  --ease-out-quint: cubic-bezier(.22, .61, .36, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-expand: cubic-bezier(.16, 1, .3, 1);
+  --ease-shake: cubic-bezier(.36, .07, .19, .97);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 16px 80px;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+.demo-header {
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 20px;
+  margin-bottom: 36px;
+}
+.demo-header h1 {
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  margin: 0 0 8px;
+  letter-spacing: -.01em;
+}
+.demo-header p { margin: 4px 0; color: var(--text-secondary); font-size: .9rem; }
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  background: rgba(20, 184, 166, .14);
+  border: 1px solid rgba(20, 184, 166, .4);
+  color: var(--secondary-color);
+  margin-right: 6px;
+}
+.badge--warn {
+  background: rgba(255, 107, 107, .12);
+  border-color: rgba(255, 107, 107, .42);
+  color: #ff8f8f;
+}
+
+section { margin-bottom: 52px; }
+.sec-head { margin-bottom: 18px; }
+.sec-head h2 {
+  font-size: 1.06rem;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-head h2::before {
+  content: '';
+  width: 3px; height: 17px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--secondary-color), var(--primary-color));
+  flex: none;
+}
+.sec-head p { margin: 0; color: var(--text-secondary); font-size: .84rem; }
+
+.panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow: var(--glass-shadow);
+  padding: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hint {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-color);
+  background: rgba(6, 182, 212, .07);
+  border-radius: 0 8px 8px 0;
+  font-size: .8rem;
+  color: #b6c6d8;
+}
+.hint b { color: var(--accent-color); }
+
+/* ============================================================
+   瓦片基础
+   ============================================================ */
+.tile {
+  --cover: 0;
+  --depth: 0;
+  --z: 1;
+
+  --lift: calc(1 - min(var(--depth), 4) / 4);
+  /* 注意：--occlude 是 0..0.88 的数字，供 ::before 的 opacity 用；
+     切勿与遮挡态的遮罩色混用一个名字（曾实测导致多层 background-image 整体失效） */
+  --occlude: calc(min(var(--cover), 3) * 0.18 + 0.34 * min(var(--cover), 1));
+
+  position: relative;
+  width: var(--tile);
+  aspect-ratio: 1;      /* 高度由宽度推导，避免百分比高度循环依赖 */
+  flex: none;
+  z-index: var(--z);
+
+  border-radius: calc(var(--tile) * 0.22);
+  border: max(1px, calc(var(--tile) * 0.028)) solid
+          rgba(var(--fam-rgb), calc(0.92 - var(--depth) * 0.14));
+  background-image: linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+  color: var(--fam-fg);
+
+  transform: translateY(calc(var(--depth) * 2.5px))
+             scale(calc(1 - var(--depth) * 0.008));
+
+  box-shadow:
+    0 calc(2px + var(--depth) * 2.5px) calc(6px + var(--depth) * 3px)
+      rgba(2, 6, 16, calc(0.34 + var(--depth) * 0.07)),
+    0 0 calc(20px * var(--lift))
+      rgba(var(--fam-rgb), calc(0.42 * var(--lift))),
+    inset 0 1px 0 rgba(255, 255, 255, calc(0.22 * var(--lift)));
+
+  transition:
+    transform 180ms var(--ease-out-soft),
+    box-shadow 180ms var(--ease-out-soft),
+    border-color 180ms var(--ease-out-soft);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 遮挡遮罩 —— 主景深手段 */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(7, 11, 20, .34), rgba(7, 11, 20, .58));
+  opacity: var(--occlude);
+  transition: opacity 180ms var(--ease-out-soft);
+  pointer-events: none;
+}
+
+/* 纹样层（非颜色区分通道） */
+.tile[data-fam="metalloid"] {
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 5px, rgba(255, 255, 255, .11) 5px 6px),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+}
+.tile[data-fam="metal-d"] {
+  background-image:
+    repeating-linear-gradient(180deg, transparent 0 6px, rgba(255, 255, 255, .10) 6px 7px),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+}
+.tile[data-fam="metal-p"] {
+  background-image:
+    repeating-linear-gradient(135deg, transparent 0 5px, rgba(255, 255, 255, .10) 5px 6px),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+}
+.tile[data-fam="noble-gas"] {
+  background-image:
+    radial-gradient(rgba(15, 23, 42, .22) 1px, transparent 1.4px),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+  background-size: 7px 7px, 100% 100%;
+}
+
+/* 排版三级 */
+.tile-num {
+  position: absolute;
+  top: calc(var(--tile) * .09);
+  left: calc(var(--tile) * .11);
+  font-size: calc(var(--tile) * .20);
+  font-weight: 600;
+  opacity: .72;
+  letter-spacing: .02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.tile-sym {
+  font-size: calc(var(--tile) * .40);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.tile-name {
+  position: absolute;
+  bottom: calc(var(--tile) * .09);
+  left: 0; right: 0;
+  text-align: center;
+  font-size: calc(var(--tile) * .17);
+  font-weight: 500;
+  opacity: .8;
+  line-height: 1;
+}
+
+/* ============================================================
+   1. 族色全表
+   ============================================================ */
+.fam-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  --tile: 78px;
+}
+.fam-cell { text-align: center; }
+.fam-cell .cap {
+  margin-top: 8px;
+  font-size: .7rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  max-width: 80px;
+}
+.fam-cell .cap em {
+  display: block;
+  font-style: normal;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .62rem;
+  opacity: .62;
+}
+
+/* ============================================================
+   2. 遮挡景深牌堆
+   ============================================================ */
+.pile-stage {
+  display: flex;
+  justify-content: center;
+}
+/* board-shell = 牌桌 + 尺寸容器。container-type 让内部可用 cqi 精确取宽，
+   彻底避开「百分比 --tile 被自身 height/min-height 消费」的循环依赖 */
+.board-shell {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 340px;
+  --cols: 5;
+  --gap: 8px;
+  --pad-board: 12px;
+}
+.pile {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  --tile: min(
+      var(--tile-max),
+      calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols))
+  );
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(20, 184, 166, .09), transparent 60%),
+    var(--board-bg);
+  border: 1px solid rgba(148, 163, 184, .16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 12px 40px rgba(0, 0, 0, .35);
+  padding: var(--pad-board);
+  min-height: calc(2.5 * var(--tile) + 2.5 * var(--gap));
+}
+.pile .tile {
+  position: absolute;
+  left: calc(var(--px) * (var(--tile) + var(--gap)));
+  top: calc(var(--py) * (var(--tile) + var(--gap)));
+}
+.depth-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 18px;
+  font-size: .76rem;
+  color: var(--text-secondary);
+  justify-content: center;
+}
+.depth-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.depth-legend i {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ============================================================
+   3. 三消爆裂循环
+   ============================================================ */
+.burst-stage {
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  flex-wrap: wrap;
+  --tile: 76px;
+}
+.tile--burst {
+  animation:
+    demoBurst 2400ms var(--ease-out-soft) infinite,
+    demoHalo  2400ms var(--ease-out-soft) infinite;
+}
+@keyframes demoBurst {
+  0%, 58%   { transform: scale(1);    opacity: 1; }
+  64%       { transform: scale(1.18); opacity: 1; }
+  76%       { transform: scale(.55);  opacity: 0; }
+  90%       { transform: scale(.55);  opacity: 0; }
+  100%      { transform: scale(1);    opacity: 1; }
+}
+@keyframes demoHalo {
+  0%, 58%   { box-shadow: 0 0 0 0 rgba(var(--fam-rgb), .50); }
+  82%       { box-shadow: 0 0 0 26px rgba(var(--fam-rgb), 0); }
+  100%      { box-shadow: 0 0 0 0 rgba(var(--fam-rgb), 0); }
+}
+/* 扩散环用 ::after（::before 已被遮挡遮罩占用） */
+.tile--burst::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid rgba(var(--fam-rgb), .95);
+  opacity: 0;
+  animation: demoRing 2400ms var(--ease-expand) infinite;
+  pointer-events: none;
+}
+@keyframes demoRing {
+  0%, 60%   { transform: scale(.72); opacity: 0; }
+  62%       { transform: scale(.72); opacity: .95; }
+  88%       { transform: scale(2.05); opacity: 0; }
+  100%      { transform: scale(.72); opacity: 0; }
+}
+.burst-stage .tile--burst:nth-child(2) { animation-delay: 90ms; }
+.burst-stage .tile--burst:nth-child(3) { animation-delay: 180ms; }
+.burst-stage .tile--burst:nth-child(2)::after { animation-delay: 90ms; }
+.burst-stage .tile--burst:nth-child(3)::after { animation-delay: 180ms; }
+
+/* ============================================================
+   3b. 遮挡态 vs 可点态（对应规格 §4.7，零 filter 方案）
+   ============================================================ */
+.state-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  justify-content: center;
+  --tile: 68px;
+}
+.state-pair { text-align: center; }
+.state-pair .pair {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.state-pair .cap {
+  margin-top: 8px;
+  font-size: .7rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+.state-pair .cap em {
+  display: block;
+  font-style: normal;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .62rem;
+  opacity: .62;
+}
+.state-legend {
+  display: flex;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 18px;
+  font-size: .74rem;
+  color: #b6c6d8;
+}
+.state-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.state-legend i { width: 10px; height: 10px; border-radius: 3px; }
+
+/* 可点态：亮描边 + 族色辉光（主力是辉光，不是阴影） */
+.tile.is-live {
+  border: max(1px, calc(var(--tile) * .028)) solid rgba(var(--fam-rgb), .92);
+  background-image: linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+  box-shadow:
+    0 2px 6px rgba(2, 6, 16, .34),
+    0 0 20px rgba(var(--fam-rgb), .42),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+.tile.is-live:hover { transform: translateY(-3px) scale(1.02); }
+
+/* 遮挡态：零 filter，暗化层放 background-image 第一层（在文字之下） */
+.tile.is-blocked {
+  border-color: rgba(var(--fam-rgb), .26);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, .45),
+    0 1px 3px rgba(2, 6, 16, .28);
+  transform: scale(.94);
+  cursor: not-allowed;
+}
+/* 遮罩色直接写死在 background-image 里，不经 var() 中转。
+   实测：多层 background-image 里若有一层用 var() 引遮罩色，
+   Chromium 会把整条 background-image 判为无效（computed = none）。
+   单层 var() 正常，多层必挂 —— 见规格 §4.7 的警示框。 */
+.tile.is-blocked[data-pol="dark"] .sg-tile__face,
+.tile.is-blocked[data-pol="dark"] {
+  background-image:
+    linear-gradient(rgba(11, 17, 30, .55), rgba(11, 17, 30, .55)),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+}
+.tile.is-blocked[data-pol="light"] .sg-tile__face,
+.tile.is-blocked[data-pol="light"] {
+  background-image:
+    linear-gradient(rgba(241, 245, 249, .55), rgba(241, 245, 249, .55)),
+    linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+}
+/* 上层投下的柔和阴影（::before 在此未被遮挡遮罩占用，可安全使用） */
+.tile.is-blocked::before {
+  background: linear-gradient(180deg, rgba(0, 0, 0, .30), rgba(0, 0, 0, 0) 55%);
+  opacity: 1;
+  transition: none;
+}
+
+/* ============================================================
+   4. 移动端 375px 实况
+   ============================================================ */
+.phone-row {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.phone {
+  width: 375px;
+  max-width: 100%;
+  flex: none;
+  border-radius: 30px;
+  padding: 10px;
+  background: linear-gradient(180deg, #1a2338, #0b1120);
+  border: 1px solid rgba(148, 163, 184, .22);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+.phone-screen {
+  border-radius: 22px;
+  overflow: hidden;
+  background: #0f172a;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.phone-label {
+  text-align: center;
+  font-size: .7rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  letter-spacing: .04em;
+}
+
+/* 紧凑 HUD（替换现有 <h1> + .game-info） */
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  flex: none;
+}
+.hud-stat {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .08);
+  line-height: 1.15;
+}
+.hud-stat span {
+  display: block;
+  font-size: .6rem;
+  color: var(--text-secondary);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.hud-stat b {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+.hud-btn {
+  width: 44px; height: 44px;
+  flex: none;
+  border-radius: 12px;
+  background: rgba(20, 184, 166, .12);
+  border: 1px solid rgba(20, 184, 166, .38);
+  color: var(--secondary-color);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 200ms var(--ease-out-soft);
+}
+.hud-btn:hover { background: rgba(20, 184, 166, .22); }
+.hud-btn svg { width: 19px; height: 19px; }
+
+/* 375 下的牌堆：外层模拟游戏容器内边距，board-shell 作为尺寸容器 */
+.sim-game-pad { padding: 12px; }
+.pile-375 {
+  container-type: inline-size;
+  --cols: 5;
+  --gap: 8px;
+  --pad-board: 10px;
+}
+.pile-375 .pile {
+  --tile: min(92px, calc((100cqi - 4 * var(--gap)) / 5));
+  padding: var(--pad-board);
+  border-radius: 14px;
+  min-height: calc(2.5 * var(--tile) + 2.5 * var(--gap));
+}
+.pile-375 .pile .tile {
+  left: calc(var(--px) * (var(--tile) + var(--gap)));
+  top: calc(var(--py) * (var(--tile) + var(--gap)));
+}
+
+/* 老浏览器回退：无容器查询单位时用 100vw（移动端全宽，精确） */
+@supports not (container-type: inline-size) {
+  .board-shell .pile,
+  .pile-375 .pile {
+    --tile: min(var(--tile-max), calc((100vw - 96px - 4 * var(--gap)) / var(--cols)));
+  }
+}
+
+/* 槽位轨 */
+.slot-rail {
+  --slot-gap: 4px;
+  --warn: 900ms;
+  display: flex;
+  gap: var(--slot-gap);
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(148, 163, 184, .18);
+  transition: border-color 200ms var(--ease-out-soft);
+}
+.slot-rail[data-fill="7"] { --warn: 380ms; }
+.slot-rail.is-critical { animation: warnPulse var(--warn) ease-in-out infinite; }
+@keyframes warnPulse {
+  0%, 100% {
+    border-color: rgba(255, 107, 107, .32);
+    box-shadow: 0 0 10px rgba(255, 107, 107, .10);
+  }
+  50% {
+    border-color: rgba(255, 107, 107, .88);
+    box-shadow: 0 0 22px rgba(255, 107, 107, .30), inset 0 0 18px rgba(255, 107, 107, .12);
+  }
+}
+.slot {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: calc((100% - 6 * var(--slot-gap)) / 7);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
+  border: 1px dashed rgba(148, 163, 184, .26);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+.slot.is-filled {
+  border-style: solid;
+  border-color: rgba(var(--fam-rgb), .8);
+  background-image: linear-gradient(168deg, var(--fam-top), var(--fam-bot));
+  box-shadow: 0 0 10px rgba(var(--fam-rgb), .35), inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+.slot-rail-cap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: .62rem;
+  color: var(--text-secondary);
+  padding: 0 2px;
+  letter-spacing: .05em;
+}
+.slot-rail-cap b { color: #ff8f8f; font-size: .68rem; }
+
+/* 375 下的信息卡（移出首屏，示意折叠） */
+.info-collapsed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  font-size: .74rem;
+  color: var(--text-secondary);
+}
+.info-collapsed b { color: var(--secondary-color); font-weight: 600; }
+
+/* 高度预算标尺 */
+.budget {
+  flex: 1 1 300px;
+  min-width: 280px;
+  font-size: .8rem;
+}
+.budget h3 {
+  font-size: .84rem;
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.budget-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.budget-row .lbl {
+  width: 118px;
+  flex: none;
+  color: #a8b8ca;
+  font-size: .76rem;
+}
+.budget-row .bar {
+  height: 15px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(20, 184, 166, .55), rgba(15, 118, 110, .3));
+  border: 1px solid rgba(20, 184, 166, .3);
+}
+.budget-row .val {
+  font-variant-numeric: tabular-nums;
+  font-size: .72rem;
+  color: var(--text-secondary);
+  flex: none;
+}
+.budget-row.is-key .bar {
+  background: linear-gradient(90deg, rgba(6, 182, 212, .6), rgba(20, 184, 166, .25));
+  border-color: rgba(6, 182, 212, .45);
+}
+.budget-row.is-key .lbl { color: var(--accent-color); font-weight: 600; }
+.budget-total {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(148, 163, 184, .25);
+  display: flex;
+  justify-content: space-between;
+  font-size: .8rem;
+}
+.budget-total b { color: #ff8f8f; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   5. hub 图标
+   ============================================================ */
+.icon-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.icon-card {
+  flex: 1 1 200px;
+  max-width: 250px;
+  padding: 22px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .045);
+  border: 1px solid rgba(255, 255, 255, .09);
+  text-align: center;
+  transition: transform 220ms var(--ease-out-soft), background 220ms var(--ease-out-soft);
+}
+.icon-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, .075);
+}
+.game-icon {
+  width: 44px; height: 44px;
+  margin: 0 auto 12px;
+  color: var(--secondary-color);
+  transition: color 220ms var(--ease-out-soft);
+}
+.icon-card:hover .game-icon { color: var(--accent-color); }
+.game-icon svg { width: 100%; height: 100%; display: block; }
+.icon-card h4 { margin: 0 0 6px; font-size: .88rem; }
+.icon-card p { margin: 0; font-size: .72rem; color: var(--text-secondary); line-height: 1.5; }
+
+/* ============================================================
+   6. 对比度表
+   ============================================================ */
+.tbl-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .76rem;
+  min-width: 560px;
+}
+th, td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, .14);
+  white-space: nowrap;
+}
+th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: .7rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+td.num { font-variant-numeric: tabular-nums; text-align: right; }
+.pass { color: #4ade80; font-weight: 700; }
+.swatch {
+  display: inline-block;
+  width: 26px; height: 15px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 8px;
+  border: 1px solid rgba(255, 255, 255, .18);
+}
+
+.demo-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--glass-border);
+  font-size: .76rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.demo-footer code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .72rem;
+  background: rgba(255, 255, 255, .06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent-color);
+}
+
+/* 375px 以下：符号名同步缩小，与规格一致 */
+@media (max-width: 480px) {
+  body { padding: 16px 12px 60px; }
+  .fam-grid { --tile: 66px; }
+  .tile-name { display: none; }
+  .burst-stage { --tile: 64px; gap: 14px; }
+}
+
+/* 减少动效降级 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .tile--burst { animation: none !important; }
+  .tile--burst::after { display: none; }
+  .slot-rail.is-critical { animation: none !important; border-color: rgba(255, 107, 107, .9); }
+  .icon-card:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="demo-header">
+    <h1>化学版羊了个羊 v2 · 视觉样板</h1>
+    <p>
+      <span class="badge">纯 CSS / SVG</span>
+      <span class="badge">手机优先 375px</span>
+      <span class="badge badge--warn">静态样板 · 无游戏逻辑</span>
+    </p>
+    <p>对应文档 <code style="font-family:ui-monospace,monospace">docs/visual/game-visual-spec.md</code> · 本页不替换任何现有页面，双击即可离线打开。</p>
+  </header>
+
+  <!-- ========== 1. 族色全表 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>九族瓦片</h2>
+      <p>站点原有 7 个元素分类色 + 把占比 68% 的 <code>metal</code> 拆成 3 个亚族。所有色相源自 <code>styles.css</code> 已有的族色。</p>
+    </div>
+    <div class="panel">
+      <div class="fam-grid">
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-alkali-metal-top);--fam-bot:var(--fam-alkali-metal-bot);--fam-rgb:var(--fam-alkali-metal-rgb);--fam-fg:var(--fam-alkali-metal-fg);" data-fam="alkali-metal">
+            <span class="tile-num">3</span><span class="tile-sym">Li</span><span class="tile-name">锂</span>
+          </div>
+          <div class="cap">碱金属<em>alkali-metal</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-alkaline-earth-metal-top);--fam-bot:var(--fam-alkaline-earth-metal-bot);--fam-rgb:var(--fam-alkaline-earth-metal-rgb);--fam-fg:var(--fam-alkaline-earth-metal-fg);" data-fam="alkaline-earth-metal">
+            <span class="tile-num">12</span><span class="tile-sym">Mg</span><span class="tile-name">镁</span>
+          </div>
+          <div class="cap">碱土金属<em>alkaline-earth</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);" data-fam="metal-d">
+            <span class="tile-num">26</span><span class="tile-sym">Fe</span><span class="tile-name">铁</span>
+          </div>
+          <div class="cap">过渡金属<em>metal-d</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-metal-p-top);--fam-bot:var(--fam-metal-p-bot);--fam-rgb:var(--fam-metal-p-rgb);--fam-fg:var(--fam-metal-p-fg);" data-fam="metal-p">
+            <span class="tile-num">82</span><span class="tile-sym">Pb</span><span class="tile-name">铅</span>
+          </div>
+          <div class="cap">后过渡金属<em>metal-p</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-metal-f-top);--fam-bot:var(--fam-metal-f-bot);--fam-rgb:var(--fam-metal-f-rgb);--fam-fg:var(--fam-metal-f-fg);" data-fam="metal-f">
+            <span class="tile-num">64</span><span class="tile-sym">Gd</span><span class="tile-name">钆</span>
+          </div>
+          <div class="cap">镧系·锕系<em>metal-f</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-metalloid-top);--fam-bot:var(--fam-metalloid-bot);--fam-rgb:var(--fam-metalloid-rgb);--fam-fg:var(--fam-metalloid-fg);" data-fam="metalloid">
+            <span class="tile-num">14</span><span class="tile-sym">Si</span><span class="tile-name">硅</span>
+          </div>
+          <div class="cap">类金属<em>metalloid</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-halogen-top);--fam-bot:var(--fam-halogen-bot);--fam-rgb:var(--fam-halogen-rgb);--fam-fg:var(--fam-halogen-fg);" data-fam="halogen">
+            <span class="tile-num">17</span><span class="tile-sym">Cl</span><span class="tile-name">氯</span>
+          </div>
+          <div class="cap">卤素<em>halogen</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);--fam-fg:var(--fam-nonmetal-fg);" data-fam="nonmetal">
+            <span class="tile-num">8</span><span class="tile-sym">O</span><span class="tile-name">氧</span>
+          </div>
+          <div class="cap">非金属<em>nonmetal</em></div>
+        </div>
+        <div class="fam-cell">
+          <div class="tile" style="--fam-top:var(--fam-noble-gas-top);--fam-bot:var(--fam-noble-gas-bot);--fam-rgb:var(--fam-noble-gas-rgb);--fam-fg:var(--fam-noble-gas-fg);" data-fam="noble-gas">
+            <span class="tile-num">10</span><span class="tile-sym">Ne</span><span class="tile-name">氖</span>
+          </div>
+          <div class="cap">稀有气体<em>noble-gas</em></div>
+        </div>
+      </div>
+      <div class="hint">
+        <b>注意最后两族是浅底深字。</b>非金属的黄与稀有气体的薄荷在任意明度下亮度都偏高，硬压成深底会过不了 4.5:1 对比度（实测只能到 3.69 / 3.84），所以走「浅底 + 深字」的相反极性。副作用是好的：牌堆里多了两个亮色族，整盘不会一片深蓝。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 2. 遮挡景深 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>遮挡景深 · 多层牌堆</h2>
+      <p>纯 CSS 表达牌堆厚度：<code>--cover</code> 遮罩压暗为主，<code>--depth</code> 推导位移/缩放/描边衰减为辅。JS 只在状态变化时写一次变量。</p>
+    </div>
+    <div class="panel">
+      <div class="pile-stage">
+        <div class="board-shell">
+          <div class="pile">
+            <!-- 底层 depth3 cover2 -->
+            <div class="tile" data-fam="alkali-metal" style="--fam-top:var(--fam-alkali-metal-top);--fam-bot:var(--fam-alkali-metal-bot);--fam-rgb:var(--fam-alkali-metal-rgb);--fam-fg:var(--fam-alkali-metal-fg);--px:.5;--py:0;--z:1;--depth:3;--cover:2;"><span class="tile-num">19</span><span class="tile-sym">K</span></div>
+            <div class="tile" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);--px:1.5;--py:0;--z:2;--depth:3;--cover:1;"><span class="tile-num">29</span><span class="tile-sym">Cu</span></div>
+            <div class="tile" data-fam="halogen" style="--fam-top:var(--fam-halogen-top);--fam-bot:var(--fam-halogen-bot);--fam-rgb:var(--fam-halogen-rgb);--fam-fg:var(--fam-halogen-fg);--px:2.5;--py:0;--z:3;--depth:3;--cover:1;"><span class="tile-num">35</span><span class="tile-sym">Br</span></div>
+            <div class="tile" data-fam="metal-f" style="--fam-top:var(--fam-metal-f-top);--fam-bot:var(--fam-metal-f-bot);--fam-rgb:var(--fam-metal-f-rgb);--fam-fg:var(--fam-metal-f-fg);--px:3.5;--py:0;--z:4;--depth:3;--cover:1;"><span class="tile-num">58</span><span class="tile-sym">Ce</span></div>
+
+            <!-- 中层 depth2 cover1 -->
+            <div class="tile" data-fam="metalloid" style="--fam-top:var(--fam-metalloid-top);--fam-bot:var(--fam-metalloid-bot);--fam-rgb:var(--fam-metalloid-rgb);--fam-fg:var(--fam-metalloid-fg);--px:1;--py:.5;--z:5;--depth:2;--cover:1;"><span class="tile-num">32</span><span class="tile-sym">Ge</span></div>
+            <div class="tile" data-fam="metal-p" style="--fam-top:var(--fam-metal-p-top);--fam-bot:var(--fam-metal-p-bot);--fam-rgb:var(--fam-metal-p-rgb);--fam-fg:var(--fam-metal-p-fg);--px:2;--py:.5;--z:6;--depth:2;--cover:1;"><span class="tile-num">50</span><span class="tile-sym">Sn</span></div>
+            <div class="tile" data-fam="noble-gas" style="--fam-top:var(--fam-noble-gas-top);--fam-bot:var(--fam-noble-gas-bot);--fam-rgb:var(--fam-noble-gas-rgb);--fam-fg:var(--fam-noble-gas-fg);--px:3;--py:.5;--z:7;--depth:2;--cover:2;"><span class="tile-num">18</span><span class="tile-sym">Ar</span></div>
+
+            <!-- 上层 depth1 -->
+            <div class="tile" data-fam="alkaline-earth-metal" style="--fam-top:var(--fam-alkaline-earth-metal-top);--fam-bot:var(--fam-alkaline-earth-metal-bot);--fam-rgb:var(--fam-alkaline-earth-metal-rgb);--fam-fg:var(--fam-alkaline-earth-metal-fg);--px:1.5;--py:1;--z:8;--depth:1;--cover:1;"><span class="tile-num">20</span><span class="tile-sym">Ca</span></div>
+            <div class="tile" data-fam="nonmetal" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);--fam-fg:var(--fam-nonmetal-fg);--px:2.5;--py:1;--z:9;--depth:1;--cover:1;"><span class="tile-num">16</span><span class="tile-sym">S</span></div>
+
+            <!-- 顶层 depth0 可点 -->
+            <div class="tile" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);--px:2;--py:1.5;--z:10;--depth:0;--cover:0;"><span class="tile-num">26</span><span class="tile-sym">Fe</span><span class="tile-name">铁</span></div>
+          </div>
+          <div class="depth-legend">
+            <span><i style="background:linear-gradient(135deg,#84d0e1,#1e6a7b)"></i> 顶层 depth 0 · 辉光 20px</span>
+            <span><i style="background:#1e6a7b"></i> depth 1–2</span>
+            <span><i style="background:#12333c"></i> depth 3 · 沉底</span>
+          </div>
+        </div>
+      </div>
+      <div class="hint">
+        <b>尺寸公式用 <code>cqi</code> 而非 <code>100%</code>。</b><code>--tile</code> 会同时被瓦片的 <code>width</code>、<code>height</code> 和牌堆 <code>min-height</code> 消费，若用百分比会形成循环依赖——本档实测复现过牌堆塌成 0 高、瓦片全部消失。<code>cqi</code> 是确定长度，无循环。老浏览器回退见规格文档 §3.1。
+      </div>
+      <div class="hint">
+        <b>为什么不用 <code>filter: brightness()/blur()</code> 当主手段：</b>每张牌一个 filter 会各建一个合成层，40 张牌在千元安卓机上会掉到 45fps 以下。<code>--cover</code> 遮罩只是一个 opacity 过渡，走合成器，几乎零成本。<code>filter</code> 已降级为桌面可选增强（<code>.quality-high</code>）。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3. 三消爆裂 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>三消爆裂 · 循环演示</h2>
+      <p>三个同族牌同时爆裂：本体 340ms 缩放 + <code>::after</code> 扩散环 420ms + <code>box-shadow</code> 光晕 460ms，逐张错开 90ms。</p>
+    </div>
+    <div class="panel">
+      <div class="burst-stage">
+        <div class="tile tile--burst" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+        <div class="tile tile--burst" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+        <div class="tile tile--burst" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+      </div>
+      <div class="hint">
+        缓动 <code>cubic-bezier(.4,0,.2,1)</code> 用于本体收缩、<code>cubic-bezier(.16,1,.3,1)</code> 用于环形扩散（快速冲出、缓慢收尾）。连锁震屏不在本样板演示——它需要真实游戏节奏触发，规格见文档 §5.4。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3b. 遮挡态 vs 可点态 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>遮挡态 vs 可点态</h2>
+      <p>对应规格 §4.7。左侧可点（亮描边 + 族色辉光），右侧被遮挡（描边塌掉 + 辉光消失 + 内凹）。零 filter，符号保持全亮。</p>
+    </div>
+    <div class="panel">
+      <div class="state-grid">
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="dark" style="--fam-top:var(--fam-alkali-metal-top);--fam-bot:var(--fam-alkali-metal-bot);--fam-rgb:var(--fam-alkali-metal-rgb);"><span class="tile-num">19</span><span class="tile-sym">K</span></div>
+            <div class="tile is-blocked" data-pol="dark" style="--fam-top:var(--fam-alkali-metal-top);--fam-bot:var(--fam-alkali-metal-bot);--fam-rgb:var(--fam-alkali-metal-rgb);"><span class="tile-num">19</span><span class="tile-sym">K</span></div>
+          </div>
+          <div class="cap">碱金属<em>contrast 8.52 → 13.33</em></div>
+        </div>
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="dark" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);" data-fam="metal-d"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+            <div class="tile is-blocked" data-pol="dark" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+          </div>
+          <div class="cap">过渡金属 metal-d<em>contrast 5.90 → 10.02</em></div>
+        </div>
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="dark" style="--fam-top:var(--fam-metal-f-top);--fam-bot:var(--fam-metal-f-bot);--fam-rgb:var(--fam-metal-f-rgb);"><span class="tile-num">64</span><span class="tile-sym">Gd</span></div>
+            <div class="tile is-blocked" data-pol="dark" style="--fam-top:var(--fam-metal-f-top);--fam-bot:var(--fam-metal-f-bot);--fam-rgb:var(--fam-metal-f-rgb);"><span class="tile-num">64</span><span class="tile-sym">Gd</span></div>
+          </div>
+          <div class="cap">镧系·锕系<em>contrast 12.40 → 15.11</em></div>
+        </div>
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="dark" style="--fam-top:var(--fam-metalloid-top);--fam-bot:var(--fam-metalloid-bot);--fam-rgb:var(--fam-metalloid-rgb);" data-fam="metalloid"><span class="tile-num">14</span><span class="tile-sym">Si</span></div>
+            <div class="tile is-blocked" data-pol="dark" data-fam="metalloid" style="--fam-top:var(--fam-metalloid-top);--fam-bot:var(--fam-metalloid-bot);--fam-rgb:var(--fam-metalloid-rgb);"><span class="tile-num">14</span><span class="tile-sym">Si</span></div>
+          </div>
+          <div class="cap">类金属（45° 纹样保留）<em>contrast 5.36 → 9.46</em></div>
+        </div>
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="light" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);--fam-fg:var(--fam-nonmetal-fg);" data-fam="nonmetal"><span class="tile-num">8</span><span class="tile-sym">O</span></div>
+            <div class="tile is-blocked" data-pol="light" data-fam="nonmetal" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);--fam-fg:var(--fam-nonmetal-fg);"><span class="tile-num">8</span><span class="tile-sym">O</span></div>
+          </div>
+          <div class="cap">非金属（浅底洗白，非压暗）<em>contrast 13.46 → 14.86</em></div>
+        </div>
+        <div class="state-pair">
+          <div class="pair">
+            <div class="tile is-live" data-pol="light" style="--fam-top:var(--fam-noble-gas-top);--fam-bot:var(--fam-noble-gas-bot);--fam-rgb:var(--fam-noble-gas-rgb);--fam-fg:var(--fam-noble-gas-fg);" data-fam="noble-gas"><span class="tile-num">10</span><span class="tile-sym">Ne</span></div>
+            <div class="tile is-blocked" data-pol="light" data-fam="noble-gas" style="--fam-top:var(--fam-noble-gas-top);--fam-bot:var(--fam-noble-gas-bot);--fam-rgb:var(--fam-noble-gas-rgb);--fam-fg:var(--fam-noble-gas-fg);"><span class="tile-num">10</span><span class="tile-sym">Ne</span></div>
+          </div>
+          <div class="cap">稀有气体（点阵纹样保留）<em>contrast 10.63 → 13.48</em></div>
+        </div>
+      </div>
+      <div class="state-legend">
+        <span><i style="background:#84d0e1"></i> 可点：描边不透明度 .92 + 辉光 20px</span>
+        <span><i style="background:#1d3a4a"></i> 遮挡：描边塌到 .26 + 辉光消失 + 内凹</span>
+        <span><i style="background:#f1f5f9"></i> 浅底族用洗白 rgba(241,245,249,.55)</span>
+      </div>
+      <div class="hint">
+        <b>GDD 原基线 <code>filter: brightness(.62)</code> 不可用</b>——filter 会把符号一起压暗，metalloid / metal-d / alkaline-earth / metal-f 四族遮挡态对比度跌到 3.72–4.42，低于 4.5。本方案零 filter，9 族全部 ≥9.46。且实测填充明度扛不起"在下面"信号（暗色族 ΔL 最高仅 0.021），主力是<b>描边塌掉 + 辉光消失</b>（描边↔牌桌对比度 Δ 3.5–7.6）。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. 375px 实况 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>375px 实况 · 竖屏高度预算</h2>
+      <p>这是本方案最硬的约束：iPhone SE（375×667）上，牌堆最多只能放 6 行。</p>
+    </div>
+    <div class="panel">
+      <div class="phone-row">
+        <div>
+          <div class="phone">
+            <div class="phone-screen">
+              <!-- HUD 替换原 <h1> + .game-info -->
+              <div class="hud">
+                <div class="hud-stat"><span>得分 Score</span><b>1280</b></div>
+                <div class="hud-stat"><span>步数 Moves</span><b>24</b></div>
+                <button class="hud-btn" aria-label="重新开始">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- 牌堆 -->
+              <div class="sim-game-pad">
+              <div class="board-shell pile-375">
+                <div class="pile">
+                  <div class="tile" data-fam="alkali-metal" style="--fam-top:var(--fam-alkali-metal-top);--fam-bot:var(--fam-alkali-metal-bot);--fam-rgb:var(--fam-alkali-metal-rgb);--fam-fg:var(--fam-alkali-metal-fg);--px:.5;--py:0;--z:1;--depth:3;--cover:2;"><span class="tile-num">11</span><span class="tile-sym">Na</span></div>
+                  <div class="tile" data-fam="metal-f" style="--fam-top:var(--fam-metal-f-top);--fam-bot:var(--fam-metal-f-bot);--fam-rgb:var(--fam-metal-f-rgb);--fam-fg:var(--fam-metal-f-fg);--px:1.5;--py:0;--z:2;--depth:3;--cover:1;"><span class="tile-num">63</span><span class="tile-sym">Eu</span></div>
+                  <div class="tile" data-fam="halogen" style="--fam-top:var(--fam-halogen-top);--fam-bot:var(--fam-halogen-bot);--fam-rgb:var(--fam-halogen-rgb);--fam-fg:var(--fam-halogen-fg);--px:2.5;--py:0;--z:3;--depth:3;--cover:1;"><span class="tile-num">53</span><span class="tile-sym">I</span></div>
+                  <div class="tile" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);--px:3.5;--py:0;--z:4;--depth:2;--cover:1;"><span class="tile-num">30</span><span class="tile-sym">Zn</span></div>
+
+                  <div class="tile" data-fam="metalloid" style="--fam-top:var(--fam-metalloid-top);--fam-bot:var(--fam-metalloid-bot);--fam-rgb:var(--fam-metalloid-rgb);--fam-fg:var(--fam-metalloid-fg);--px:1;--py:.5;--z:5;--depth:2;--cover:1;"><span class="tile-num">5</span><span class="tile-sym">B</span></div>
+                  <div class="tile" data-fam="noble-gas" style="--fam-top:var(--fam-noble-gas-top);--fam-bot:var(--fam-noble-gas-bot);--fam-rgb:var(--fam-noble-gas-rgb);--fam-fg:var(--fam-noble-gas-fg);--px:2;--py:.5;--z:6;--depth:2;--cover:2;"><span class="tile-num">36</span><span class="tile-sym">Kr</span></div>
+                  <div class="tile" data-fam="metal-p" style="--fam-top:var(--fam-metal-p-top);--fam-bot:var(--fam-metal-p-bot);--fam-rgb:var(--fam-metal-p-rgb);--fam-fg:var(--fam-metal-p-fg);--px:3;--py:.5;--z:7;--depth:1;--cover:1;"><span class="tile-num">13</span><span class="tile-sym">Al</span></div>
+
+                  <div class="tile" data-fam="alkaline-earth-metal" style="--fam-top:var(--fam-alkaline-earth-metal-top);--fam-bot:var(--fam-alkaline-earth-metal-bot);--fam-rgb:var(--fam-alkaline-earth-metal-rgb);--fam-fg:var(--fam-alkaline-earth-metal-fg);--px:1.5;--py:1;--z:8;--depth:1;--cover:1;"><span class="tile-num">56</span><span class="tile-sym">Ba</span></div>
+                  <div class="tile" data-fam="nonmetal" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);--fam-fg:var(--fam-nonmetal-fg);--px:2.5;--py:1;--z:9;--depth:1;--cover:1;"><span class="tile-num">7</span><span class="tile-sym">N</span></div>
+
+                  <div class="tile" data-fam="metal-d" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);--fam-fg:var(--fam-metal-d-fg);--px:2;--py:1.5;--z:10;--depth:0;--cover:0;"><span class="tile-num">26</span><span class="tile-sym">Fe</span></div>
+                </div>
+              </div>
+              </div>
+
+              <!-- 槽位轨 · 6/7 告急态 -->
+              <div>
+                <div class="slot-rail-cap"><span>元素槽位 Slots</span><b>6 / 7 · 告急</b></div>
+                <div class="slot-rail is-critical" data-fill="6">
+                  <div class="slot is-filled" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);">Fe</div>
+                  <div class="slot is-filled" style="--fam-top:var(--fam-metal-d-top);--fam-bot:var(--fam-metal-d-bot);--fam-rgb:var(--fam-metal-d-rgb);">Fe</div>
+                  <div class="slot is-filled" style="--fam-top:var(--fam-halogen-top);--fam-bot:var(--fam-halogen-bot);--fam-rgb:var(--fam-halogen-rgb);">I</div>
+                  <div class="slot is-filled" style="--fam-top:var(--fam-halogen-top);--fam-bot:var(--fam-halogen-bot);--fam-rgb:var(--fam-halogen-rgb);">I</div>
+                  <div class="slot is-filled" style="--fam-top:var(--fam-metal-p-top);--fam-bot:var(--fam-metal-p-bot);--fam-rgb:var(--fam-metal-p-rgb);">Al</div>
+                  <div class="slot is-filled" style="--fam-top:var(--fam-nonmetal-top);--fam-bot:var(--fam-nonmetal-bot);--fam-rgb:var(--fam-nonmetal-rgb);">N</div>
+                  <div class="slot"></div>
+                </div>
+              </div>
+
+              <!-- 信息卡移出首屏 · 折叠态 -->
+              <div class="info-collapsed"><b>Fe</b> 铁 · 原子序数 26 · 过渡金属 <span style="margin-left:auto;opacity:.6">展开 ›</span></div>
+            </div>
+          </div>
+          <div class="phone-label">375 × 667 · iPhone SE</div>
+        </div>
+
+        <!-- 高度预算标尺 -->
+        <div class="budget">
+          <h3>竖屏高度预算（667px）</h3>
+          <div class="budget-row">
+            <span class="lbl">导航栏</span>
+            <div class="bar" style="width:64px"></div>
+            <span class="val">64px</span>
+          </div>
+          <div class="budget-row is-key">
+            <span class="lbl">紧凑 HUD</span>
+            <div class="bar" style="width:52px"></div>
+            <span class="val">52px</span>
+          </div>
+          <div class="budget-row is-key">
+            <span class="lbl">槽位轨</span>
+            <div class="bar" style="width:61px"></div>
+            <span class="val">61px</span>
+          </div>
+          <div class="budget-row">
+            <span class="lbl">间距 / 留白</span>
+            <div class="bar" style="width:32px"></div>
+            <span class="val">32px</span>
+          </div>
+          <div class="budget-row">
+            <span class="lbl">牌堆（理论）</span>
+            <div class="bar" style="width:419px;max-width:100%"></div>
+            <span class="val">450px</span>
+          </div>
+          <div class="budget-total">
+            <span>牌堆可容纳</span>
+            <b>7 行 → 建议上限 6 行</b>
+          </div>
+
+          <div class="hint" style="margin-top:18px">
+            <b>当前页面的问题：</b><code>&lt;h1&gt;</code>（约 112px）+ 元素信息卡（约 120px）会吃掉 232px，牌堆只剩 2 行——这就是"挤"的根因。方案：<code>&lt;h1&gt;</code> 由 52px 紧凑 HUD 取代，信息卡移到槽位轨下方折叠。
+          </div>
+          <div class="hint" style="margin-top:10px;border-left-color:#ff8f8f;background:rgba(255,107,107,.07)">
+            <b style="color:#ff8f8f">需 T1 拍板：</b>如果 GDD 定 8–10 行大牌堆，手机首屏放不下，只能在「牌堆纵向滚动」和「瓦片缩到 40px（破 44px 触控标准）」之间二选一。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. hub 图标 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>游戏列表图标 · 内联 SVG 替换 emoji</h2>
+      <p>全部 <code>currentColor</code>，随主题自动变色；hover 只改 <code>color</code>，不触发 SVG 重排。</p>
+    </div>
+    <div class="panel">
+      <div class="icon-row">
+        <div class="icon-card">
+          <div class="game-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <rect x="1.8" y="1.8" width="7.6" height="7.6" rx="2.2"/>
+              <rect x="14.6" y="14.6" width="7.6" height="7.6" rx="2.2"/>
+              <rect x="14.6" y="1.8" width="7.6" height="7.6" rx="2.2" opacity=".3"/>
+              <path d="M5.6 9.6v2.6a1.6 1.6 0 0 0 1.6 1.6h5.3"/>
+              <path d="M10.7 11.6 13 13.8l-2.3 2.2"/>
+              <circle cx="5.6" cy="5.6" r="1.15"/>
+              <circle cx="18.4" cy="18.4" r="1.15"/>
+            </svg>
+          </div>
+          <h4>元素连连看</h4>
+          <p>两张等大的同规格牌 + 直角折线相连<br>——强调"相同才可连"</p>
+        </div>
+        <div class="icon-card">
+          <div class="game-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <rect x="8.5" y="9.5" width="11" height="11" rx="3" opacity=".35"/>
+              <rect x="5.8" y="6.4" width="12.6" height="12.6" rx="3.4" opacity=".6"/>
+              <rect x="2.6" y="2.6" width="13.4" height="13.4" rx="3.6"/>
+              <circle cx="9.3" cy="9.3" r="1.7"/>
+              <ellipse cx="9.3" cy="9.3" rx="4.9" ry="1.85" transform="rotate(-32 9.3 9.3)"/>
+            </svg>
+          </div>
+          <h4>化学版羊了个羊</h4>
+          <p>3 张错位牌表现牌堆，顶层牌嵌<br>原子核 + 电子轨道</p>
+        </div>
+        <div class="icon-card">
+          <div class="game-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M9.2 2.6h5.6"/>
+              <path d="M10.3 2.6v5.2L5.9 17.3A2.5 2.5 0 0 0 8.1 21h7.8a2.5 2.5 0 0 0 2.2-3.7L13.7 7.8V2.6"/>
+              <path d="M7.6 14.2h8.8"/>
+              <circle cx="10.2" cy="17.2" r=".95"/>
+              <circle cx="13.9" cy="18.4" r=".62"/>
+              <path d="M17.6 6.4h2.6M20.2 6.4v2.6" opacity=".55" stroke-dasharray="1.4 1.8"/>
+              <circle cx="20.2" cy="6.4" r="1.5" opacity=".55"/>
+            </svg>
+          </div>
+          <h4>化学冒险</h4>
+          <p>锥形瓶 + 液面 + 气泡，瓶颈延伸<br>成虚线路径与节点</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 6. 对比度核验 ========== -->
+  <section>
+    <div class="sec-head">
+      <h2>对比度核验（实测，非估算）</h2>
+      <p>WCAG 相对亮度公式计算。<code>max(填充↔牌桌, 描边↔牌桌)</code> 作为「边界识别」判定依据。</p>
+    </div>
+    <div class="panel tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>家族</th><th>瓦片顶</th><th>文字</th>
+            <th style="text-align:right">文字↔顶</th>
+            <th style="text-align:right">文字↔底</th>
+            <th style="text-align:right">边界识别</th>
+            <th>AA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#990000,#570000)"></span>碱金属</td><td><code>#990000</code></td><td><code>#f8fafc</code></td><td class="num">8.52</td><td class="num">14.28</td><td class="num">5.82</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#1b5f5b,#103835)"></span>碱土金属</td><td><code>#1b5f5b</code></td><td><code>#f8fafc</code></td><td class="num">7.08</td><td class="num">12.25</td><td class="num">10.60</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#1e6a7b,#113c46)"></span>过渡金属</td><td><code>#1e6a7b</code></td><td><code>#f8fafc</code></td><td class="num">5.90</td><td class="num">11.41</td><td class="num">9.59</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#7b4514,#46270b)"></span>后过渡金属</td><td><code>#7b4514</code></td><td><code>#f8fafc</code></td><td class="num">7.42</td><td class="num">12.90</td><td class="num">8.72</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#10208e,#091352)"></span>镧系·锕系</td><td><code>#10208e</code></td><td><code>#f8fafc</code></td><td class="num">12.40</td><td class="num">16.36</td><td class="num">5.05</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#367356,#1f4232)"></span>类金属</td><td><code>#367356</code></td><td><code>#f8fafc</code></td><td class="num">5.36</td><td class="num">10.66</td><td class="num">9.36</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#692669,#3c163c)"></span>卤素</td><td><code>#692669</code></td><td><code>#f8fafc</code></td><td class="num">9.64</td><td class="num">14.63</td><td class="num">6.93</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#ffdd70,#ffd13d)"></span>非金属</td><td><code>#ffdd70</code></td><td><code>#0f172a</code></td><td class="num">13.46</td><td class="num">12.28</td><td class="num">11.45</td><td class="pass">PASS</td></tr>
+          <tr><td><span class="swatch" style="background:linear-gradient(168deg,#90d5c4,#6bc7b0)"></span>稀有气体</td><td><code>#90d5c4</code></td><td><code>#0f172a</code></td><td class="num">10.63</td><td class="num">8.86</td><td class="num">8.26</td><td class="pass">PASS</td></tr>
+        </tbody>
+      </table>
+      <div class="hint">
+        文字对比度最低 <b>5.36</b>（类金属），要求 ≥4.5；边界识别最低 <b>5.05</b>（镧系），要求 ≥3.0。两族浅底牌改用深字后才达标的细节见文档 §2.3。
+      </div>
+    </div>
+  </section>
+
+  <footer class="demo-footer">
+    <p>视觉样板 · 无游戏逻辑 · 不含任何 canvas / WebGL / 外部库 / 外部字体</p>
+    <p style="margin-top:6px">完整规格见 <code>docs/visual/game-visual-spec.md</code></p>
+  </footer>
+
+</div>
+</body>
+</html>

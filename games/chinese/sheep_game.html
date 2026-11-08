@@ -5,436 +5,355 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>化学版羊了个羊 - Chemistry World</title>
     <link rel="stylesheet" href="../../styles.css">
-    <script src="../../interaction.js"></script>
+    <link rel="stylesheet" href="../game-theme.css">
+    <script defer src="../../interaction.js"></script>
     <style>
-        /* 页面进入动画 */
-        body {
-            opacity: 0;
-            transform: translateY(50px);
-            animation: fadeInUp 0.5s ease-out forwards;
+        /* ==========================================================================
+           页面级布局层（sgp- 前缀）
+           --------------------------------------------------------------------------
+           边界说明（重要）：
+           · game-theme.css 负责「牌堆 / 瓦片 / 槽位轨」的全部视觉语义，本文件不覆盖
+             其中任何一条规则的取值，只做两件事：
+               (1) 补它没有覆盖的页面结构（HUD / 关卡选择 / 道具条 / 暂存区 / 浮层 /
+                   教学气泡），全部用 sgp- 前缀，与 sg-* 和站点类名零冲突；
+               (2) 用 .sg-stage 给牌堆做居中容器（主题文件只定位 .sg-tile，未给定位父级
+                   的尺寸，缺一个 stage 会让盘面贴左）。
+           · 唯一一处作用于主题类的新增（非修改）：.sg-tile:focus-visible 的焦点环。
+             主题文件未定义 outline，浏览器默认环在深色盘上不可见。
+           ========================================================================== */
+
+        /* ⚠ 站点 body 是 display:flex; align-items:center，因此 body > .container 不是
+           "撑满"而是"收缩到 max-content"。实测 375px 下主容器只有 343.5px，
+           连带盘面与槽位都被压小（槽位格 44.5px 而非 48.9px）。
+           这里只对本页的主容器写回 100%（navbar 里的 .container 是 .navbar > .container，
+           不受影响）。不改 styles.css，只加一条页面级宽度声明。 */
+        body > .container { width: 100%; }
+
+        /* 站点装饰用的 .molecule 是 interaction.js 随机注入的（left: 0~100% + 200px 宽），
+           约有一半会溢出右边缘，造成全站性的横向滚动。本页要求「375px 无横向滚动」，
+           故对页面横向溢出做裁剪；overflow-x:clip 不创建滚动容器，不影响 .navbar 的 sticky。 */
+        body { overflow-x: clip; }
+
+        .sgp-shell { position: relative; width: 100%; max-width: 760px; margin: 0 auto; }
+        .sgp-hide { display: none !important; }
+
+        /* ---- 关卡选择 S-01 ---- */
+        .sgp-h1 {
+            text-align: center; color: #f8fafc;
+            font-size: clamp(1.35rem, 5.2vw, 2rem);
+            margin: .6rem 0 .35rem; line-height: 1.2;
         }
-        
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .sgp-sub {
+            text-align: center; color: rgba(248, 250, 252, .72);
+            font-size: .84rem; line-height: 1.6; margin: 0 auto 1.1rem; max-width: 34em;
         }
-        
-        /* 导航栏和内容的延迟动画 */
-        .navbar {
-            animation: fadeInUp 0.5s ease-out 0.1s forwards;
-            opacity: 0;
-            transform: translateY(50px);
+        .sgp-levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        @media (min-width: 560px) { .sgp-levels { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .sgp-lv {
+            text-align: left; padding: 12px 13px; border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .06);
+            color: #f8fafc; cursor: pointer; font: inherit;
+            transition: transform 180ms var(--sg-ease-soft), border-color 180ms var(--sg-ease-soft);
         }
-        
-        .container {
-            animation: fadeInUp 0.5s ease-out 0.2s forwards;
-            opacity: 0;
-            transform: translateY(50px);
+        .sgp-lv:hover { transform: translateY(-2px); border-color: rgba(20, 184, 166, .65); }
+        .sgp-lv:focus-visible { outline: 2px solid #14b8a6; outline-offset: 2px; }
+        .sgp-lv[disabled] { opacity: .42; cursor: not-allowed; transform: none; }
+        .sgp-lv__no { font-size: .7rem; letter-spacing: .1em; color: rgba(248, 250, 252, .55); }
+        .sgp-lv__name { font-size: .95rem; font-weight: 700; margin: .12rem 0 .3rem; }
+        .sgp-lv__meta { font-size: .72rem; color: rgba(248, 250, 252, .7); display: flex; gap: .5rem; flex-wrap: wrap; }
+        .sgp-stars { color: #f5b942; letter-spacing: .1em; }
+
+        /* ---- 对局 HUD S-02 ---- */
+        .sgp-hud { display: flex; align-items: center; gap: 8px; padding: 2px 2px 8px; color: #f8fafc; }
+        .sgp-hud__level { font-size: .8rem; color: rgba(248, 250, 252, .72); white-space: nowrap; }
+        .sgp-hud__score {
+            margin-left: auto; font-size: .9rem; font-weight: 700;
+            font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .sgp-hud__combo {
+            font-size: .78rem; font-weight: 800; color: #f5b942;
+            font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .sgp-hud__left { font-size: .74rem; color: rgba(248, 250, 252, .58); white-space: nowrap; }
+        .sgp-icon-btn {
+            width: 40px; height: 40px; flex: 0 0 40px; border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            background: rgba(255, 255, 255, .06); color: #f8fafc;
+            font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 0;
+        }
+        .sgp-icon-btn:hover { background: rgba(255, 255, 255, .12); }
+
+        /* ---- 牌堆定位容器 ----
+           主题文件只给 .sg-tile 写 position:absolute，没有给它一个定尺寸的定位父级，
+           所以这里补 .sg-stage（宽度 = boardW 张牌，高度 = boardH 行）。
+           ⚠ --boardW / --boardH 必须写在 .game-root 上：--tile 在 .game-root 上求值，
+             写在 .sg-board 上不会影响 .game-root 的 --tile 计算。 */
+        .sg-board { padding: 14px 8px; }
+        .sg-stage {
+            position: relative; margin: 0 auto;
+            width: calc(var(--boardW, 6) * var(--tile));
+            height: calc(var(--boardH, 3) * var(--tile));
         }
 
-        /* 游戏容器样式 */
-        .game-container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 24px;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        /* ---- 槽位轨：移动端左右出血到屏幕边缘（抵消 .container 的 20px padding）----
+           375px：375 − 3(边框) − 30(gap) = 342 / 7 ≈ 48.9px/格，满足 Apple HIG 44px */
+        .sgp-slotzone { margin-top: 10px; }
+        @media (max-width: 768px) { .sgp-slotzone { margin-inline: -20px; } }
+        .sgp-slotmeta {
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            min-height: 20px; margin-top: 2px; font-size: .74rem; color: rgba(248, 250, 252, .66);
         }
 
-        /* 游戏信息栏 */
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-            flex-wrap: wrap;
-            gap: 1rem;
+        /* ---- 暂存区（eject 道具）----
+           主题文件没有暂存区样式（GDD 只有 prop.bench 文案），属页面自有组件。
+           注意：暂存格必须可点击（放回槽位），因此不能复用 .sg-slot（它被设为
+           pointer-events:none，且那正是「槽位纯展示」的契约）。 */
+        .sgp-bench { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: #f8fafc; }
+        .sgp-bench__label { font-size: .72rem; color: rgba(248, 250, 252, .6); white-space: nowrap; }
+        .sgp-bench__cells { display: flex; gap: 6px; }
+        .sgp-bench-cell {
+            width: 46px; height: 46px; padding: 0; border-radius: 10px;
+            border: 1px dashed rgba(148, 163, 184, .35);
+            background: rgba(255, 255, 255, .04);
+            display: grid; place-items: center;
+            color: #f8fafc; font: inherit; font-weight: 800; font-size: 15px; line-height: 1;
+        }
+        .sgp-bench-cell.is-filled {
+            border-style: solid; cursor: pointer;
+            border-color: rgba(var(--f-rgb), .85);
+            background-image: linear-gradient(168deg,
+                hsl(var(--f-h), var(--f-s), var(--f-l)),
+                hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
+            box-shadow: 0 0 10px rgba(var(--f-rgb), .34);
+        }
+        .sgp-bench-cell.is-filled:focus-visible { outline: 2px solid #14b8a6; outline-offset: 2px; }
+
+        /* ---- 道具条 ---- */
+        .sgp-props { display: flex; gap: 8px; margin-top: 12px; }
+        .sgp-prop {
+            flex: 1 1 0; min-height: 46px; padding: 6px 4px; border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            background: rgba(255, 255, 255, .06); color: #f8fafc; font: inherit;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1px; cursor: pointer;
+        }
+        .sgp-prop:hover:not([disabled]) { background: rgba(255, 255, 255, .12); }
+        .sgp-prop:focus-visible { outline: 2px solid #14b8a6; outline-offset: 2px; }
+        .sgp-prop[disabled] { opacity: .38; cursor: not-allowed; }
+        .sgp-prop__label { font-size: .76rem; font-weight: 600; line-height: 1.1; }
+        .sgp-prop__count { font-size: .66rem; color: rgba(248, 250, 252, .6); font-variant-numeric: tabular-nums; }
+        .sgp-dim { opacity: .45; pointer-events: none; }
+
+        /* ---- 浮层（结算 / 帮助 / 教学）----
+           用 absolute 而非 fixed：站点 styles.css 给 body / .container 写了
+           transform（fadeInUp forwards 保留 translateY(0)），带 transform 的祖先会成为
+           position:fixed 的包含块，fixed 会退化成随页面滚动。absolute 表现可预期。 */
+        .sgp-overlay {
+            position: absolute; inset: 0; z-index: 40;
+            display: flex; align-items: center; justify-content: center;
+            padding: 14px; border-radius: 20px; overflow-y: auto;
+            background: rgba(6, 11, 22, .8);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        }
+        .sgp-card {
+            width: 100%; max-width: 420px; padding: 20px 18px;
+            border-radius: 22px; text-align: center; color: #f8fafc;
+            background: rgba(19, 30, 51, .98); border: 1px solid rgba(255, 255, 255, .12);
+            box-shadow: 0 18px 48px rgba(2, 6, 16, .5);
+        }
+        .sgp-card h2 { margin: 0 0 .5rem; font-size: 1.2rem; line-height: 1.3; }
+        .sgp-card p { margin: 0 0 .7rem; font-size: .86rem; line-height: 1.6; color: rgba(248, 250, 252, .8); }
+        .sgp-card__big { font-size: 1.5rem; font-weight: 800; color: #f5b942; font-variant-numeric: tabular-nums; margin: .2rem 0 .6rem; }
+        .sgp-card__stats { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: .8rem; color: rgba(248, 250, 252, .78); margin-bottom: .8rem; }
+        .sgp-btn {
+            display: block; width: 100%; margin-top: 8px; padding: 11px 14px;
+            border-radius: 14px; border: 1px solid rgba(255, 255, 255, .18);
+            background: rgba(255, 255, 255, .08); color: #f8fafc;
+            font: inherit; font-weight: 700; cursor: pointer;
+        }
+        .sgp-btn:hover:not([disabled]) { background: rgba(255, 255, 255, .14); }
+        .sgp-btn:focus-visible { outline: 2px solid #14b8a6; outline-offset: 2px; }
+        .sgp-btn--primary { border-color: transparent; background: linear-gradient(135deg, #0f766e, #14b8a6); }
+        .sgp-btn[disabled] { opacity: .42; cursor: not-allowed; }
+        .sgp-btn--inline { flex: 1 1 0; width: auto; margin: 0; padding: 9px 10px; font-size: .82rem; }
+        .sgp-btnrow { display: flex; gap: 8px; margin-top: 10px; }
+
+        .sgp-met { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: .4rem 0 .2rem; }
+        .sgp-met a {
+            display: inline-grid; place-items: center; min-width: 44px; height: 34px;
+            padding: 0 8px; border-radius: 10px; font-size: .8rem; font-weight: 700;
+            color: #f8fafc; text-decoration: none;
+            border: 1px solid rgba(var(--f-rgb), .7);
+            background: linear-gradient(168deg, hsl(var(--f-h), var(--f-s), var(--f-l)),
+                hsl(var(--f-bh), var(--f-bs), var(--f-bl)));
         }
 
-        .difficulty {
-            display: flex;
-            gap: 0.5rem;
+        /* ---- 非模态提示条（族徽卡 / 元素条 / 一次性解锁提示）---- */
+        .sgp-notify {
+            position: absolute; left: 6px; right: 6px; top: 4px; z-index: 35;
+            padding: 10px 12px; border-radius: 16px; color: #f8fafc;
+            background: rgba(19, 30, 51, .97);
+            border: 1px solid rgba(20, 184, 166, .55);
+            box-shadow: 0 10px 28px rgba(2, 6, 16, .45);
+            font-size: .8rem; line-height: 1.55;
+        }
+        .sgp-notify__title { font-weight: 800; font-size: .88rem; margin-bottom: 2px; }
+        .sgp-notify__text { color: rgba(248, 250, 252, .82); }
+        .sgp-notify__link { display: inline-block; margin-top: 4px; color: #5eead4; text-decoration: none; font-weight: 700; }
+        .sgp-notify__link:hover { text-decoration: underline; }
+        .sgp-notify__badge {
+            display: inline-block; padding: 1px 7px; margin-right: 6px; border-radius: 999px;
+            background: #f5b942; color: #10192b; font-size: .68rem; font-weight: 800;
+            vertical-align: 1px;
         }
 
-        .difficulty button {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
+        /* 道具错误提示（底部短条） */
+        .sgp-toast {
+            position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+            z-index: 45; max-width: 88%;
+            padding: 9px 14px; border-radius: 999px;
+            background: rgba(6, 11, 22, .92); color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, .16);
+            font-size: .78rem; text-align: center;
         }
 
-        .difficulty button.active {
-            background: rgba(37, 99, 235, 0.2);
-            border-color: rgba(37, 99, 235, 0.5);
+        /* ---- L1 三步教学气泡 ---- */
+        .sgp-tut {
+            margin-top: 10px; padding: 11px 13px; border-radius: 16px;
+            background: rgba(20, 184, 166, .14);
+            border: 1px solid rgba(20, 184, 166, .45);
+            color: #f8fafc; font-size: .82rem; line-height: 1.55;
+        }
+        .sgp-tut__step { font-size: .68rem; font-weight: 800; letter-spacing: .08em; color: #5eead4; }
+        .sgp-tut strong { color: #f5b942; }
+
+        /* ---- 可访问性：读屏专用播报区 ---- */
+        .sgp-sr {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
         }
 
-        .score, .moves {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-color);
+        /* ---- 键盘焦点：主题文件未定义 outline，补一条（深色盘上默认焦点环不可见）---- */
+        .sg-tile:focus-visible {
+            outline: 2px solid #14b8a6; outline-offset: 2px;
+            border-radius: calc(var(--tile) * .22);
         }
 
-        .restart-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: var(--primary-color);
-            padding: 0.75rem 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 32px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .restart-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* 游戏区域 */
-        .game-area {
-            margin-bottom: 2rem;
-        }
-
-        /* 游戏网格 */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin-bottom: 2rem;
-        }
-
-        .game-cell {
-            aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .game-cell:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 
-                0 6px 16px rgba(0, 0, 0, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        }
-
-        .game-cell.empty {
-            background: transparent;
-            cursor: default;
-            box-shadow: none;
-            border: none;
-        }
-
-        .game-cell.empty:hover {
-            transform: none;
-            background: transparent;
-        }
-
-        /* 槽位区域 */
-        .slots-area {
-            margin-bottom: 2rem;
-        }
-
-        .slots-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .slot {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-        }
-
-        .slot.filled {
-            background: rgba(37, 99, 235, 0.1);
-            cursor: pointer;
-        }
-
-        .slot.filled:hover {
-            transform: scale(1.05);
-            background: rgba(37, 99, 235, 0.2);
-        }
-
-        .slot.filled .remove-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 20px;
-            height: 20px;
-            background: rgba(239, 68, 68, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* 元素信息卡片 */
-        .element-info {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .element-info h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .element-info p {
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
-        }
-
-        /* 游戏结束模态框 */
-        .game-over-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .game-over-content {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            padding: 2rem;
-            margin: 2rem;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            max-width: 500px;
-            text-align: center;
-        }
-
-        .game-over-content h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .game-over-content p {
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-        }
-
-        .game-over-content .score-display {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin: 1rem 0;
-        }
-
-        /* 问号按钮样式 */
+        /* ---- 帮助浮动按钮（沿用旧版位置与视觉）---- */
         .help-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--white);
+            position: fixed; right: 16px; bottom: 16px; z-index: 900;
+            width: 52px; height: 52px; border-radius: 50%;
+            display: grid; place-items: center; padding: 0;
+            font: inherit; font-size: 1.3rem; font-weight: 700; color: #fff;
+            background: rgba(15, 118, 110, .82);
+            border: 1px solid rgba(255, 255, 255, .28);
+            box-shadow: 0 8px 24px rgba(2, 6, 16, .4);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
         }
-
-        .help-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-4px);
-            box-shadow: 
-                0 12px 40px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* 帮助模态框 */
-        .help-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .help-content {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            padding: 2rem;
-            margin: 2rem;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .help-content h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .help-content p {
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-
-        .close-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: var(--primary-color);
-            padding: 0.75rem 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 32px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            margin-top: 1rem;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .game-grid {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 6px;
-            }
-
-            .game-cell {
-                font-size: 1rem;
-            }
-
-            .slots-container {
-                gap: 8px;
-            }
-
-            .slot {
-                width: 50px;
-                height: 50px;
-                font-size: 1rem;
-            }
-
-            .game-info {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-        }
+        .help-btn:hover { background: rgba(20, 184, 166, .9); }
 
         @media (max-width: 480px) {
-            .game-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 4px;
-            }
+            .sgp-bench-cell { width: 44px; height: 44px; }
+            .sgp-prop__label { font-size: .72rem; }
+        }
+        /* ========================================================================
+           液态玻璃统一层（Liquid Glass）· 仅本页生效
+           原则：保持站点配色（深蓝灰底 + 青绿强调），只升级材质——
+           多层透明渐变（边缘折射）+ 顶部内高光 + backdrop 饱和 + 深悬浮投影 */
+        :root {
+            --lg-hi: rgba(255, 255, 255, .28);
+            --lg-edge: linear-gradient(160deg, rgba(255,255,255,.38), rgba(255,255,255,.10) 28%, rgba(255,255,255,0) 52%, rgba(255,255,255,.12));
+            --lg-fill: linear-gradient(165deg, rgba(148,163,184,.17), rgba(148,163,184,.08) 42%, rgba(15,23,42,.12));
+            --lg-blur: blur(22px) saturate(1.8);
+            --lg-shadow: 0 18px 44px rgba(2, 6, 16, .42),
+                         inset 0 1px 0 var(--lg-hi),
+                         inset 0 -1px 0 rgba(255, 255, 255, .06);
+        }
+        .navbar {
+            background-image: linear-gradient(180deg, rgba(15, 23, 42, .80), rgba(15, 23, 42, .62)) !important;
+            -webkit-backdrop-filter: blur(26px) saturate(1.9) !important;
+            backdrop-filter: blur(26px) saturate(1.9) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, .14) !important;
+            box-shadow: 0 14px 44px rgba(2, 6, 16, .5), inset 0 1px 0 rgba(255, 255, 255, .2) !important;
+        }
+        .sgp-lv,
+        .sgp-hud__score,
+        .sgp-hud__combo,
+        .sgp-props button,
+        .sgp-btnrow button,
+        .sgp-notify,
+        .sgp-tut,
+        .sgp-overlay > div {
+            background-image: var(--lg-edge), var(--lg-fill);
+            background-origin: border-box;
+            background-clip: border-box, padding-box;
+            border: 1px solid transparent;
+            -webkit-backdrop-filter: var(--lg-blur);
+            backdrop-filter: var(--lg-blur);
+            box-shadow: var(--lg-shadow);
+        }
 
-            .game-cell {
-                font-size: 0.9rem;
-            }
+        /* ---- 重叠修复（全部实测定位） ---------------------------------- */
+        /* 修 1：内容避让吸顶导航栏。实测导航栏底缘 154px、内容顶 134px，重叠 20px */
+        .sgp-shell { padding-top: 34px; }
 
-            .slots-container {
-                gap: 6px;
-                padding: 0.5rem;
-            }
+        /* 修 2：装饰分子层是 interaction.js 全站随机注入的（透明度 1、无层级、
+           可伸到视口外 460px+），会压住关卡卡片并把页面撑宽。
+           本页降为固定背景层：裁剪进视口、置于最底、禁交互、降透明度 */
+        .molecule-background {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: -1 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+            opacity: .38 !important;
+        }
+        .molecule-background .molecule { pointer-events: none !important; }
 
-            .slot {
-                width: 40px;
-                height: 40px;
-                font-size: 0.8rem;
-            }
+        /* 修 3/4：对局态隐藏站点悬浮件（对比元素球压住道具按钮、访问时长胶囊
+           超出视口下缘）与页脚——对局一屏放下，滚动不再把牌送进导航栏底下。
+           选关态恢复原样，站点功能不受影响 */
+        /* 修 3/4：站点悬浮件在本页没有用途（游戏页没有可对比的元素卡，
+           访问时长胶囊 bottom:20px 实测却超出视口 87px 且压住页脚版权），
+           且实测"对比元素"球(top 631)压住"重置进度"按钮——本页无条件隐藏；
+           help-btn 与 footer 仅在对局态隐藏（选关态保留原样） */
+        #visit-duration,
+        .sgp-site-compare,
+        .compare-panel { display: none !important; }
+        body.sgp-playing .footer,
+        body.sgp-playing .help-btn { display: none !important; }
+        body.sgp-playing .sgp-shell { padding-bottom: 18px; }
 
-            .game-container {
-                padding: 1rem;
-                margin: 1rem;
-            }
+        /* 修 7：选关态问号按钮(fixed 右下)与页脚版权重叠 52px——给页脚让出
+           悬浮球的空间（本页覆盖，不影响其他页面） */
+        .footer { padding-bottom: 76px; }
+
+        /* 修 5（实测归因）：对比面板平时 bottom:-100% 藏在视口外，却把文档可滚动
+           区域撑到 1426px（滚动实验：隐藏后 1426→713）——这就是"上下翻动会出现
+           大段空白/内容滑进导航栏"的主因。对局态直接不渲染，选关态保留 */
+        body.sgp-playing .compare-panel { display: none !important; }
+
+        /* 修 6（实测归因）：装饰轨道层内部 .orbital 伸到 399px，把页面撑宽
+           （隐藏后 382→375）。整层裁剪进视口，装饰观感不变 */
+        .atomic-orbitals { overflow: hidden; }
+
+        /* 槽位托盘的玻璃底（虚线格保留，加一层可读的托盘质感） */
+        .sgp-slotzone .sg-slot-rail {
+            background-image: var(--lg-edge), var(--lg-fill);
+            background-origin: border-box;
+            background-clip: border-box, padding-box;
+            border: 1px solid transparent;
+            border-radius: 18px;
+            -webkit-backdrop-filter: var(--lg-blur);
+            backdrop-filter: var(--lg-blur);
+            box-shadow: var(--lg-shadow);
         }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- ===== 站点框架（保留旧版结构：导航 / 语言切换 / 页脚）===== -->
     <nav class="navbar">
         <div class="container">
             <a href="../../index.html" class="site-title">
@@ -446,7 +365,6 @@
                 <li><a href="../../chinese.html">元素周期表</a></li>
                 <li><a href="games.html">化学游戏</a></li>
             </ul>
-            <!-- 苹果音乐app风格任务栏 -->
             <div class="apple-taskbar">
                 <button class="taskbar-btn" data-lang="chinese">中文</button>
                 <button class="taskbar-btn" data-lang="english">English</button>
@@ -460,456 +378,2006 @@
         </div>
     </nav>
 
-    <!-- 主要内容 -->
     <div class="container">
-        <h1 style="text-align: center; color: var(--white); margin: 2rem 0;">化学版羊了个羊</h1>
-        
-        <div class="game-container">
-            <!-- 游戏信息栏 -->
-            <div class="game-info">
-                <div class="score">得分: <span id="score">0</span></div>
-                <div class="moves">步数: <span id="moves">0</span></div>
-                <div class="difficulty">
-                    <button class="restart-btn" id="easyBtn">简单模式</button>
-                    <button class="restart-btn" id="hardBtn">困难模式</button>
+        <!-- .game-root 提供 game-theme.css 的全部作用域 token，必须存在 -->
+        <div class="game-root sgp-shell" id="shell">
+
+            <!-- ============ S-01 关卡选择 ============ -->
+            <section id="viewSelect">
+                <h1 class="sgp-h1">化学版羊了个羊</h1>
+                <p class="sgp-sub">
+                    三层堆叠的半格错位牌堆，只有没被压住的牌能点。<br>
+                    槽位里凑齐三张相同元素会消除；三个<strong>同族的不同元素</strong>也能消除。<br>
+                    <span style="color:rgba(248,250,252,.55)">每一局都保证有解。</span>
+                </p>
+                <div class="sgp-levels" id="levelList"></div>
+                <button class="sgp-btn" id="resetProgress" style="max-width:240px;margin:14px auto 4px;">
+                    重置进度
+                </button>
+            </section>
+
+            <!-- ============ S-02 对局 ============ -->
+            <section id="viewGame" class="sgp-hide">
+                <div class="sgp-hud">
+                    <button class="sgp-icon-btn" id="btnBack" aria-label="返回关卡列表">←</button>
+                    <div class="sgp-hud__level" id="hudLevel">关卡 1 / 6</div>
+                    <div class="sgp-hud__score">分数 <b id="hudScore">0</b></div>
+                    <div class="sgp-hud__combo sgp-hide" id="hudCombo">×1.0</div>
+                    <div class="sgp-hud__left" id="hudLeft">剩余 9 张</div>
+                    <button class="sgp-icon-btn" id="hudHelp" aria-label="游戏说明">?</button>
                 </div>
-                <button class="restart-btn" id="restartBtn">重新开始</button>
-            </div>
 
-            <!-- 游戏区域 -->
-            <div class="game-area">
-                <!-- 游戏网格 -->
-                <div class="game-grid" id="gameGrid"></div>
-            </div>
+                <div class="sg-board" id="board" role="group" aria-label="牌堆">
+                    <div class="sg-stage" id="stage"></div>
+                </div>
 
-            <!-- 槽位区域 -->
-            <div class="slots-area">
-                <h3>元素槽位 (最多7个)</h3>
-                <div class="slots-container" id="slotsContainer">
-                    <!-- 槽位将通过 JavaScript 动态生成 -->
+                <div class="sgp-slotzone">
+                    <div class="sg-slot-rail" id="slotRail" data-fill="0" aria-label="槽位，共 7 格"></div>
+                    <div class="sgp-slotmeta">
+                        <span id="slotCount">0/7</span>
+                    </div>
+                </div>
+
+                <div class="sgp-bench sgp-hide" id="benchWrap">
+                    <span class="sgp-bench__label">暂存区</span>
+                    <div class="sgp-bench__cells" id="benchCells"></div>
+                </div>
+
+                <div class="sgp-props" id="propBar"></div>
+
+                <div class="sgp-tut sgp-hide" id="tutBubble">
+                    <div class="sgp-tut__step" id="tutStep">教学 1 / 3</div>
+                    <div id="tutText"></div>
+                    <div class="sgp-btnrow">
+                        <button class="sgp-btn sgp-btn--inline" id="tutSkip">跳过教学</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 非模态提示条 -->
+            <div class="sgp-notify sgp-hide" id="notify" role="status"></div>
+            <div class="sgp-toast sgp-hide" id="sgpToast"></div>
+
+            <!-- ============ S-05 失败 ============ -->
+            <div class="sgp-overlay sgp-hide" id="ovlLose">
+                <div class="sgp-card">
+                    <h2>槽位满了</h2>
+                    <p id="loseReason">7 格全满，没有凑成三连。</p>
+                    <button class="sgp-btn sgp-btn--primary" id="btnRevive">免费复活一次</button>
+                    <button class="sgp-btn" id="btnLoseRestart">重新开始</button>
+                    <button class="sgp-btn" id="btnLoseBack">返回关卡列表</button>
                 </div>
             </div>
 
-            <!-- 元素信息卡片 -->
-            <div class="element-info" id="elementInfo">
-                <h3>元素信息</h3>
-                <p>点击元素将其放入槽位，当槽位中有三个相同或相关的元素时，它们会被消除！</p>
+            <!-- ============ S-06 胜利 ============ -->
+            <div class="sgp-overlay sgp-hide" id="ovlWin">
+                <div class="sgp-card">
+                    <h2 id="winTitle">通关！</h2>
+                    <div class="sgp-stars" id="winStars" style="font-size:1.5rem;letter-spacing:.16em;">★★★</div>
+                    <div class="sgp-card__big" id="winScore">0</div>
+                    <div class="sgp-card__stats" id="winStats"></div>
+                    <p style="font-size:.78rem;margin-bottom:.2rem;">本关邂逅的元素（点击查看）</p>
+                    <div class="sgp-met" id="winMet"></div>
+                    <button class="sgp-btn sgp-btn--primary" id="btnWinNext">下一关</button>
+                    <button class="sgp-btn" id="btnWinAgain">再玩一次</button>
+                    <button class="sgp-btn" id="btnWinBack">返回关卡列表</button>
+                </div>
+            </div>
+
+            <!-- ============ S-07 帮助 ============ -->
+            <div class="sgp-overlay sgp-hide" id="ovlHelp">
+                <div class="sgp-card" style="text-align:left;">
+                    <h2 style="text-align:center;">游戏说明</h2>
+                    <p>1. 点一张<strong>没被压住</strong>的牌，把它放进下方 7 格槽位。被压住的牌也能点，但只会抖一下——它上面那几张才是要先清掉的。</p>
+                    <p>2. 槽位里凑齐<strong>三张相同元素</strong>，它们会自动消除。</p>
+                    <p>3. 槽位里凑齐<strong>三张同族的不同元素</strong>（如氟、氯、溴），也能消除，得分更高。</p>
+                    <p>4. 这个族至少要来 <strong>3 个不同成员</strong>才行——只来了 2 个就凑不成。</p>
+                    <p>5. 槽位 7 格全满且没凑成三连，就失败了。</p>
+                    <p>6. 拆开层层堆叠的牌堆，露出下面的牌。<strong>每一局都保证有解。</strong></p>
+                    <p style="color:rgba(248,250,252,.6)">游戏中出现的元素都能点进详情页查看。</p>
+                    <button class="sgp-btn" id="btnHelpClose">关闭</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 游戏结束模态框 -->
-    <div class="game-over-modal" id="gameOverModal">
-        <div class="game-over-content">
-            <h2>游戏结束！</h2>
-            <p>你的最终得分是：</p>
-            <div class="score-display" id="finalScore"></div>
-            <button class="close-btn" id="playAgainBtn">再玩一次</button>
-            <button class="close-btn" id="backToGamesBtn">返回游戏列表</button>
-        </div>
-    </div>
+    <button class="help-btn" id="helpBtn" aria-label="游戏说明">?</button>
 
-    <!-- 问号按钮 -->
-    <div class="help-btn" id="helpBtn">?</div>
+    <!-- 读屏播报区 -->
+    <div class="sgp-sr" id="srLive" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- 帮助模态框 -->
-    <div class="help-modal" id="helpModal">
-        <div class="help-content">
-            <h2>游戏说明</h2>
-            <p><strong>游戏规则：</strong></p>
-            <p>1. 点击游戏区域中的元素将其放入下方的槽位</p>
-            <p>2. 当槽位中有三个相同或相关的元素时，它们会被消除</p>
-            <p>3. 槽位最多只能容纳7个元素</p>
-            <p>4. 目标是消除所有元素方块</p>
-            <p>5. 每次消除得10分，连续消除有额外加分</p>
-            
-            <p><strong>学习功能：</strong></p>
-            <p>- 游戏中会显示元素的符号、名称、原子序数等基本信息</p>
-            <p>- 完成游戏后会显示本次游戏中学到的化学知识</p>
-            <p>- 可以通过游戏加深对元素周期表的理解</p>
-            
-            <button class="close-btn" id="closeBtn">关闭</button>
-        </div>
-    </div>
-
-    <!-- 页脚 -->
     <footer class="footer">
         <p>&copy; 2024 Chemistry World. All rights reserved.</p>
     </footer>
 
-    <script>
-        // 汉堡菜单功能
-        const menuToggle = document.getElementById('menuToggle');
-        const navLinks = document.querySelector('.nav-links');
+    <!-- 元素数据（全局 const elements，含 category 字段；必须在游戏脚本之前）
+         仅 13 个元素的子集：不引入全站 elements-zh.js（它依赖 #element-list / #search-btn，会抛 TypeError） -->
+    <script src="../elements-sheep-data.js"></script>
 
-        menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
+    <script>
+    (function () {
+    'use strict';
+
+    /* ==========================================================================
+       0 · 常量
+       ========================================================================== */
+    var SLOT_MAX     = 7;        // 槽位容量（GDD §4.1）
+    var BENCH_MAX    = 3;        // 暂存区容量（GDD §4.1）
+    var WITNESS_BUDGET = 8000;   // DFS 节点预算（GDD §4.1）
+    var USER_BUDGET  = 40000;    // 玩家主动触发（hint / shuffle）的升级预算：8000 不够时再试一次
+    var GEN_TIME_BUDGET = 120;   // 开局生成墙钟上限（ms）：超了就用首个可行解，绝不卡开局
+    var MAX_ATTEMPTS = 40;       // 重掷上限（GDD §7.1 F3）
+    var FILTER_ATTEMPTS = 10;    // 开局可点过滤的最多尝试次数
+
+    // 同族三连白名单：只允许这 6 个族（GDD §4.5）。metal 被硬性排除。
+    var WHITELIST = ['alkali-metal', 'alkaline-earth-metal', 'halogen',
+                     'noble-gas', 'metalloid', 'nonmetal'];
+
+    // 青绿拥挤带（spec §2.4 / GDD §5.8 断言 A5）
+    var GREEN_BAND = ['metalloid', 'noble-gas', 'alkaline-earth-metal', 'metal-d'];
+
+    // 浅底深字极性（spec §2.3 / 断言：浅底族用洗白 scrim）
+    var LIGHT_POL = ['nonmetal', 'noble-gas'];
+
+    // 视觉族名（9 族，供 aria-label 与族徽卡）
+    var FAMILY_LABEL = {
+        'alkali-metal': '碱金属',
+        'alkaline-earth-metal': '碱土金属',
+        'metal': '金属',
+        'metal-d': '过渡金属',
+        'metal-f': '镧系锕系金属',
+        'metal-p': '后过渡金属',
+        'metalloid': '类金属',
+        'halogen': '卤素',
+        'noble-gas': '稀有气体',
+        'nonmetal': '非金属'
+    };
+
+    // 族徽卡六族一句话（GDD §4.5 / §8.2 F）
+    var FAMILY_TRAIT = {
+        'alkali-metal': '最外层只有 1 个电子，极易失去；遇水剧烈反应，活泼性随原子序数增大而增强。',
+        'alkaline-earth-metal': '最外层 2 个电子，活泼性仅次于碱金属；钙、镁是骨骼与叶绿素的核心。',
+        'halogen': '最外层 7 个电子，只差一个就满壳层，因此是最强的氧化剂一族。',
+        'noble-gas': '最外层已满（氦为 2，其余为 8），几乎不参与反应，故称「惰性气体」。',
+        'metalloid': '性质介于金属与非金属之间；硅和锗是全部半导体的基石。',
+        'nonmetal': '电负性高、导电导热性差；碳、氢、氧、氮搭起了生命分子的骨架。'
+    };
+
+    /* 六关配置 —— 逐字照抄 GDD §5.1/§5.2 与任务书，不自行调整数值 */
+    var LEVELS = [
+        { id: 1, name: '试炼·小三角', focus: '只看「遮挡」这一个概念',
+          layers: [ { off: 0, rows: [1, 2, 3] }, { off: 1, rows: [1, 2] } ],
+          symbols: ['Fe', 'Cu', 'O'], nd: 3,
+          props: { undo: 3 }, teaching: 'occlusion' },
+
+        { id: 2, name: '石墨层', focus: '过渡金属；全 metal，族三连不可能',
+          layers: [ { off: 0, rows: [3, 3] }, { off: 1, rows: [3, 3] }, { off: 2, rows: [3, 3] } ],
+          symbols: ['Fe', 'Cu', 'Zn', 'Al'], nd: 4,
+          props: { undo: 3 }, teaching: 'layering' },
+
+        { id: 3, name: '岩盐晶格', focus: '不完整的族凑不成：卤素只有 2 个、碱金属只有 2 个',
+          layers: [ { off: 0, rows: [4, 4] }, { off: 1, rows: [4, 4] }, { off: 2, rows: [4, 4] } ],
+          symbols: ['F', 'Cl', 'Na', 'K', 'Fe'], nd: 5,
+          props: { undo: 3, eject: 1 }, teaching: 'incomplete_family' },
+
+        { id: 4, name: '层状解理', focus: '池子更大（+Cu），族仍不完整',
+          layers: [ { off: 0, rows: [5, 5] }, { off: 1, rows: [5, 5] }, { off: 2, rows: [5, 5] } ],
+          symbols: ['F', 'Cl', 'Na', 'K', 'Fe', 'Cu'], nd: 6,
+          props: { undo: 3, eject: 1, hint: 1 }, teaching: 'bigger_pool' },
+
+        { id: 5, name: '尖晶石塔', focus: '卤素凑满 4 个 → 族三连首次真正可用',
+          layers: [ { off: 0, rows: [4, 4, 4] }, { off: 1, rows: [4, 4, 4] }, { off: 2, rows: [4, 4, 4] } ],
+          symbols: ['F', 'Cl', 'Br', 'I', 'Na', 'K'], nd: 6,
+          props: { undo: 3, eject: 1, shuffle: 1, hint: 1 }, teaching: 'family_unlock' },
+
+        { id: 6, name: '元素矿脉', focus: '对照：卤素够 3 个能配；稀有气体只来 2 个，凑不成',
+          layers: [ { off: 0, rows: [5, 5, 5] }, { off: 1, rows: [5, 5, 5] }, { off: 2, rows: [5, 5, 5] } ],
+          symbols: ['F', 'Cl', 'Br', 'I', 'He', 'Ne', 'Al'], nd: 7,
+          props: { undo: 3, eject: 1, shuffle: 1, hint: 1 }, teaching: 'p_block_contrast' }
+    ];
+
+    var LS_PROGRESS = 'cw_sheep_v2_progress';
+    var LS_TUTORIAL = 'cw_sheep_v2_tutorial_done';
+
+    var PROP_ORDER = ['undo', 'eject', 'shuffle', 'hint'];
+    var PROP_LABEL = { undo: '撤销', eject: '移出', shuffle: '洗牌', hint: '提示' };
+
+    /* ==========================================================================
+       1 · 工具
+       ========================================================================== */
+    function $(sel) { return document.querySelector(sel); }
+    function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+    /* mulberry32：确定性伪随机（撤销/重放必须可复现，GDD EDGE-U3） */
+    function mulberry32(a) {
+        return function () {
+            a |= 0; a = (a + 0x6D2B79F5) | 0;
+            var t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+    function shuffleInPlace(arr, rnd) {
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(rnd() * (i + 1));
+            var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+        return arr;
+    }
+
+    /* 元素索引：只读全局 elements（elements-sheep-data.js），全部逻辑索引用 symbol，绝不用下标 */
+    var EL = new Map();
+    function loadElements() {
+        if (typeof elements === 'undefined' || !Array.isArray(elements)) {
+            console.error('[sheep] elements-sheep-data.js 未加载：全局 elements 不存在');
+            return false;
+        }
+        elements.forEach(function (e) { EL.set(e.symbol, e); });
+        return true;
+    }
+
+    /* 视觉亚族（art-director familyOf，spec §1.1）——仅用于取色与分档，
+       ⚠ 绝不能进入匹配逻辑（GDD §4.5 / 风险 R13） */
+    function familyOf(el) {
+        if (!el) return 'metal-p';
+        if (el.category !== 'metal') return el.category;
+        var z = el.atomicNumber;
+        if ((z >= 21 && z <= 30) || (z >= 39 && z <= 48) ||
+            (z >= 72 && z <= 80) || (z >= 104 && z <= 112)) return 'metal-d';
+        if ((z >= 57 && z <= 71) || (z >= 89 && z <= 103)) return 'metal-f';
+        return 'metal-p';
+    }
+
+    /* ==========================================================================
+       2 · 本地化（本轮只做中文；键名与 GDD §8.2 一致，为英文版移植留桩）
+       ========================================================================== */
+    var I18N = {
+        'hud.levelOf': '关卡 {n} / {total}',
+        'hud.score': '分数',
+        'hud.combo': '连消 ×{m}',
+        'hud.slots': '{used}/7',
+        'hud.slotLastOne': '还剩 1 格',
+        'hud.tilesLeft': '剩余 {n} 张',
+
+        'select.locked': '通关上一关后解锁',
+        'select.stars': '{n} 星',
+        'select.best': '最佳 {score}',
+        'select.play': '开始',
+        'select.reset.confirm': '确定要清空所有关卡进度吗？',
+
+        'prop.undo': '撤销', 'prop.eject': '移出', 'prop.shuffle': '洗牌', 'prop.hint': '提示',
+        'prop.left': '剩 {n} 次', 'prop.empty': '已用完',
+        'prop.ejectFull': '暂存区已满，先把牌放回槽位',
+        'prop.shuffle.rollback': '这次洗牌没能解开，已退回',
+        'prop.hint.dead': '这里已经救不回来了，用撤销吧',
+        'prop.bench': '暂存区',
+        'bench.returnFirst': '盘面已清空，把暂存区的牌放回槽位就赢了',
+
+        'match.exact': '三张「{name}」！',
+        'match.family': '{family}三连！',
+        'match.family.all': '看这 3 个元素',
+        'match.score': '+{n}',
+        'announce.cleared': '消除 {n} 张 {name}，槽位 {used}/7',
+        'announce.blocked': '这张牌被压住了',
+        'announce.family': '{family}三连，槽位 {used}/7',
+        'card.detail': '查看详情',
+        'card.atomicNumber': '原子序数',
+        'card.category': '类别',
+        'tile.blocked.sr': '原子序数 {z}，{name}，{family}，被 {n} 张牌压住',
+        'tile.free.sr': '原子序数 {z}，{name}，{family}，可以点击',
+
+        'tut.step': '教学 {step} / 3',
+        'tut.1.text': '点一张<strong>露在最上面</strong>的牌，它会进入下面的槽位。',
+        'tut.2.text': '这张牌被上面的牌<strong>压住了</strong>。先清掉压着它的牌，才轮得到它。',
+        'tut.3.text': '同样元素的<strong>三张</strong>会自动消除，腾出槽位。槽位有 7 格——满了就输。',
+        'tut.skip': '跳过教学',
+        'tut.doneTip': '第一次玩？按这个顺序拆就对了',
+
+        'unlock.family.badge': '新',
+        'unlock.family.title': '同族三连',
+        'unlock.family.text': '三个<strong>不同的卤素</strong>（如 F、Cl、Br）也能一起消除，得分更高。',
+
+        'lose.title': '槽位满了',
+        'lose.reason': '7 格全满，没有凑成三连。',
+        'lose.revive': '免费复活一次',
+        'lose.revive.used': '本关免费复活已用完',
+        'win.title': '通关！',
+        'win.perfect': '完美通关！',
+        'win.score': '得分 {n}',
+        'win.time': '用时 {m}:{ss}',
+        'win.propsUsed': '道具 {n} 次',
+        'win.met': '本关邂逅的元素（点击查看）',
+        'win.next': '下一关',
+        'win.again': '再玩一次',
+        'win.final': '全部通关！你是元素大师。',
+        'win.back': '返回关卡列表',
+        'lose.restart': '重新开始',
+        'lose.back': '返回关卡列表',
+
+        'err.noSolution': '关卡生成失败，已降级',
+        'err.noClickable': '状态异常：没有可点的牌',
+        'err.storageOff': '无法保存进度（浏览器限制）'
+    };
+    function t(key, vars) {
+        var s = Object.prototype.hasOwnProperty.call(I18N, key) ? I18N[key] : key;
+        if (vars) {
+            Object.keys(vars).forEach(function (k) {
+                s = s.split('{' + k + '}').join(String(vars[k]));
+            });
+        }
+        return s;
+    }
+    function hex2(n) { return String(n).padStart(2, '0'); }
+
+    /* ==========================================================================
+       3 · 存储（全部 try/catch，EDGE-13）
+       ========================================================================== */
+    var memoryStore = {};
+    function storageGet(key) {
+        try {
+            var v = window.localStorage.getItem(key);
+            return v === null ? (memoryStore[key] === undefined ? null : memoryStore[key]) : v;
+        } catch (e) { return memoryStore[key] === undefined ? null : memoryStore[key]; }
+    }
+    function storageSet(key, val) {
+        memoryStore[key] = val;
+        try { window.localStorage.setItem(key, val); } catch (e) { /* 隐私模式：仅内存 */ }
+    }
+    function readProgress() {
+        try {
+            var raw = storageGet(LS_PROGRESS);
+            var o = raw ? JSON.parse(raw) : null;
+            if (!o || typeof o !== 'object') o = {};
+            if (typeof o.unlocked !== 'number' || o.unlocked < 1) o.unlocked = 1;
+            if (!o.best || typeof o.best !== 'object') o.best = {};
+            return o;
+        } catch (e) { return { unlocked: 1, best: {} }; }
+    }
+    function writeProgress(p) {
+        try { storageSet(LS_PROGRESS, JSON.stringify(p)); }
+        catch (e) { console.warn(t('err.storageOff')); }
+    }
+    function tutorialDone() { return storageGet(LS_TUTORIAL) === '1'; }
+    function markTutorialDone() { storageSet(LS_TUTORIAL, '1'); }
+
+    /* ==========================================================================
+       4 · 关卡断言 A1–A6（任一失败 console.error 并中止该关，不静默降级）
+       ========================================================================== */
+    function assertLevel(cfg, geo) {
+        var problems = [];
+        var n = geo.tiles.length;
+
+        // A1 Σ(每层牌数) % 3 === 0
+        if (n % 3 !== 0) problems.push('A1 牌数 ' + n + ' 不是 3 的倍数');
+
+        // A2 nd ≤ 牌数 / 3
+        if (cfg.nd > n / 3) problems.push('A2 nd=' + cfg.nd + ' > 牌数/3=' + (n / 3));
+
+        // A3 所有 symbol 的 atomicNumber ≤ 103，且必须能在数据表查到
+        var els = [];
+        cfg.symbols.forEach(function (sym) {
+            var el = EL.get(sym);
+            if (!el) { problems.push('A3 数据表查不到 ' + sym); return; }
+            if (el.atomicNumber > 103) {
+                problems.push('A3 ' + sym + ' 的 Z=' + el.atomicNumber + ' > 103（CJK 扩展区豆腐块风险）');
+            }
+            els.push(el);
         });
 
-        // 语言选择功能
-        const taskbarBtns = document.querySelectorAll('.taskbar-btn');
-        const slideIndicator = document.querySelector('.slide-indicator');
-        let selectedLang = 'chinese';
+        // A4 boardH ≤ 6
+        if (geo.boardH > 6) problems.push('A4 boardH=' + geo.boardH.toFixed(1) + ' > 6');
 
-        // 语言页面映射
-        const langPages = {
+        // A5 青绿带族数 ≤ 1，且不同时含 nonmetal + metal-p
+        var fams = new Set(els.map(familyOf));
+        var greenCount = Array.from(fams).filter(function (f) { return GREEN_BAND.indexOf(f) >= 0; }).length;
+        if (greenCount > 1) problems.push('A5 青绿带族数=' + greenCount + ' > 1（' + Array.from(fams).join(',') + '）');
+        if (fams.has('nonmetal') && fams.has('metal-p')) {
+            problems.push('A5 同时含 nonmetal 与 metal-p（黄/青铜同屏）');
+        }
+
+        // A6 任一白名单族的成员数 ≠ 3（本作最隐蔽的失效模式）
+        var famCount = {};
+        els.forEach(function (el) {
+            if (WHITELIST.indexOf(el.category) >= 0) {
+                famCount[el.category] = (famCount[el.category] || 0) + 1;
+            }
+        });
+        Object.keys(famCount).forEach(function (c) {
+            if (famCount[c] === 3) {
+                problems.push('A6 白名单族 ' + c + ' 恰好 3 个成员 → 关卡会退化成 90–100% 胜率');
+            }
+        });
+
+        if (problems.length) {
+            console.error('[sheep] 关卡 ' + cfg.id + ' 断言失败，已中止：\n  · ' + problems.join('\n  · '));
+            return false;
+        }
+        return true;
+    }
+
+    /* 开发期人工核对：六关「每族成员数」表 */
+    function logFamilyTable() {
+        var rows = LEVELS.map(function (cfg) {
+            var row = { 关卡: 'L' + cfg.id, 牌数: 0 };
+            cfg.layers.forEach(function (L) { L.rows.forEach(function (r) { row.牌数 += r; }); });
+            row.nd = cfg.nd;
+            var counts = {};
+            cfg.symbols.forEach(function (sym) {
+                var el = EL.get(sym);
+                if (!el) return;
+                var key = familyOf(el);
+                counts[key] = (counts[key] || 0) + 1;
+            });
+            WHITELIST.forEach(function (c) { row[c] = counts[c] || 0; });
+            row['metal(排除)'] = cfg.symbols.filter(function (s) {
+                var e = EL.get(s); return e && e.category === 'metal';
+            }).length;
+            row['A6'] = WHITELIST.some(function (c) { return (counts[c] || 0) === 3; }) ? '✗ 3人' : '✓';
+            return row;
+        });
+        console.log('[sheep] 六关每族成员数（白名单 6 族，metal 硬性排除）');
+        console.table(rows);
+    }
+
+    /* ==========================================================================
+       5 · 几何构建（S2）· 遮挡引擎（S3）
+       坐标单位 = 半张牌边长（hu）。一张牌占 2×2 hu。
+       ========================================================================== */
+    function buildGeometry(cfg) {
+        var tiles = [];
+        cfg.layers.forEach(function (L, li) {
+            var maxN = Math.max.apply(null, L.rows);
+            L.rows.forEach(function (n, ri) {
+                if (!n || n <= 0) return;              // EDGE-G1 空行直接跳过
+                for (var j = 0; j < n; j++) {
+                    tiles.push({
+                        id: tiles.length,
+                        layer: li,
+                        gx: L.off + (maxN - n) + 2 * j, // EDGE-G2 以本层 maxN 居中
+                        gy: L.off + 2 * ri
+                    });
+                }
+            });
+        });
+
+        var maxGx = 0, maxGy = 0;
+        tiles.forEach(function (t) {
+            if (t.gx > maxGx) maxGx = t.gx;
+            if (t.gy > maxGy) maxGy = t.gy;
+        });
+
+        var geo = {
+            tiles: tiles,
+            maxGx: maxGx,
+            maxGy: maxGy,
+            boardW: (maxGx + 2) / 2,   // +2 而不是 +1：牌右/下边缘在 gx+2
+            boardH: (maxGy + 2) / 2,
+            above: [],                 // above[i] = 可能压住 i 的牌（层更高且矩形相交）
+            below: []                  // below[i] = i 可能压住的牌
+        };
+        tiles.forEach(function (a) { geo.above[a.id] = []; geo.below[a.id] = []; });
+
+        for (var i = 0; i < tiles.length; i++) {
+            for (var k = 0; k < tiles.length; k++) {
+                if (i === k) continue;
+                if (covers(tiles[i], tiles[k])) {
+                    geo.above[k].push(tiles[i].id);
+                    geo.below[i].push(tiles[k].id);
+                }
+            }
+        }
+        return geo;
+    }
+
+    /* 遮挡判定的全部内容：整数几何，无 getBoundingClientRect（GDD 附录 C-1） */
+    function covers(A, B) {
+        return A.layer > B.layer &&
+               Math.abs(A.gx - B.gx) < 2 &&
+               Math.abs(A.gy - B.gy) < 2;
+    }
+
+    /* ==========================================================================
+       6 · 匹配引擎（S5）—— 必须 while 到不动点，且同元素优先于同族
+       ========================================================================== */
+    function resolveAll(slot) {
+        var groups = [];
+        while (true) {
+            var hit = null;
+
+            // ① 同元素三连：槽内同 symbol ≥ 3（EDGE-14 用 ≥ 而不是 ===）
+            var bySym = new Map();
+            for (var i = 0; i < slot.length; i++) {
+                var s = slot[i];
+                if (!bySym.has(s)) bySym.set(s, []);
+                bySym.get(s).push(i);
+            }
+            bySym.forEach(function (idxs, sym) {
+                if (!hit && idxs.length >= 3) {
+                    hit = { type: 'exact', symbol: sym, indices: idxs.slice(0, 3) };
+                }
+            });
+
+            // ② 同族三连：3 张「互不相同」的 symbol，category 相同且 ∈ 白名单
+            //    仅在 ① 未命中时结算（EDGE-M1 / EDGE-03）
+            if (!hit) {
+                for (var w = 0; w < WHITELIST.length; w++) {
+                    var fam = WHITELIST[w];
+                    var seen = new Set();
+                    var picked = [];
+                    for (var q = 0; q < slot.length; q++) {
+                        var el = EL.get(slot[q]);
+                        if (!el || el.category !== fam) continue;
+                        if (seen.has(slot[q])) continue;
+                        seen.add(slot[q]);
+                        picked.push(q);
+                        if (picked.length === 3) break;
+                    }
+                    if (picked.length >= 3) {                    // EDGE-M3 取最靠前 3 张
+                        hit = {
+                            type: 'family', family: fam, indices: picked,
+                            symbols: picked.map(function (ix) { return slot[ix]; })
+                        };
+                        break;
+                    }
+                }
+            }
+
+            if (!hit) break;
+
+            hit.indices.sort(function (a, b) { return a - b; });
+            for (var r = hit.indices.length - 1; r >= 0; r--) slot.splice(hit.indices[r], 1);
+            groups.push(hit);
+        }
+        return groups;
+    }
+
+    /* ==========================================================================
+       7 · DFS 求解器（S4 验证 + hint 数据源）
+       ========================================================================== */
+    function solve(geo, symOf, aliveInit, slotInit, budget, seed) {
+        var rnd = mulberry32(seed >>> 0);
+        var nodes = 0, aborted = false;
+        var dead = new Set();
+        var path = [];
+
+        /* 增量状态指纹：alive 用 XOR 哈希（天然与顺序无关，省掉每节点 sort+join），
+           slot 用 32 位滚动哈希。实测把单节点成本从 ~14µs 压到 ~3µs，
+           这样 8000 预算的搜索才真正跑得起。碰撞概率双 32 位叠加可忽略。 */
+        var HP = new Uint32Array(geo.tiles.length);
+        for (var hh = 0; hh < HP.length; hh++) {
+            HP[hh] = (Math.imul(hh + 0x9E3779B1, 2654435761) ^ 0x5bf03635) >>> 0;
+        }
+        var symIndex = Object.create(null);
+        var symCounter = 0;
+        Object.keys(symOf).forEach(function (id) {
+            var s = symOf[id];
+            if (!(s in symIndex)) symIndex[s] = ++symCounter;
+        });
+
+        var aliveHash = 0;
+        aliveInit.forEach(function (id) { aliveHash = (aliveHash ^ HP[id]) >>> 0; });
+
+        function slotHashOf(slot) {
+            var h = slot.length | 0;
+            for (var i = 0; i < slot.length; i++) {
+                h = (Math.imul(h, 31) + symIndex[slot[i]]) | 0;
+            }
+            return h >>> 0;
+        }
+
+        function rec(alive, slot, aHash) {
+            if (aborted) return false;
+            if (alive.size === 0 && slot.length === 0) return true;  // 胜利
+            if (slot.length >= SLOT_MAX) return false;               // 满且没消 → 死路
+
+            var key = aHash + '|' + slotHashOf(slot);
+            if (dead.has(key)) return false;
+
+            // 候选 = 未被任何活牌压住的牌
+            var cands = [];
+            alive.forEach(function (id) {
+                var ups = geo.above[id];
+                for (var q = 0; q < ups.length; q++) {
+                    if (alive.has(ups[q])) return;                    // 被压住
+                }
+                cands.push(id);
+            });
+            if (!cands.length) { dead.add(key); return false; }
+
+            // 启发式排序：能凑成第 3 张的最优先，其次凑对子，同 rank 内随机
+            // （对照实验：加「家族补全」或「解锁被压牌数」权重反而更差，故保持单一 rank）
+            var counts = Object.create(null);
+            for (var i = 0; i < slot.length; i++) {
+                counts[slot[i]] = (counts[slot[i]] || 0) + 1;
+            }
+            var rankOf = function (id) {
+                var c = counts[symOf[id]] || 0;
+                return c >= 2 ? 3 : (c === 1 ? 2 : 0);
+            };
+            shuffleInPlace(cands, rnd);
+            cands.sort(function (a, b) { return rankOf(b) - rankOf(a); });
+
+            for (var ci = 0; ci < cands.length; ci++) {
+                if (aborted) return false;
+                var id = cands[ci];
+                if (++nodes > budget) { aborted = true; dead.add(key); return false; }
+
+                var slotBackup = slot.slice();
+                alive.delete(id);
+                slot.push(symOf[id]);
+                resolveAll(slot);
+                path.push(id);
+
+                if (rec(alive, slot, (aHash ^ HP[id]) >>> 0)) return true;
+
+                path.pop();
+                slot.length = 0;
+                for (var s = 0; s < slotBackup.length; s++) slot.push(slotBackup[s]);
+                alive.add(id);
+            }
+
+            dead.add(key);
+            return false;
+        }
+
+        var alive = new Set(aliveInit);
+        var slot = slotInit.slice();
+        var ok = rec(alive, slot, aliveHash);
+        return { ok: ok, path: ok ? path.slice() : [], nodes: nodes, aborted: aborted };
+    }
+
+    /* 开局可点牌过滤（GDD §5.6 第 1、2 条，软过滤：不满足就用首个可行解兜底） */
+    function openingsOk(geo, symOf, nd) {
+        var syms = geo.tiles.filter(function (t) {
+            return geo.above[t.id].length === 0;
+        }).map(function (t) { return symOf[t.id]; });
+
+        var cnt = Object.create(null), distinct = new Set();
+        syms.forEach(function (s) { cnt[s] = (cnt[s] || 0) + 1; distinct.add(s); });
+
+        var rule1 = Object.keys(cnt).some(function (k) { return cnt[k] >= 2; });
+        // nd≤3 时该规则不可能满足（要求可点牌全同），跳过
+        var rule2 = nd <= 3 ? true : distinct.size < nd - 1;
+        return rule1 && rule2;
+    }
+
+    /* 生成器：随机发牌 + 有界 DFS 验证 + 失败重掷（GDD 附录 C-4，禁止「按移除序分块」） */
+    function generateBoard(geo, cfg, seed) {
+        var groups = geo.tiles.length / 3;
+        var nd = cfg.nd;
+        var fallback = null;
+        var t0 = Date.now();
+
+        for (var attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            var trySeed = (seed ^ (attempt * 2654435761)) >>> 0;
+            var rnd = mulberry32(trySeed);
+
+            // 每个 symbol 的副本数必须是 3 的倍数
+            var pool = [];
+            for (var g = 0; g < groups; g++) {
+                var sym = cfg.symbols[g % nd];
+                pool.push(sym, sym, sym);
+            }
+            shuffleInPlace(pool, rnd);
+
+            var symOf = {};
+            geo.tiles.forEach(function (tile, ix) { symOf[tile.id] = pool[ix]; });
+
+            var alive = new Set(geo.tiles.map(function (tile) { return tile.id; }));
+            var r = solve(geo, symOf, alive, [], WITNESS_BUDGET, trySeed);
+
+            if (r.ok) {
+                var rec = { symOf: symOf, witnessPath: r.path, nd: nd, attempt: attempt };
+                if (!fallback) fallback = rec;
+                if (openingsOk(geo, symOf, cfg.nd)) return rec;
+                // 开局过滤是 GDD §5.6 的「体验优化」，不是有解性保证：
+                // 尝试次数或墙钟任一超限就用首个可行解兜底，绝不让开局卡住。
+                if (attempt >= FILTER_ATTEMPTS || Date.now() - t0 > GEN_TIME_BUDGET) {
+                    if (fallback) return fallback;
+                }
+            }
+            if (attempt % 10 === 0 && nd > 3) nd--;   // 温和降级，保证终止（EDGE-D2）
+        }
+        return fallback;
+    }
+
+    /* ==========================================================================
+       8 · 全局状态
+       ========================================================================== */
+    var G = {
+        level: 1,
+        cfg: null,
+        geo: null,
+        symOf: {},              // tileId -> symbol
+        alive: new Set(),
+        blocked: new Map(),     // tileId -> bool
+        slot: [],
+        bench: [],
+        score: 0,
+        chain: 0,
+        propsUsed: 0,
+        props: {},
+        freeReviveUsed: false,
+        status: 'idle',         // idle | playing | won | lost
+        busy: false,
+        seed: 0,
+        tiles: new Map(),       // tileId -> {el, face, sym, num, name}
+        tierOf: {},             // symbol -> 0..3
+        polOf: {},              // symbol -> 'dark'|'light'
+        famOf: {},              // symbol -> 视觉族
+        snapshot: [],
+        startedAt: 0,
+        hintsUsed: 0,
+        unlockTipShown: false
+    };
+
+    var els = {};   // DOM 引用缓存
+    function cacheDom() {
+        els.shell = $('#shell');
+        els.viewSelect = $('#viewSelect');
+        els.viewGame = $('#viewGame');
+        els.levelList = $('#levelList');
+        els.board = $('#board');
+        els.stage = $('#stage');
+        els.slotRail = $('#slotRail');
+        els.slotCount = $('#slotCount');
+        els.hudLevel = $('#hudLevel');
+        els.hudScore = $('#hudScore');
+        els.hudCombo = $('#hudCombo');
+        els.hudLeft = $('#hudLeft');
+        els.propBar = $('#propBar');
+        els.benchWrap = $('#benchWrap');
+        els.benchCells = $('#benchCells');
+        els.notify = $('#notify');
+        els.toast = $('#sgpToast');
+        els.srLive = $('#srLive');
+        els.tutBubble = $('#tutBubble');
+        els.tutStep = $('#tutStep');
+        els.tutText = $('#tutText');
+        els.ovlLose = $('#ovlLose');
+        els.ovlWin = $('#ovlWin');
+        els.ovlHelp = $('#ovlHelp');
+    }
+
+    /* ==========================================================================
+       9 · 渲染
+       ========================================================================== */
+    function announce(text) {
+        // 先清空再写，保证相同文案也能被再次播报
+        els.srLive.textContent = '';
+        setTimeout(function () { els.srLive.textContent = text; }, 20);
+    }
+
+    var notifyTimer = null;
+    function notify(html, ms) {
+        els.notify.innerHTML = html;
+        els.notify.classList.remove('sgp-hide');
+        if (notifyTimer) clearTimeout(notifyTimer);
+        notifyTimer = setTimeout(function () {
+            els.notify.classList.add('sgp-hide');
+        }, ms || 2200);
+    }
+
+    var toastTimer = null;
+    function toast(text, ms) {
+        els.toast.textContent = text;
+        els.toast.classList.remove('sgp-hide');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { els.toast.classList.add('sgp-hide'); }, ms || 1600);
+    }
+
+    function tileById(id) {
+        for (var i = 0; i < G.geo.tiles.length; i++) if (G.geo.tiles[i].id === id) return G.geo.tiles[i];
+        return null;
+    }
+
+    function coverCount(id) {
+        var ups = G.geo.above[id], n = 0;
+        for (var i = 0; i < ups.length; i++) if (G.alive.has(ups[i])) n++;
+        return n;
+    }
+    function computeBlocked(id) { return coverCount(id) > 0; }
+
+    function recomputeAllBlocked() {
+        G.blocked.clear();
+        G.alive.forEach(function (id) { G.blocked.set(id, computeBlocked(id)); });
+    }
+    /* 增量重算：只重算被移除那张牌覆盖过的（≤4 张），GDD S3 */
+    function recomputeBlockedAfterRemoval(removedId) {
+        var bel = G.geo.below[removedId];
+        for (var i = 0; i < bel.length; i++) {
+            var id = bel[i];
+            if (G.alive.has(id)) G.blocked.set(id, computeBlocked(id));
+        }
+    }
+
+    function ariaLabelFor(id) {
+        var sym = G.symOf[id];
+        var el = EL.get(sym);
+        var fam = G.famOf[sym];
+        if (!el) return sym;
+        if (G.blocked.get(id)) {
+            return t('tile.blocked.sr', {
+                z: el.atomicNumber, name: el.name,
+                family: FAMILY_LABEL[fam] || fam, n: coverCount(id)
+            });
+        }
+        return t('tile.free.sr', {
+            z: el.atomicNumber, name: el.name, family: FAMILY_LABEL[fam] || fam
+        });
+    }
+
+    function makeTileEl(tile) {
+        var el = document.createElement('div');
+        el.className = 'sg-tile';
+        el.dataset.id = String(tile.id);
+        el.setAttribute('role', 'button');
+        el.tabIndex = 0;
+        el.style.setProperty('--gx', tile.gx);
+        el.style.setProperty('--gy', tile.gy);
+        el.style.setProperty('--layer', tile.layer);
+
+        var face = document.createElement('div');
+        face.className = 'sg-tile__face';
+        face.style.setProperty('--depth', '0');
+
+        var sym = document.createElement('span');
+        sym.className = 'sg-tile__sym';
+        var num = document.createElement('span');
+        num.className = 'sg-tile__num';
+        var name = document.createElement('span');
+        name.className = 'sg-tile__name';
+
+        face.appendChild(sym);
+        face.appendChild(num);
+        face.appendChild(name);
+        el.appendChild(face);
+
+        return { el: el, face: face, sym: sym, num: num, name: name };
+    }
+
+    function paintTile(id) {
+        var rec = G.tiles.get(id);
+        if (!rec) return;
+        var symbol = G.symOf[id];
+        var el = EL.get(symbol);
+        if (!el) return;
+        var fam = G.famOf[symbol];
+        var blocked = !!G.blocked.get(id);
+
+        rec.el.dataset.fam = fam;
+        rec.el.dataset.tier = String(G.tierOf[symbol]);
+        rec.el.dataset.pol = G.polOf[symbol];
+        rec.el.dataset.blocked = blocked ? 'true' : 'false';
+        rec.face.style.setProperty('--depth', String(coverCount(id)));
+
+        rec.sym.textContent = symbol;
+        rec.num.textContent = String(el.atomicNumber);
+        rec.name.textContent = el.name;
+        rec.el.setAttribute('aria-label', ariaLabelFor(id));
+    }
+
+    function paintAllTiles() {
+        G.alive.forEach(function (id) { paintTile(id); });
+    }
+
+    /* 挂载牌堆 DOM（只在开局 / 撤销回滚 / 洗牌后调用，保证点击时元素稳定可过渡） */
+    function mountBoard() {
+        els.stage.innerHTML = '';
+        G.tiles.clear();
+        var order = 0;
+        G.geo.tiles.forEach(function (tile) {
+            if (!G.alive.has(tile.id)) return;
+            var rec = makeTileEl(tile);
+            G.tiles.set(tile.id, rec);
+            els.stage.appendChild(rec.el);
+            rec.el.classList.add('is-entering');
+            rec.el.style.setProperty('--i', Math.min(order, 20));
+            order++;
+            paintTile(tile.id);
+        });
+    }
+
+    function renderSlot(landingIndex) {
+        var rail = els.slotRail;
+        rail.dataset.fill = String(G.slot.length);
+        for (var i = 0; i < SLOT_MAX; i++) {
+            var cell = rail.children[i];
+            if (!cell) continue;
+            var sym = G.slot[i];
+            if (!sym) {
+                cell.className = 'sg-slot';
+                cell.textContent = '';
+                cell.removeAttribute('data-fam');
+                cell.removeAttribute('data-tier');
+                continue;
+            }
+            var el = EL.get(sym);
+            cell.className = 'sg-slot is-filled';
+            cell.dataset.fam = G.famOf[sym];
+            cell.dataset.tier = String(G.tierOf[sym]);
+            cell.textContent = sym;
+            if (el) cell.setAttribute('aria-label', el.name);
+            if (i === landingIndex) {
+                cell.classList.add('is-landing');       // A11
+                (function (c) {
+                    setTimeout(function () { c.classList.remove('is-landing'); }, 240);
+                })(cell);
+            }
+        }
+        els.slotCount.textContent = t('hud.slots', { used: G.slot.length });
+        // 6 格告急播报（L2 预警，GDD §7.3）
+        if (G.slot.length === 6) announce(t('hud.slotLastOne'));
+    }
+
+    function renderBench() {
+        if (!els.benchWrap) return;
+        var hasBench = Object.prototype.hasOwnProperty.call(G.props, 'eject') || G.bench.length > 0;
+        els.benchWrap.classList.toggle('sgp-hide', !hasBench);
+        els.benchCells.innerHTML = '';
+        for (var i = 0; i < BENCH_MAX; i++) {
+            var cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'sgp-bench-cell';
+            var sym = G.bench[i];
+            if (sym) {
+                cell.classList.add('is-filled');
+                cell.dataset.fam = G.famOf[sym];
+                cell.dataset.tier = String(G.tierOf[sym]);
+                cell.textContent = sym;
+                var el = EL.get(sym);
+                cell.setAttribute('aria-label', (el ? el.name : sym) + '，放回槽位');
+                cell.dataset.index = String(i);
+            } else {
+                cell.setAttribute('aria-hidden', 'true');
+                cell.tabIndex = -1;
+            }
+            els.benchCells.appendChild(cell);
+        }
+    }
+
+    function renderHud() {
+        var total = LEVELS.length;
+        els.hudLevel.textContent = t('hud.levelOf', { n: G.level, total: total });
+        els.hudScore.textContent = String(G.score);
+        els.hudLeft.textContent = t('hud.tilesLeft', { n: G.alive.size });
+        if (G.chain >= 2) {
+            var M = Math.min(1 + 0.5 * (G.chain - 1), 3.5);
+            els.hudCombo.textContent = t('hud.combo', { m: M.toFixed(1) });
+            els.hudCombo.classList.remove('sgp-hide');
+        } else {
+            els.hudCombo.classList.add('sgp-hide');
+        }
+    }
+
+    function renderProps() {
+        els.propBar.innerHTML = '';
+        PROP_ORDER.forEach(function (key) {
+            if (!Object.prototype.hasOwnProperty.call(G.props, key)) return;  // 未解锁 → 隐藏而非禁用
+            var left = G.props[key];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sgp-prop';
+            btn.dataset.prop = key;
+            var disabled = left <= 0 || G.busy || G.status !== 'playing';
+            if (disabled) btn.disabled = true;
+            btn.innerHTML =
+                '<span class="sgp-prop__label">' + t('prop.' + key) + '</span>' +
+                '<span class="sgp-prop__count">' +
+                (left > 0 ? t('prop.left', { n: left }) : t('prop.empty')) +
+                '</span>';
+            btn.setAttribute('aria-label', t('prop.' + key) + '，' +
+                (left > 0 ? t('prop.left', { n: left }) : t('prop.empty')));
+            els.propBar.appendChild(btn);
+        });
+    }
+
+    function renderAll() {
+        paintAllTiles();
+        renderSlot();
+        renderBench();
+        renderHud();
+        renderProps();
+    }
+
+    /* ==========================================================================
+       10 · 快照 / 撤销（S7：全量快照，不做反向推导）
+       ========================================================================== */
+    function takeSnapshot() {
+        var symOf = {};
+        Object.keys(G.symOf).forEach(function (k) { symOf[k] = G.symOf[k]; });
+        G.snapshot.push({
+            symOf: symOf,
+            alive: Array.from(G.alive),
+            slot: G.slot.slice(),
+            bench: G.bench.slice(),
+            score: G.score,
+            chain: G.chain
+        });
+        if (G.snapshot.length > 20) G.snapshot.shift();
+    }
+
+    function restoreLastSnapshot() {
+        var snap = G.snapshot.pop();
+        if (!snap) return false;
+        G.symOf = snap.symOf;
+        G.alive = new Set(snap.alive);
+        G.slot = snap.slot.slice();
+        G.bench = snap.bench.slice();
+        G.score = snap.score;
+        G.chain = snap.chain;
+        recomputeAllBlocked();
+        mountBoard();
+        renderAll();
+        return true;
+    }
+
+    /* ==========================================================================
+       11 · 输入与状态机（GDD §2.1）
+       ========================================================================== */
+    function tileElFromEvent(e) {
+        var node = e.target;
+        while (node && node !== els.board) {
+            if (node.classList && node.classList.contains('sg-tile')) return node;
+            node = node.parentNode;
+        }
+        return null;
+    }
+
+    /* 被遮挡牌的反馈：抖动 + 高亮压着它的牌 + 播报。不消耗任何东西（EDGE-04） */
+    function blockedFeedback(id) {
+        var rec = G.tiles.get(id);
+        if (!rec) return;
+
+        // 主题文件没有「瓦片抖动 / 遮挡者高亮」的 keyframes（spec §5.2 的 A-list 未覆盖），
+        // 这里用 Web Animations API 内联补两条一次性动画，不新增类名、不改主题文件。
+        if (rec.face.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            rec.face.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-4px)' },
+                { transform: 'translateX(4px)' },
+                { transform: 'translateX(-3px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 180, easing: 'cubic-bezier(.36,.07,.19,.97)' });
+        }
+
+        var blockers = G.geo.above[id].filter(function (bid) { return G.alive.has(bid); });
+        blockers.slice(0, 4).forEach(function (bid, i) {
+            var b = G.tiles.get(bid);
+            if (!b) return;
+            if (b.face.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                b.face.animate([
+                    { boxShadow: '0 0 0 0 rgba(245,185,66,0)' },
+                    { boxShadow: '0 0 0 3px rgba(245,185,66,.95)' },
+                    { boxShadow: '0 0 0 0 rgba(245,185,66,0)' }
+                ], { duration: 400, delay: i * 40, easing: 'cubic-bezier(.4,0,.2,1)' });
+            }
+        });
+
+        announce(t('announce.blocked'));
+        return blockers.length;
+    }
+
+    function onBoardActivate(id) {
+        if (G.status !== 'playing' || G.busy) return;
+
+        // 教学中的强制点击：非目标牌直接忽略（第一次点击后自动放开）
+        if (G.tutorial.active && G.tutorial.step <= 2) {
+            if (G.tutorial.targetId !== id) return;
+            if (G.tutorial.step === 2) {
+                // 第 2 步：点被压住的牌 → 抖动一次后进入第 3 步
+                blockedFeedback(id);
+                goTutorialStep(3);
+                return;
+            }
+        }
+
+        if (G.blocked.get(id)) { blockedFeedback(id); return; }
+        commitMove(id);
+    }
+
+    function commitMove(id) {
+        if (G.alive.size === 0) return;
+        takeSnapshot();
+        G.busy = true;
+        doMove(id).catch(function (err) {
+            console.error('[sheep] 移动流程异常', err);
+            G.busy = false;
+            renderProps();
+        });
+    }
+
+    /* ⑥ 胜负判定（顺序：先消除、后判负）。
+       判据：
+         · 盘面清空且暂存区为空 → 胜（槽位里可能还剩放不掉的零牌，仍算清盘，
+           否则该状态既不判胜也不判负，玩家会永久卡死）；
+         · 盘面清空但暂存区还有牌 → 既不判负也不判胜，只提示玩家把牌放回槽位；
+         · 槽位满 → 负；
+         · F2 自检只在还有活牌时才成立。
+       doMove 与 doBenchReturn 必须共用本函数：放回暂存牌走的是独立流程、不经过 doMove，
+       漏掉这一步就会「永远赢不了」。 */
+    async function checkOutcome() {
+        if (G.alive.size === 0 && G.bench.length === 0) {
+            await sleep(160);
+            winLevel();
+            return;
+        }
+        if (G.alive.size === 0) {
+            notify(t('bench.returnFirst'), 2600);
+            return;
+        }
+        if (G.slot.length >= SLOT_MAX) {
+            loseLevel();
+            return;
+        }
+        // F2 自检：活牌必有一张不被遮挡
+        var anyFree = false;
+        G.alive.forEach(function (aid) { if (!G.blocked.get(aid)) anyFree = true; });
+        if (!anyFree) {
+            console.error(t('err.noClickable'));
+            loseLevel('state');
+        }
+    }
+
+    async function doMove(id) {
+        var rec = G.tiles.get(id);
+        var symbol = G.symOf[id];
+
+        // ① 从盘面移除，增量重算遮挡
+        G.alive.delete(id);
+        G.blocked.delete(id);
+        recomputeBlockedAfterRemoval(id);
+
+        // ② 飞入动画的数据（唯一允许读 rect 的地方：动画，不是遮挡判定）
+        var fromEl = rec ? rec.el : null;
+        var flyData = null;
+        if (fromEl && els.slotRail.children[G.slot.length]) {
+            var tileRect = fromEl.getBoundingClientRect();
+            var stageRect = els.stage.getBoundingClientRect();
+            var targetCell = els.slotRail.children[G.slot.length];
+            var slotRect = targetCell.getBoundingClientRect();
+            flyData = {
+                left: fromEl.offsetLeft, top: fromEl.offsetTop,
+                dx: (slotRect.left - stageRect.left) - fromEl.offsetLeft,
+                dy: (slotRect.top - stageRect.top) - fromEl.offsetTop,
+                ds: slotRect.width / Math.max(1, tileRect.width)
+            };
+        }
+
+        if (fromEl) fromEl.remove();
+        G.tiles.delete(id);
+
+        if (flyData) playFlyToken(symbol, flyData);
+
+        // ③ 入槽
+        G.slot.push(symbol);
+        renderSlot(G.slot.length - 1);
+        paintAllTiles();     // 刚露出来的牌要立刻变亮
+        renderHud();
+
+        await sleep(150);
+
+        // ④ 消除判定循环 → ⑤ 连锁记账（先消除，后判负；必须 while）
+        var clearedGroups = await settleSlot();
+
+        if (clearedGroups === 0) G.chain = 0;
+        renderHud();
+
+        // ⑥ 胜负判定（顺序：先消除、后判负）
+        await checkOutcome();
+
+        // 教学推进
+        if (G.tutorial.active) advanceTutorialAfterMove(clearedGroups);
+
+        G.busy = false;
+        renderProps();
+    }
+
+    /* 消除结算：每次只消费「当前槽位里的第一组」，播完动画再从 G.slot 里真正移除。
+       循环到不动点（必须 while，不能 if —— 一次点击可能连出多组，EDGE-02）。
+       resolveAll 在副本上跑，避免它把 G.slot 提前清空导致动画索引错位。 */
+    async function settleSlot() {
+        var cleared = 0;
+        while (true) {
+            var groups = resolveAll(G.slot.slice());   // 只读：拿到「当前第一组」
+            if (!groups.length) break;
+            var g = groups[0];
+
+            await animateSlotBurst(g.indices);         // indices 相对当前 G.slot
+
+            g.indices.slice().sort(function (a, b) { return a - b; })
+                .reverse()
+                .forEach(function (ix) { G.slot.splice(ix, 1); });
+
+            // chain 先加，再取倍率（GDD §4.4：100×1.0 + 100×1.5 + 100×2.0 = 450）
+            G.chain += (g.type === 'family' ? 2 : 1);
+            var M = Math.min(1 + 0.5 * (G.chain - 1), 3.5);
+            var base = (g.type === 'family') ? 250 : 100;
+            var add = Math.round(base * M);
+            G.score += add;
+            cleared++;
+
+            renderSlot();
+            renderHud();
+
+            if (g.type === 'family') {
+                showFamilyCard(g);
+                announce(t('announce.family', {
+                    family: FAMILY_LABEL[g.family] || g.family, used: G.slot.length
+                }));
+            } else {
+                showElementCard(g.symbol, add);
+                var cel = EL.get(g.symbol);
+                announce(t('announce.cleared', {
+                    n: 3, name: cel ? cel.name : g.symbol, used: G.slot.length
+                }));
+            }
+
+            await sleep(120);
+        }
+        return cleared;
+    }
+
+    function playFlyToken(symbol, d) {
+        var token = document.createElement('div');
+        token.className = 'sg-fly-token';
+        token.dataset.fam = G.famOf[symbol];
+        token.dataset.tier = String(G.tierOf[symbol]);
+        token.style.left = d.left + 'px';
+        token.style.top = d.top + 'px';
+        token.style.setProperty('--dx', d.dx + 'px');
+        token.style.setProperty('--dy', d.dy + 'px');
+        token.style.setProperty('--ds', String(d.ds));
+        els.stage.appendChild(token);
+        setTimeout(function () { if (token.parentNode) token.parentNode.removeChild(token); }, 320);
+    }
+
+    async function animateSlotBurst(indices) {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var cells = indices.map(function (i) { return els.slotRail.children[i]; }).filter(Boolean);
+        cells.forEach(function (c) {
+            if (c.animate) {
+                c.animate([
+                    { transform: 'scale(1)', opacity: 1 },
+                    { transform: 'scale(1.18)', opacity: 1, offset: .35 },
+                    { transform: 'scale(.55)', opacity: 0 }
+                ], { duration: 340, easing: 'cubic-bezier(.4,0,.2,1)' });
+            }
+        });
+        await sleep(340);
+    }
+
+    function showElementCard(symbol, gained) {
+        var el = EL.get(symbol);
+        if (!el) return;
+        var fam = G.famOf[symbol];
+        notify(
+            '<div class="sgp-notify__title">' + t('match.exact', { name: el.name }) +
+            ' <span style="color:#f5b942">' + t('match.score', { n: gained }) + '</span></div>' +
+            '<div class="sgp-notify__text">' + symbol + ' · ' +
+            t('card.atomicNumber') + ' ' + el.atomicNumber + ' · ' +
+            (FAMILY_LABEL[fam] || fam) + '</div>' +
+            '<a class="sgp-notify__link" href="../../' + el.link + '">' + t('card.detail') + '</a>',
+            2000
+        );
+    }
+
+    function showFamilyCard(g) {
+        var famName = FAMILY_LABEL[g.family] || g.family;
+        var links = g.symbols.map(function (s) {
+            var e = EL.get(s);
+            return e ? '<a class="sgp-notify__link" href="../../' + e.link + '" style="margin-right:8px">' + s + ' ' + e.name + '</a>' : '';
+        }).join('');
+        notify(
+            '<div class="sgp-notify__title">' + t('match.family', { family: famName }) + '</div>' +
+            '<div class="sgp-notify__text">' + (FAMILY_TRAIT[g.family] || '') + '</div>' +
+            '<div style="margin-top:4px">' + links + '</div>',
+            2600
+        );
+    }
+
+    /* ==========================================================================
+       12 · 胜负
+       ========================================================================== */
+    function levelBonus() {
+        var unused = 0;
+        PROP_ORDER.forEach(function (k) {
+            if (Object.prototype.hasOwnProperty.call(G.props, k)) unused += Math.max(0, G.props[k]);
+        });
+        return 300 * G.level + 100 * unused;
+    }
+    function starsFor(used) { return used >= 3 ? 1 : (used >= 1 ? 2 : 3); }
+
+    function winLevel() {
+        G.status = 'won';
+        G.busy = false;
+        var bonus = levelBonus();
+        var total = G.score + bonus;
+        var used = G.propsUsed;
+        var stars = starsFor(used);
+        var secs = Math.max(0, Math.round((Date.now() - G.startedAt) / 1000));
+
+        $('#winTitle').textContent = (stars === 3 ? t('win.perfect') : t('win.title'));
+        $('#winTitle').textContent += (G.level === LEVELS.length ? ' ' + t('win.final') : '');
+        $('#winStars').textContent = '★★★☆☆☆'.slice(3 - stars, 6 - stars);
+        $('#winScore').textContent = t('win.score', { n: total });
+        $('#winStats').innerHTML =
+            '<span>' + t('win.time', { m: Math.floor(secs / 60), ss: hex2(secs % 60) }) + '</span>' +
+            '<span>' + t('win.propsUsed', { n: used }) + '</span>' +
+            '<span>关卡奖励 +' + bonus + '</span>';
+
+        var met = $('#winMet');
+        met.innerHTML = '';
+        G.cfg.symbols.forEach(function (sym) {
+            var el = EL.get(sym);
+            if (!el) return;
+            var a = document.createElement('a');
+            a.href = '../../' + el.link;
+            a.textContent = sym;
+            a.dataset.fam = G.famOf[sym];
+            a.dataset.tier = String(G.tierOf[sym]);
+            a.setAttribute('aria-label', el.name);
+            met.appendChild(a);
+        });
+
+        var prog = readProgress();
+        prog.unlocked = Math.max(prog.unlocked, Math.min(LEVELS.length, G.level + 1));
+        var prev = prog.best[String(G.level)];
+        if (!prev || total > prev.score) prog.best[String(G.level)] = { score: total, stars: stars };
+        writeProgress(prog);
+
+        var nextBtn = $('#btnWinNext');
+        if (G.level >= LEVELS.length) {
+            nextBtn.classList.add('sgp-hide');
+        } else {
+            nextBtn.classList.remove('sgp-hide');
+            nextBtn.textContent = t('win.next');
+        }
+        $('#ovlWin').classList.remove('sgp-hide');
+        announce(t('win.score', { n: total }));
+        renderProps();
+        buildLevelList();
+    }
+
+    function loseLevel(reason) {
+        G.status = 'lost';
+        G.busy = false;
+        $('#loseReason').textContent = t('lose.reason');
+        var reviveBtn = $('#btnRevive');
+        if (G.freeReviveUsed) {
+            reviveBtn.disabled = true;
+            reviveBtn.textContent = t('lose.revive.used');
+        } else {
+            reviveBtn.disabled = false;
+            reviveBtn.textContent = t('lose.revive');
+        }
+        $('#ovlLose').classList.remove('sgp-hide');
+        renderProps();
+    }
+
+    /* ==========================================================================
+       13 · 道具（S8）
+       ========================================================================== */
+    function useUndo() {
+        if (G.status !== 'playing' || G.busy) return;
+        if ((G.props.undo || 0) <= 0) return;
+        if (!G.snapshot.length) { toast('还没有可以撤销的一步'); return; }
+        G.props.undo--;
+        G.propsUsed++;
+        restoreLastSnapshot();
+        G.status = 'playing';
+        els.ovlLose.classList.add('sgp-hide');
+        renderProps();
+        announce('已撤销一步，槽位 ' + G.slot.length + '/7');
+    }
+
+    async function useEject() {
+        if (G.status !== 'playing' || G.busy) return;
+        if ((G.props.eject || 0) <= 0) return;
+        if (G.bench.length >= BENCH_MAX) { toast(t('prop.ejectFull')); return; }
+        if (!G.slot.length) { toast('槽位是空的'); return; }
+
+        G.busy = true;
+        renderProps();
+        G.props.eject--;
+        G.propsUsed++;
+
+        var moved = 0;
+        while (G.slot.length && G.bench.length < BENCH_MAX && moved < 3) {
+            G.bench.push(G.slot.pop());
+            moved++;
+        }
+        renderSlot();
+        renderBench();
+        renderHud();
+        announce('已移出 ' + moved + ' 张到暂存区，槽位 ' + G.slot.length + '/7');
+
+        // 移出后槽位可能已经可以消（但 eject 不移出匹配能力，仍要检查）
+        await sleep(120);
+        G.busy = false;
+        renderProps();
+    }
+
+    function returnFromBench(index) {
+        if (G.status !== 'playing' || G.busy) return;
+        if (G.slot.length >= SLOT_MAX) return;
+        var sym = G.bench[index];
+        if (!sym) return;
+        // 快照必须在「把牌从暂存区拿出来」之前取，否则撤销会丢掉这张牌
+        takeSnapshot();
+        G.bench.splice(index, 1);
+        renderBench();
+        G.busy = true;
+        doBenchReturn(sym).catch(function (e) { console.error(e); G.busy = false; renderProps(); });
+    }
+
+    async function doBenchReturn(sym) {
+        G.slot.push(sym);
+        renderSlot(G.slot.length - 1);
+        renderHud();
+        await sleep(120);
+
+        var cleared = await settleSlot();
+        if (!cleared) G.chain = 0;
+        renderHud();
+
+        // 与 doMove 共用同一套胜负判定：放回最后一张暂存牌后必须能判胜
+        await checkOutcome();
+        G.busy = false;
+        renderProps();
+    }
+
+    function useShuffle() {
+        if (G.status !== 'playing' || G.busy) return;
+        if ((G.props.shuffle || 0) <= 0) return;
+
+        var ids = Array.from(G.alive);
+        if (ids.length < 3) { toast('盘面上的牌不多了'); return; }
+
+        // 原子快照（只用于回滚，不是玩家可见的撤销）
+        var backup = {};
+        ids.forEach(function (id) { backup[id] = G.symOf[id]; });
+
+        var syms = ids.map(function (id) { return G.symOf[id]; });
+        // 保持全局 symbol 计数不变：只打乱现有符号序列
+        var rnd = mulberry32((Date.now() ^ (G.seed >>> 3)) >>> 0);
+        shuffleInPlace(syms, rnd);
+        ids.forEach(function (id, i) { G.symOf[id] = syms[i]; });
+
+        // 必须重跑 DFS 验证（EDGE-07）
+        var r = solveFromCurrent();
+        if (!r.ok) {
+            ids.forEach(function (id) { G.symOf[id] = backup[id]; });   // 原子回滚
+            toast(t('prop.shuffle.rollback'), 2200);
+            return;                                                     // 退还次数：不扣
+        }
+
+        G.props.shuffle--;
+        G.propsUsed++;
+        mountBoard();
+        renderAll();
+        announce('已洗牌，盘面重新分配');
+    }
+
+    function useHint() {
+        if (G.status !== 'playing' || G.busy) return;
+        if ((G.props.hint || 0) <= 0) return;
+
+        // 提示必须从当前状态重跑 DFS，不能读初始 witnessPath（EDGE-D1）
+        var r = solveFromCurrent();
+        if (!r.ok) {
+            toast(t('prop.hint.dead'), 2400);       // 诚实告知：这里救不回来了（不扣次数）
+            announce(t('prop.hint.dead'));
+            return;
+        }
+        var nextId = r.path[0];
+        var rec = G.tiles.get(nextId);
+        if (!rec) { toast(t('prop.hint.dead')); return; }
+
+        G.props.hint--;
+        G.propsUsed++;
+        renderProps();
+
+        rec.el.classList.add('is-selected');
+        rec.el.dataset.hint = '1';
+        announce('提示：这张可以点');
+        setTimeout(function () {
+            rec.el.classList.remove('is-selected');
+            delete rec.el.dataset.hint;
+        }, 800);
+    }
+
+    /* 从当前局面求解（hint / shuffle 共用）。
+       两级预算：先 8000（常见局面几十个节点就够），失败再以 40000 重试一次。
+       L6（45 张）实测 8000 预算下约有 5% 的假阴性（有解却解不出），升级预算把这个比例压到 ~1%。
+       仍有残余：有界 DFS 本质是启发式，GDD §4.1 也承认这一点。 */
+    function solveFromCurrent() {
+        var r = solve(G.geo, G.symOf, new Set(G.alive), G.slot.slice(), WITNESS_BUDGET, G.seed + 41);
+        if (r.ok) return r;
+        return solve(G.geo, G.symOf, new Set(G.alive), G.slot.slice(), USER_BUDGET, (G.seed + 41) ^ 0x5f3759df);
+    }
+
+    /* ==========================================================================
+       14 · 教学（L1 首次进入，GDD §6.2）
+       ========================================================================== */
+    G.tutorial = { active: false, step: 0, targetId: null };
+
+    function freeTiles() {
+        var out = [];
+        G.alive.forEach(function (id) { if (!G.blocked.get(id)) out.push(id); });
+        return out;
+    }
+    function blockedTiles() {
+        var out = [];
+        G.alive.forEach(function (id) { if (G.blocked.get(id)) out.push(id); });
+        return out;
+    }
+
+    function startTutorial() {
+        G.tutorial.active = true;
+        goTutorialStep(1);
+        els.propBar.classList.add('sgp-dim');
+    }
+
+    function clearTutorialMask() {
+        els.board.style.pointerEvents = '';
+        G.tiles.forEach(function (rec) { rec.el.style.pointerEvents = ''; });
+    }
+
+    function goTutorialStep(step) {
+        G.tutorial.step = step;
+        els.tutBubble.classList.remove('sgp-hide');
+
+        if (step === 1) {
+            var targets = freeTiles();
+            if (!targets.length) { endTutorial(); return; }
+            G.tutorial.targetId = targets[0];
+            els.tutStep.textContent = t('tut.step', { step: 1 });
+            els.tutText.innerHTML = t('tut.1.text');
+            els.board.style.pointerEvents = 'none';
+            var rec = G.tiles.get(G.tutorial.targetId);
+            if (rec) {
+                rec.el.style.pointerEvents = 'auto';
+                if (rec.face.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    rec.face.animate([
+                        { boxShadow: '0 0 0 0 rgba(245,185,66,.9)' },
+                        { boxShadow: '0 0 0 6px rgba(245,185,66,0)' }
+                    ], { duration: 1100, iterations: Infinity, easing: 'ease-out' });
+                }
+            }
+        } else if (step === 2) {
+            var blocked = blockedTiles();
+            if (!blocked.length) { goTutorialStep(3); return; }
+            G.tutorial.targetId = blocked[0];
+            els.tutStep.textContent = t('tut.step', { step: 2 });
+            els.tutText.innerHTML = t('tut.2.text');
+            els.board.style.pointerEvents = 'none';
+            var b = G.tiles.get(G.tutorial.targetId);
+            if (b) b.el.style.pointerEvents = 'auto';
+        } else {
+            clearTutorialMask();
+            els.tutStep.textContent = t('tut.step', { step: 3 });
+            els.tutText.innerHTML = t('tut.3.text');
+
+            // 高亮「能凑成第 3 张」的那张牌
+            G.tutorial.targetId = findPairTarget();
+            var tr = G.tutorial.targetId !== null ? G.tiles.get(G.tutorial.targetId) : null;
+            if (tr) {
+                tr.el.classList.add('is-selected');
+                tr.el.dataset.hint = '1';
+            }
+        }
+    }
+
+    function findPairTarget() {
+        if (!G.slot.length) {
+            var f = freeTiles();
+            return f.length ? f[0] : null;
+        }
+        var want = new Set(G.slot);
+        var cands = freeTiles();
+        for (var i = 0; i < cands.length; i++) {
+            if (want.has(G.symOf[cands[i]])) return cands[i];
+        }
+        return cands.length ? cands[0] : null;
+    }
+
+    function advanceTutorialAfterMove(clearedGroups) {
+        if (!G.tutorial.active) return;
+        if (G.tutorial.step === 1) {
+            var rec = G.tutorial.targetId !== null ? G.tiles.get(G.tutorial.targetId) : null;
+            if (rec) { rec.el.style.pointerEvents = ''; rec.el.classList.remove('is-selected'); }
+            goTutorialStep(2);
+        } else if (G.tutorial.step === 3) {
+            if (clearedGroups > 0) endTutorial();
+        }
+    }
+
+    function endTutorial() {
+        G.tutorial.active = false;
+        G.tutorial.step = 0;
+        G.tutorial.targetId = null;
+        clearTutorialMask();
+        els.tutBubble.classList.add('sgp-hide');
+        els.propBar.classList.remove('sgp-dim');
+        G.tiles.forEach(function (rec) {
+            rec.el.classList.remove('is-selected');
+            delete rec.el.dataset.hint;
+        });
+        markTutorialDone();
+        toast(t('tut.doneTip'), 2400);
+        renderProps();
+    }
+
+    /* ==========================================================================
+       15 · 关卡生命周期
+       ========================================================================== */
+    function computeTiersAndPols(cfg) {
+        var byFam = new Map();
+        cfg.symbols.forEach(function (sym) {
+            var el = EL.get(sym);
+            if (!el) return;
+            var fam = familyOf(el);
+            if (!byFam.has(fam)) byFam.set(fam, []);
+            byFam.get(fam).push(el);
+        });
+
+        G.tierOf = {}; G.polOf = {}; G.famOf = {};
+        byFam.forEach(function (list, fam) {
+            // 同族 distinct symbol 按原子序数升序 → data-tier 0..3（spec §2.6）
+            list.sort(function (a, b) { return a.atomicNumber - b.atomicNumber; });
+            list.forEach(function (el, i) {
+                G.tierOf[el.symbol] = Math.min(i, 3);
+                G.polOf[el.symbol] = LIGHT_POL.indexOf(fam) >= 0 ? 'light' : 'dark';
+                G.famOf[el.symbol] = fam;
+            });
+        });
+    }
+
+    function startLevel(levelId, opts) {
+        opts = opts || {};
+        var cfg = null;
+        LEVELS.forEach(function (L) { if (L.id === levelId) cfg = L; });
+        if (!cfg) return;
+
+        var geo = buildGeometry(cfg);
+        if (!assertLevel(cfg, geo)) {
+            // 断言失败：console.error 已打，中止该关（不静默降级）
+            alert('关卡配置校验失败，已中止。详情见控制台。');
+            return;
+        }
+
+        G.level = levelId;
+        G.cfg = cfg;
+        document.body.classList.add('sgp-playing');   // 对局态：隐藏站点悬浮件与页脚
+        G.geo = geo;
+        G.slot = [];
+        G.bench = [];
+        G.score = 0;
+        G.chain = 0;
+        G.propsUsed = 0;
+        G.freeReviveUsed = false;
+        G.snapshot = [];
+        G.status = 'playing';
+        G.busy = false;
+        G.hintsUsed = 0;
+        G.startedAt = Date.now();
+        G.seed = (opts.seed !== undefined)
+            ? opts.seed
+            : ((Date.now() ^ (levelId * 7919) ^ Math.floor(Math.random() * 1e9)) >>> 0);
+
+        computeTiersAndPols(cfg);
+
+        var gen = generateBoard(geo, cfg, G.seed);
+        if (!gen) {
+            console.error(t('err.noSolution') + '：关卡 ' + levelId + ' 在 ' + MAX_ATTEMPTS + ' 次尝试内无解');
+            alert('关卡生成失败，请刷新页面重试。');
+            return;
+        }
+        G.symOf = gen.symOf;
+        G.alive = new Set(geo.tiles.map(function (t) { return t.id; }));
+        recomputeAllBlocked();
+
+        // ---- 部署 DOM ----
+        els.shell.style.setProperty('--boardW', geo.boardW);
+        els.shell.style.setProperty('--boardH', geo.boardH);
+
+        els.slotRail.innerHTML = '';
+        for (var i = 0; i < SLOT_MAX; i++) {
+            var cell = document.createElement('div');
+            cell.className = 'sg-slot';
+            els.slotRail.appendChild(cell);
+        }
+        els.propBar.classList.remove('sgp-dim');
+        els.benchWrap.classList.add('sgp-hide');
+
+        G.props = {};
+        PROP_ORDER.forEach(function (k) {
+            if (Object.prototype.hasOwnProperty.call(cfg.props, k)) G.props[k] = cfg.props[k];
+        });
+
+        els.viewSelect.classList.add('sgp-hide');
+        els.viewGame.classList.remove('sgp-hide');
+        els.ovlLose.classList.add('sgp-hide');
+        els.ovlWin.classList.add('sgp-hide');
+        els.notify.classList.add('sgp-hide');
+        els.tutBubble.classList.add('sgp-hide');
+        els.toast.classList.add('sgp-hide');
+        clearTutorialMask();
+
+        // 进关瞬时复位滚动：关卡列表可能已向下滚过，否则吸顶 .navbar 会盖住盘面顶端
+        window.scrollTo({ top: 0, behavior: 'auto' });
+
+        mountBoard();
+        renderAll();
+
+        // L5 一次性机制提示（GDD §5.2 / §8.2 G2）
+        if (levelId === 5 && !G.unlockTipShown) {
+            G.unlockTipShown = true;
+            notify(
+                '<div class="sgp-notify__title"><span class="sgp-notify__badge">' +
+                t('unlock.family.badge') + '</span>' + t('unlock.family.title') + '</div>' +
+                '<div class="sgp-notify__text">' + t('unlock.family.text') + '</div>',
+                3200
+            );
+        }
+
+        // L1 首次进入 → 三步教学
+        if (levelId === 1 && !tutorialDone()) {
+            startTutorial();
+        }
+
+        announce('第 ' + levelId + ' 关开始，共 ' + geo.tiles.length + ' 张牌');
+    }
+
+    /* ==========================================================================
+       16 · 关卡选择视图
+        ========================================================================== */
+    function buildLevelList() {
+        var prog = readProgress();
+        els.levelList.innerHTML = '';
+        LEVELS.forEach(function (cfg) {
+            var locked = cfg.id > prog.unlocked;
+            var best = prog.best[String(cfg.id)];
+            var card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'sgp-lv';
+            card.disabled = locked;
+            var cnt = 0;
+            cfg.layers.forEach(function (L) { L.rows.forEach(function (r) { cnt += r; }); });
+
+            var starsHtml = best
+                ? '<span class="sgp-stars">' + '★★★☆☆☆'.slice(3 - best.stars, 6 - best.stars) + '</span>'
+                : '';
+            card.innerHTML =
+                '<div class="sgp-lv__no">LEVEL ' + cfg.id + '</div>' +
+                '<div class="sgp-lv__name">' + cfg.name + '</div>' +
+                '<div class="sgp-lv__meta">' +
+                '<span>' + cnt + ' 张</span>' +
+                '<span>' + (locked ? t('select.locked')
+                    : (best ? t('select.best', { score: best.score }) : t('select.play'))) + '</span>' +
+                starsHtml +
+                '</div>';
+            if (locked) {
+                card.setAttribute('aria-label', '第 ' + cfg.id + ' 关 ' + cfg.name + '，' + t('select.locked'));
+            } else {
+                card.setAttribute('aria-label', '第 ' + cfg.id + ' 关 ' + cfg.name + '，开始');
+                card.addEventListener('click', function () { startLevel(cfg.id); });
+            }
+            els.levelList.appendChild(card);
+        });
+    }
+
+    function showSelect() {
+        G.status = 'idle';
+        document.body.classList.remove('sgp-playing');   // 退出对局态：恢复站点悬浮件
+        els.viewGame.classList.add('sgp-hide');
+        els.viewSelect.classList.remove('sgp-hide');
+        els.ovlLose.classList.add('sgp-hide');
+        els.ovlWin.classList.add('sgp-hide');
+        els.tutBubble.classList.add('sgp-hide');
+        buildLevelList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ==========================================================================
+       17 · 事件绑定
+       ========================================================================== */
+    function bindEvents() {
+        // 点击 / 键盘激活牌
+        els.board.addEventListener('click', function (e) {
+            var node = tileElFromEvent(e);
+            if (!node) return;
+            onBoardActivate(Number(node.dataset.id));
+        });
+        els.board.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+            var node = tileElFromEvent(e);
+            if (!node) return;
+            e.preventDefault();
+            onBoardActivate(Number(node.dataset.id));
+        });
+
+        // 按下反馈（A1/A2）
+        els.board.addEventListener('pointerdown', function (e) {
+            var node = tileElFromEvent(e);
+            if (!node) return;
+            if (node.dataset.blocked === 'true') return;
+            node.classList.add('is-selected', 'is-pressed');
+        });
+        document.addEventListener('pointerup', function () {
+            var list = document.querySelectorAll('.sg-tile.is-pressed');
+            Array.prototype.forEach.call(list, function (el) {
+                el.classList.remove('is-pressed');
+                if (el.dataset.hint) return;
+                setTimeout(function () { el.classList.remove('is-selected'); }, 120);
+            });
+        });
+
+        // 道具
+        els.propBar.addEventListener('click', function (e) {
+            var btn = e.target.closest ? e.target.closest('.sgp-prop') : null;
+            if (!btn || btn.disabled) return;
+            var key = btn.dataset.prop;
+            if (key === 'undo') useUndo();
+            else if (key === 'eject') useEject();
+            else if (key === 'shuffle') useShuffle();
+            else if (key === 'hint') useHint();
+        });
+
+        // 暂存区放回
+        els.benchCells.addEventListener('click', function (e) {
+            var cell = e.target.closest ? e.target.closest('.sgp-bench-cell.is-filled') : null;
+            if (!cell) return;
+            returnFromBench(Number(cell.dataset.index));
+        });
+
+        // 顶栏 / 返回
+        $('#btnBack').addEventListener('click', showSelect);
+        $('#resetProgress').addEventListener('click', function () {
+            if (!window.confirm(t('select.reset.confirm'))) return;
+            writeProgress({ unlocked: 1, best: {} });
+            storageSet(LS_TUTORIAL, '0');
+            buildLevelList();
+        });
+
+        // 失败态
+        $('#btnRevive').addEventListener('click', function () {
+            if (G.freeReviveUsed) return;
+            G.freeReviveUsed = true;
+            G.status = 'playing';
+            els.ovlLose.classList.add('sgp-hide');
+            if (restoreLastSnapshot()) {
+                G.props.undo = (G.props.undo || 0) + 1;    // 额外赠送 1 次撤销
+                toast('已回到上一步，并获得 1 次额外撤销', 2400);
+            }
+            renderProps();
+        });
+        $('#btnLoseRestart').addEventListener('click', function () { startLevel(G.level); });
+        $('#btnLoseBack').addEventListener('click', showSelect);
+
+        // 胜利态
+        $('#btnWinNext').addEventListener('click', function () {
+            if (G.level < LEVELS.length) startLevel(G.level + 1);
+        });
+        $('#btnWinAgain').addEventListener('click', function () { startLevel(G.level); });
+        $('#btnWinBack').addEventListener('click', showSelect);
+
+        // 帮助
+        var openHelp = function () { els.ovlHelp.classList.remove('sgp-hide'); };
+        var closeHelp = function () { els.ovlHelp.classList.add('sgp-hide'); };
+        $('#helpBtn').addEventListener('click', openHelp);
+        $('#hudHelp').addEventListener('click', openHelp);
+        $('#btnHelpClose').addEventListener('click', closeHelp);
+        els.ovlHelp.addEventListener('click', function (e) {
+            if (e.target === els.ovlHelp) closeHelp();
+        });
+
+        // 教学跳过
+        $('#tutSkip').addEventListener('click', endTutorial);
+
+        // 键盘 Esc 关浮层
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            closeHelp();
+        });
+
+        // EDGE-12：resize 只重算 --tile（CSS 变量自动），不重算几何
+    }
+
+    /* ==========================================================================
+       18 · 站点框架脚本（保留旧版行为：汉堡菜单 / 语言切换）
+       ========================================================================== */
+    function bindSiteChrome() {
+        var menuToggle = document.getElementById('menuToggle');
+        var navLinks = document.querySelector('.nav-links');
+        if (menuToggle && navLinks) {
+            menuToggle.addEventListener('click', function () { navLinks.classList.toggle('active'); });
+        }
+
+        var taskbarBtns = document.querySelectorAll('.taskbar-btn');
+        var slideIndicator = document.querySelector('.slide-indicator');
+        var selectedLang = 'chinese';
+        var langPages = {
             chinese: 'sheep_game.html',
             english: '../../games/english/sheep_game.html'
         };
-
-        // 处理语言选择
-        taskbarBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const newLang = this.dataset.lang;
+        Array.prototype.forEach.call(taskbarBtns, function (btn) {
+            btn.addEventListener('click', function () {
+                var newLang = btn.dataset.lang;
                 if (newLang === selectedLang) return;
-                
-                // 更新选中的语言
                 selectedLang = newLang;
-                
-                // 滑动指示器动画
-                slideIndicator.className = 'slide-indicator';
-                slideIndicator.classList.add(selectedLang);
-                
-                // 跳转到对应语言的页面
-                setTimeout(() => {
-                    window.location.href = langPages[selectedLang];
-                }, 300);
+                if (slideIndicator) {
+                    slideIndicator.className = 'slide-indicator';
+                    slideIndicator.classList.add(selectedLang);
+                }
+                setTimeout(function () { window.location.href = langPages[selectedLang]; }, 300);
             });
         });
+    }
 
-        // 帮助按钮功能
-        const helpBtn = document.getElementById('helpBtn');
-        const helpModal = document.getElementById('helpModal');
-        const closeBtn = document.getElementById('closeBtn');
-
-        helpBtn.addEventListener('click', () => {
-            helpModal.style.display = 'flex';
-        });
-
-        closeBtn.addEventListener('click', () => {
-            helpModal.style.display = 'none';
-        });
-
-        // 点击模态框外部关闭
-        helpModal.addEventListener('click', (e) => {
-            if (e.target === helpModal) {
-                helpModal.style.display = 'none';
-            }
-        });
-
-        // 游戏数据
-        const elements = [
-            { symbol: 'H', name: '氢', atomicNumber: 1, group: 1, period: 1, info: '氢是最轻的元素，在宇宙中含量最丰富。' },
-            { symbol: 'He', name: '氦', atomicNumber: 2, group: 18, period: 1, info: '氦是一种惰性气体，比空气轻，常用于气球。' },
-            { symbol: 'Li', name: '锂', atomicNumber: 3, group: 1, period: 2, info: '锂是最轻的金属元素，用于电池制造。' },
-            { symbol: 'Be', name: '铍', atomicNumber: 4, group: 2, period: 2, info: '铍是一种有毒的金属，用于航空航天工业。' },
-            { symbol: 'B', name: '硼', atomicNumber: 5, group: 13, period: 2, info: '硼用于制造硼砂和硼酸，是植物生长必需的元素。' },
-            { symbol: 'C', name: '碳', atomicNumber: 6, group: 14, period: 2, info: '碳是生命的基础元素，存在多种同素异形体。' },
-            { symbol: 'N', name: '氮', atomicNumber: 7, group: 15, period: 2, info: '氮是空气中含量最多的元素，是蛋白质的重要组成部分。' },
-            { symbol: 'O', name: '氧', atomicNumber: 8, group: 16, period: 2, info: '氧是地壳中含量最多的元素，对生命至关重要。' },
-            { symbol: 'F', name: '氟', atomicNumber: 9, group: 17, period: 2, info: '氟是最活泼的非金属元素，用于牙膏和自来水处理。' },
-            { symbol: 'Ne', name: '氖', atomicNumber: 10, group: 18, period: 2, info: '氖是一种惰性气体，用于霓虹灯。' },
-            { symbol: 'Na', name: '钠', atomicNumber: 11, group: 1, period: 3, info: '钠是一种活泼的金属，与氯结合形成食盐。' },
-            { symbol: 'Mg', name: '镁', atomicNumber: 12, group: 2, period: 3, info: '镁是叶绿素的重要组成部分，对植物光合作用至关重要。' },
-            { symbol: 'Al', name: '铝', atomicNumber: 13, group: 13, period: 3, info: '铝是地壳中含量最多的金属元素，用于制造各种合金。' },
-            { symbol: 'Si', name: '硅', atomicNumber: 14, group: 14, period: 3, info: '硅是地壳中含量第二多的元素，用于制造芯片和玻璃。' },
-            { symbol: 'P', name: '磷', atomicNumber: 15, group: 15, period: 3, info: '磷是DNA和RNA的重要组成部分，对生命活动至关重要。' },
-            { symbol: 'S', name: '硫', atomicNumber: 16, group: 16, period: 3, info: '硫是一种非金属元素，用于制造硫酸和橡胶。' }
-        ];
-
-        // 游戏变量
-        let gameGrid = [];
-        let slots = [];
-        let score = 0;
-        let moves = 0;
-        let consecutiveMatches = 0;
-        let gameOver = false;
-        let difficulty = 'easy'; // easy 或 hard
-
-        // DOM 元素
-        const gameGridElement = document.getElementById('gameGrid');
-        const slotsContainer = document.getElementById('slotsContainer');
-        const scoreElement = document.getElementById('score');
-        const movesElement = document.getElementById('moves');
-        const elementInfoElement = document.getElementById('elementInfo');
-        const gameOverModal = document.getElementById('gameOverModal');
-        const finalScoreElement = document.getElementById('finalScore');
-        const playAgainBtn = document.getElementById('playAgainBtn');
-        const backToGamesBtn = document.getElementById('backToGamesBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const easyBtn = document.getElementById('easyBtn');
-        const hardBtn = document.getElementById('hardBtn');
-
-        // 初始化游戏
-        function initGame() {
-            // 重置游戏变量
-            score = 0;
-            moves = 0;
-            slots = [];
-            consecutiveMatches = 0;
-            gameOver = false;
-            
-            // 更新显示
-            scoreElement.textContent = score;
-            movesElement.textContent = moves;
-            elementInfoElement.innerHTML = '<h3>元素信息</h3><p>点击元素将其放入槽位，当槽位中有三个相同或相关的元素时，它们会被消除！</p>';
-            
-            // 更新难度按钮状态
-            if (difficulty === 'easy') {
-                easyBtn.classList.add('active');
-                hardBtn.classList.remove('active');
-            } else {
-                hardBtn.classList.add('active');
-                easyBtn.classList.remove('active');
-            }
-            
-            // 生成游戏网格
-            generateGameGrid();
-            
-            // 生成槽位
-            generateSlots();
+    /* ==========================================================================
+       19 · 启动
+       ========================================================================== */
+    function boot() {
+        cacheDom();
+        if (!loadElements()) {
+            els.levelList.innerHTML = '<p style="color:#f8fafc">元素数据加载失败，请刷新页面。</p>';
+            return;
         }
+        logFamilyTable();          // 开发期人工核对「每族成员数」
+        bindEvents();
+        bindSiteChrome();
+        buildLevelList();
 
-        // 生成游戏网格
-        function generateGameGrid() {
-            // 清空网格
-            gameGridElement.innerHTML = '';
-            gameGrid = [];
-            
-            // 网格大小
-            const gridSize = 7 * 7;
-            
-            // 随机生成元素
-            for (let i = 0; i < gridSize; i++) {
-                // 随机决定是否为空单元格
-                if (Math.random() < 0.3) {
-                    // 空单元格
-                    const cell = document.createElement('div');
-                    cell.className = 'game-cell empty';
-                    gameGridElement.appendChild(cell);
-                    gameGrid.push(null);
-                } else {
-                    // 元素单元格
-                    const randomElement = elements[Math.floor(Math.random() * elements.length)];
-                    const cell = document.createElement('div');
-                    cell.className = 'game-cell';
-                    
-                    // 根据难度模式决定显示内容
-                    if (difficulty === 'hard') {
-                        // 困难模式：随机显示符号或名称
-                        cell.textContent = Math.random() > 0.5 ? randomElement.symbol : randomElement.name;
-                    } else {
-                        // 简单模式：只显示符号
-                        cell.textContent = randomElement.symbol;
-                    }
-                    
-                    cell.dataset.element = JSON.stringify(randomElement);
-                    
-                    cell.addEventListener('click', () => selectElement(cell));
-                    
-                    gameGridElement.appendChild(cell);
-                    gameGrid.push(randomElement);
-                }
-            }
+        // 自动接着上次玩：只还原关卡号，不自动开局（避免误触）
+        var prog = readProgress();
+        if (prog.unlocked > 1) {
+            console.log('[sheep] 已解锁到第 ' + prog.unlocked + ' 关');
         }
+    }
 
-        // 生成槽位
-        function generateSlots() {
-            // 清空槽位
-            slotsContainer.innerHTML = '';
-            slots = [];
-            
-            // 生成7个槽位
-            for (let i = 0; i < 7; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'slot';
-                slot.dataset.index = i;
-                
-                slotsContainer.appendChild(slot);
-                slots.push(null);
-            }
-        }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
 
-        // 选择元素
-        function selectElement(cell) {
-            if (gameOver) return;
-            
-            const element = JSON.parse(cell.dataset.element);
-            
-            // 找到空槽位
-            const emptySlotIndex = slots.findIndex(slot => slot === null);
-            
-            if (emptySlotIndex === -1) {
-                // 槽位已满
-                alert('槽位已满！请先消除一些元素。');
-                return;
-            }
-            
-            // 从网格中移除元素
-            const cellIndex = Array.from(gameGridElement.children).indexOf(cell);
-            if (cellIndex !== -1) {
-                gameGrid[cellIndex] = null;
-                cell.className = 'game-cell empty';
-                cell.textContent = '';
-                cell.removeEventListener('click', () => selectElement(cell));
-            }
-            
-            // 放入槽位
-            slots[emptySlotIndex] = element;
-            updateSlots();
-            
-            // 增加步数
-            moves++;
-            movesElement.textContent = moves;
-            
-            // 检查是否可以消除
-            checkMatches();
-            
-            // 检查游戏是否结束
-            checkGameOver();
-        }
+    /* 自动化/QA 只读钩子（不参与任何玩法逻辑，仅暴露纯函数与状态引用）。
+       用途：Node 侧跑断言 A1–A6、生成器通过率、covers() 起始可点数；
+       以及 T4 烟雾测试在浏览器里直接驱动。 */
+    window.__sheep = {
+        LEVELS: LEVELS,
+        EL: EL,
+        G: G,
+        loadElements: loadElements,
+        buildGeometry: buildGeometry,
+        covers: covers,
+        resolveAll: resolveAll,
+        solve: solve,
+        generateBoard: generateBoard,
+        assertLevel: assertLevel,
+        openingsOk: openingsOk,
+        familyOf: familyOf,
+        computeTiersAndPols: computeTiersAndPols,
+        startLevel: startLevel
+    };
 
-        // 更新槽位显示
-        function updateSlots() {
-            slotsContainer.innerHTML = '';
-            
-            slots.forEach((element, index) => {
-                const slot = document.createElement('div');
-                slot.className = 'slot' + (element ? ' filled' : '');
-                slot.dataset.index = index;
-                
-                if (element) {
-                    slot.textContent = element.symbol;
-                    
-                    // 添加删除按钮
-                    const removeBtn = document.createElement('div');
-                    removeBtn.className = 'remove-btn';
-                    removeBtn.textContent = '×';
-                    removeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        removeFromSlot(index);
-                    });
-                    
-                    slot.appendChild(removeBtn);
-                }
-                
-                slotsContainer.appendChild(slot);
+    })();
+    </script>
+    <script>
+    /* 全站 interaction.js 注入的「对比元素」按钮没有任何 id/class（内联样式定位），
+       这里打一个标记类，供对局态隐藏用。本页脚本注册晚于 interaction.js 的
+       DOMContentLoaded 处理器，执行时组件已存在。 */
+    document.addEventListener('DOMContentLoaded', function () {
+        var tag = function () {
+            document.querySelectorAll('button').forEach(function (b) {
+                if (b.textContent.trim() === '对比元素') b.classList.add('sgp-site-compare');
             });
-        }
-
-        // 从槽位移除元素
-        function removeFromSlot(index) {
-            if (gameOver) return;
-            
-            slots[index] = null;
-            updateSlots();
-        }
-
-        // 检查是否可以消除
-        function checkMatches() {
-            // 统计槽位中的元素
-            const elementCounts = {};
-            slots.forEach(element => {
-                if (element) {
-                    const symbol = element.symbol;
-                    if (!elementCounts[symbol]) {
-                        elementCounts[symbol] = [];
-                    }
-                    elementCounts[symbol].push(element);
-                }
-            });
-            
-            // 检查是否有三个相同的元素
-            for (const symbol in elementCounts) {
-                if (elementCounts[symbol].length >= 3) {
-                    // 消除元素
-                    eliminateElements(symbol);
-                    return;
-                }
-            }
-        }
-
-        // 消除元素
-        function eliminateElements(symbol) {
-            // 从槽位中移除元素
-            slots = slots.filter(element => element && element.symbol !== symbol);
-            
-            // 补充空槽位
-            while (slots.length < 7) {
-                slots.push(null);
-            }
-            
-            // 更新槽位显示
-            updateSlots();
-            
-            // 更新分数
-            consecutiveMatches++;
-            const points = 10 * consecutiveMatches;
-            score += points;
-            scoreElement.textContent = score;
-            
-            // 更新元素信息
-            const element = elements.find(e => e.symbol === symbol);
-            if (element) {
-                updateElementInfo(element);
-            }
-        }
-
-        // 更新元素信息
-        function updateElementInfo(element) {
-            elementInfoElement.innerHTML = `
-                <h3>${element.name} (${element.symbol})</h3>
-                <p>原子序数: ${element.atomicNumber}</p>
-                <p>族: ${element.group}, 周期: ${element.period}</p>
-                <p>${element.info}</p>
-            `;
-        }
-
-        // 检查游戏是否结束
-        function checkGameOver() {
-            // 检查是否所有元素都被消除
-            const hasElements = gameGrid.some(element => element !== null);
-            const hasSlots = slots.some(element => element !== null);
-            
-            if (!hasElements && !hasSlots) {
-                // 游戏胜利
-                endGame(true);
-            } else if (slots.every(element => element !== null)) {
-                // 槽位已满，游戏失败
-                endGame(false);
-            }
-        }
-
-        // 结束游戏
-        function endGame(win) {
-            gameOver = true;
-            finalScoreElement.textContent = score;
-            gameOverModal.style.display = 'flex';
-        }
-
-        // 事件监听器
-        restartBtn.addEventListener('click', initGame);
-        playAgainBtn.addEventListener('click', () => {
-            gameOverModal.style.display = 'none';
-            initGame();
-        });
-        backToGamesBtn.addEventListener('click', () => {
-            window.location.href = 'games.html';
-        });
-        
-        // 难度选择按钮
-        easyBtn.addEventListener('click', () => {
-            difficulty = 'easy';
-            initGame();
-        });
-        
-        hardBtn.addEventListener('click', () => {
-            difficulty = 'hard';
-            initGame();
-        });
-
-        // 初始化游戏
-        initGame();
+        };
+        tag();
+        requestAnimationFrame(tag);
+    });
     </script>
 </body>
 </html>
