@@ -210,10 +210,17 @@ body {
     box-shadow: var(--glass-shadow);
     padding: 1rem 0;
     position: sticky;
-    top: 40px;
+    /* 40px 是给首页顶部跑马灯让位的；默认 0，否则子页面顶部会多出一条
+       40px 的死缝，滚动时内容还会从缝里穿过去（有跑马灯的页面见下） */
+    top: 0;
     z-index: 100;
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
+}
+
+/* 首页与元素总表顶部有固定跑马灯（高 44px），导航条要停在它下面 */
+body:has(#marquee-container) .navbar {
+    top: 40px;
 }
 
 .navbar .container {
@@ -1094,11 +1101,52 @@ tr:hover {
     }
 }
 
-/* 页面进入动画 */
+/* 页面进入动画
+   ---------------------------------------------
+   body 这里只能淡入，绝对不能带 transform。
+   fadeInUp 用了 forwards，动画结束后 body 会永久保留一个 identity 矩阵
+   （即使关键帧里写 transform:none，Chromium 实测仍返回 matrix(1,0,0,1,0,0)），
+   而「transform 不为 none」会让 body 永久成为所有 position:fixed 元素的包含块。
+   后果是浮动层全部改为按 body 全高定位（元素页实测 2780px 高）：
+     · 「对比元素」按钮 / 访问时长 / 帮助按钮被推到视口外，看不见
+     · 对比面板沉到 5560px，永远弹不上来
+     · 页面凭空多出 2080px 可滚动空白，滚动时像内容重叠
+   位移感由下面 .navbar / .container 各自的 fadeInUp 承担，视觉上完全一致。 */
+/* 页面进入动画
+   ---------------------------------------------
+   两个硬约束，都来自 body 本身：
+   1) 不能带 transform。forwards 会永久残留 identity 矩阵，
+      body 永久成为 position:fixed 的包含块 → 全站浮动层按 body 全高定位
+      （浮动按钮跑视口外、面板弹不上来、页面多出一整屏幽灵滚动）。
+   2) 不能用 forwards（包括 filling 状态）。动画只要还在 body 上挂着，
+      body 就是一个 backdrop root，全站所有 backdrop-filter（导航条、
+      对比面板、悬浮球、游戏玻璃卡）的磨砂全部失效，实测玻璃后的文字清晰可读。
+   解法：base opacity 直接写 1，动画用 backwards 填充 + from{0}→to{1}，
+   结束后动画彻底移除，既完成了淡入又不留任何残根。
+   位移感由 .navbar / .container 各自的 fadeInUp 承担。 */
 body {
-    opacity: 0;
-    transform: translateY(50px);
-    animation: fadeInUp 0.5s ease-out forwards;
+    animation: pageFadeIn 0.5s ease-out backwards;
+}
+
+/* 子页面（chinese / english / games 共 247 个）在各自的 <style> 里又内联抄了一遍
+   body { opacity:0; transform:translateY(50px); animation: fadeInUp … forwards; }。
+   选择器同为 body、特异性相同，但它位置在后，会盖掉上面这条。
+   用 html body (0,0,2) 统一压住：清 transform、base opacity 归 1、
+   填充模式强制 backwards（页面自写的时长 0.5s / 0.8s 保持原样）。 */
+html body {
+    transform: none;
+    opacity: 1;
+    animation-name: pageFadeIn;
+    animation-fill-mode: backwards;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes fadeInUp {
@@ -1293,19 +1341,27 @@ html {
 
 .compare-panel {
     position: fixed;
-    bottom: -100%;
+    bottom: 0;
     left: 0;
     width: 100%;
     background: rgba(15, 23, 42, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(20px);
     padding: 1.5rem;
-    transition: bottom 0.5s ease;
+    /* 收起时用位移藏到视口外，不要再用 bottom:-100%。
+       bottom 负值会把面板排到文档流下方，撑出一整屏的幽灵滚动区。 */
+    transform: translateY(102%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.5s ease, visibility 0s linear 0.5s;
     z-index: 1000;
 }
 
 .compare-panel.active {
-    bottom: 0;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition: transform 0.5s ease, visibility 0s linear 0s;
 }
 
 .compare-content {
@@ -1963,4 +2019,51 @@ html {
     font-size: 1.5rem;
     color: var(--text-color);
     font-weight: 500;
+}
+/* ============================================================
+   浮动层修复（2026-11 全站 UI 修复）
+   根因：body 的入场动画带 transform + forwards，动画结束后
+   body 永久保留 identity 矩阵，成为所有 position:fixed 元素的
+   包含块，浮动层全部按 body 全高定位（元素页 2780px）。
+   修复见上方 body / html body 两条规则。
+   ------------------------------------------------------------
+   附带处理：
+   1) #visit-duration（访问时长胶囊）固定在左下角，滚到页底时
+      必然压住页脚版权文字（实测重叠 196×26px）。它此前因上述
+      bug 从未显示过；要让它回归，删掉下面这条并给 .footer
+      让出约 96px 底部内边距即可。
+   2) .compare-panel 改用 translateY + visibility 收起，
+      不再用 bottom:-100%（那会撑出一整屏幽灵滚动区）。
+   ============================================================ */
+#visit-duration {
+    display: none !important;
+}
+
+/* 「对比元素」悬浮球：原来 bottom:100px，在元素详情页正好压住首屏元素卡片的
+   右下角（实测卡片底边 617、球 557-600）。默认贴到右下角 bottom:20px，
+   避开卡片；有「?」帮助球的游戏页保持 100px 叠放（帮助球占 608-668）。 */
+.compare-fab {
+    bottom: 20px !important;
+}
+
+body:has(#helpBtn) .compare-fab {
+    bottom: 100px !important;
+}
+
+/* 贴底后滚到页尾会压住页脚版权文字，给页脚让出空间
+   （有帮助球的游戏页悬浮球不在底部，无需让位） */
+body:has(.compare-fab):not(:has(#helpBtn)) .footer {
+    padding-bottom: 84px;
+}
+
+/* 有「?」帮助球（60px 高，bottom:32px）的页面滚到页尾时球会贴着页脚文字，
+   多让一档，实测留出 12px 间隙 */
+body:has(#helpBtn) .footer {
+    padding-bottom: 104px;
+}
+
+/* 对比面板弹出时，藏起触发球，别压在面板上 */
+body:has(.compare-panel.active) .compare-fab {
+    opacity: 0;
+    pointer-events: none;
 }

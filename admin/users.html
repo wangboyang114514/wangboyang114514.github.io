@@ -36,6 +36,14 @@
             </div>
 
             <div class="content-wrapper">
+                <!-- ESP32 用户管理入口 -->
+                <div id="esp32-link-banner" class="card" style="display:none;">
+                    <div class="card-body" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <span style="font-size:0.9rem;">如需通过 ESP32-S3 硬件管理用户密码（更安全），请访问</span>
+                        <a href="#" id="esp32-users-link" class="btn btn-primary" target="_blank">ESP32 用户管理</a>
+                    </div>
+                </div>
+
                 <!-- 用户列表 -->
                 <div class="card">
                     <div class="card-header">
@@ -165,6 +173,15 @@
             if (AdminSystem.isAdmin()) {
                 document.getElementById('add-user-btn').style.display = 'inline-flex';
                 document.getElementById('add-user-btn').addEventListener('click', openCreateUserModal);
+            }
+
+            // ESP32 用户管理链接
+            const esp32Token = sessionStorage.getItem('esp32Token');
+            if (esp32Token && typeof ESP32_AUTH_URL !== 'undefined') {
+                const banner = document.getElementById('esp32-link-banner');
+                const link = document.getElementById('esp32-users-link');
+                banner.style.display = 'block';
+                link.href = ESP32_AUTH_URL + '/users?token=' + esp32Token;
             }
         });
 

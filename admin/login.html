@@ -6,6 +6,15 @@
     <title>后台管理 - 登录</title>
     <link rel="stylesheet" href="admin.css">
     <script src="admin.js"></script>
+    <style>
+        .esp32-auth-section { margin-top: 24px; }
+        .divider { text-align: center; position: relative; margin: 16px 0; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.15); }
+        .divider span { position: relative; background: var(--glass-bg, rgba(255,255,255,0.1)); padding: 0 12px; font-size: 0.85rem; opacity: 0.6; }
+        .esp32-auth-btn { display: block; text-align: center; padding: 12px; border-radius: 10px; background: rgba(79,195,247,0.15); border: 1px solid rgba(79,195,247,0.3); color: #4fc3f7; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; }
+        .esp32-auth-btn:hover { background: rgba(79,195,247,0.25); }
+        .esp32-hint { text-align: center; font-size: 0.78rem; opacity: 0.4; margin-top: 8px; }
+    </style>
 </head>
 <body class="login-body">
     <div class="login-container">
@@ -25,9 +34,23 @@
             </div>
             <button type="submit" class="login-btn">登录</button>
         </form>
+
+        <div class="esp32-auth-section">
+            <div class="divider"><span>或</span></div>
+            <a href="#" id="esp32-auth-link" class="esp32-auth-btn">
+                通过 ESP32-S3 硬件认证
+            </a>
+            <p class="esp32-hint">需要与 ESP32-S3 在同一局域网</p>
+        </div>
     </div>
 
     <script>
+        // 设置 ESP32 认证链接
+        const esp32Link = document.getElementById('esp32-auth-link');
+        if (esp32Link && typeof ESP32_AUTH_URL !== 'undefined') {
+            esp32Link.href = ESP32_AUTH_URL + '/';
+        }
+
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 

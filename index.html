@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemistry World 2.0</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="interaction.js"></script>
+    <script defer src="interaction.js"></script>
     <style>
         /* 跑马灯样式 */
         .marquee-container {
@@ -59,6 +59,47 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        
+        /* 无图时的本地渐变占位：零请求，配色沿用站点深色玻璃体系 */
+        .carousel-ph {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-color: #0b1220;
+            background-image:
+                radial-gradient(circle at 76% 16%, rgba(255, 255, 255, 0.16), transparent 30%),
+                radial-gradient(circle at 24% 78%, rgba(15, 118, 110, 0.70), transparent 48%),
+                radial-gradient(circle at 84% 86%, rgba(56, 189, 248, 0.34), transparent 46%),
+                linear-gradient(135deg, #0f172a 0%, #123043 55%, #0b1220 100%);
+        }
+        
+        .carousel-ph--2 {
+            background-image:
+                radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.16), transparent 30%),
+                radial-gradient(circle at 78% 74%, rgba(20, 184, 166, 0.42), transparent 48%),
+                radial-gradient(circle at 30% 88%, rgba(56, 189, 248, 0.40), transparent 46%),
+                linear-gradient(135deg, #0b1220 0%, #0e2a3d 55%, #12203a 100%);
+        }
+        
+        .carousel-ph--3 {
+            background-image:
+                radial-gradient(circle at 70% 24%, rgba(255, 255, 255, 0.14), transparent 30%),
+                radial-gradient(circle at 26% 72%, rgba(139, 92, 246, 0.38), transparent 48%),
+                radial-gradient(circle at 84% 84%, rgba(34, 211, 238, 0.30), transparent 46%),
+                linear-gradient(135deg, #0f172a 0%, #1b2145 55%, #0b1220 100%);
+        }
+        
+        /* 分子点阵纹理，呼应背景装饰 */
+        .carousel-ph::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1.4px);
+            background-size: 24px 24px;
+            opacity: 0.55;
+            -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 72%);
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 72%);
         }
         
         .carousel-overlay {
@@ -184,10 +225,13 @@
                     return JSON.parse(data).filter(item => item.status === 1);
                 }
                 // 默认轮播图
+                // image 留空 = 用本地渐变占位（见 .carousel-ph）。
+                // 原来这里挂的是 neeko-copilot 的文生图接口地址，实测每个请求卡 21 秒，
+                // 还会让 window.load 一直不触发，首页白等 20 多秒。
                 return [
-                    { id: 1, title: '欢迎来到化学世界', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemistry%20periodic%20table%20colorful%20background%20modern%20science&image_size=landscape_16_9', link: '#', sort: 1, status: 1 },
-                    { id: 2, title: '探索元素奥秘', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemical%20elements%20atoms%20molecules%203d%20render%20science&image_size=landscape_16_9', link: '#', sort: 2, status: 1 },
-                    { id: 3, title: '趣味化学游戏', image: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=chemistry%20game%20colorful%20fun%20education%20kids&image_size=landscape_16_9', link: '#', sort: 3, status: 1 }
+                    { id: 1, title: '欢迎来到化学世界', image: '', link: '#', sort: 1, status: 1 },
+                    { id: 2, title: '探索元素奥秘', image: '', link: '#', sort: 2, status: 1 },
+                    { id: 3, title: '趣味化学游戏', image: '', link: '#', sort: 3, status: 1 }
                 ];
             }
             
@@ -202,10 +246,12 @@
                     return;
                 }
                 
-                // 渲染轮播图内容
-                track.innerHTML = carouselList.map(item => `
+                // 渲染轮播图内容（无图时用渐变占位，零网络请求）
+                track.innerHTML = carouselList.map((item, i) => `
                     <div class="carousel-slide">
-                        <img src="${item.image}" alt="${item.title}">
+                        ${item.image
+                            ? `<img src="${item.image}" alt="${item.title}" decoding="async">`
+                            : `<div class="carousel-ph carousel-ph--${(i % 3) + 1}" role="img" aria-label="${item.title}"></div>`}
                         <div class="carousel-overlay">
                             <div class="carousel-title">${item.title}</div>
                         </div>

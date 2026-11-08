@@ -105,16 +105,29 @@ const ChemistryWorld = {
             loadingOverlay.className = 'loading-overlay';
             loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
             document.body.appendChild(loadingOverlay);
-            
-            // 页面加载完成后隐藏加载覆盖层
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    loadingOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingOverlay.remove();
-                    }, 500);
-                }, 500);
-            });
+
+            /* 不要用 window.load 关门：那要等到页面上所有图片都下载完，
+               慢网下会被一张大图拖到十几秒，遮罩期间还挡着所有点击。
+               改成 DOM 就绪后等两帧（确保首帧已绘制）就放行，
+               另加一个硬上限兜底。 */
+            const MIN_VISIBLE = 240;   // 最短停留，避免闪一下
+            const HARD_CAP = 1200;     // 无论如何 1.2s 必放行
+            const startAt = performance.now();
+            let done = false;
+
+            const hide = () => {
+                if (done) return;
+                done = true;
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => loadingOverlay.remove(), 500);
+            };
+            const releaseAfterMin = () => {
+                const wait = Math.max(0, MIN_VISIBLE - (performance.now() - startAt));
+                setTimeout(hide, wait);
+            };
+
+            requestAnimationFrame(() => requestAnimationFrame(releaseAfterMin));
+            setTimeout(hide, HARD_CAP);
         },
         
         createPageTransition() {
@@ -138,10 +151,11 @@ const ChemistryWorld = {
                         if (pageTransition) {
                             pageTransition.classList.add('active');
                             
-                            // 延迟后跳转
+                            // 延迟后跳转（擦除动画 0.5s，160ms 时已经盖住大半屏，
+                            // 再等下去只是白等；原来 300ms 每次点链接都要额外等）
                             setTimeout(() => {
                                 window.location.href = targetUrl;
-                            }, 300);
+                            }, 160);
                         } else {
                             window.location.href = targetUrl;
                         }
@@ -645,6 +659,9 @@ const ChemistryWorld = {
             showCompareBtn.style.cursor = 'pointer';
             showCompareBtn.style.backdropFilter = 'blur(10px)';
             showCompareBtn.style.zIndex = '1000';
+            // 给 CSS 一个稳定的挂点（styles.css 里 .compare-fab 负责定位微调）
+            showCompareBtn.className = 'compare-fab';
+            showCompareBtn.setAttribute('aria-label', '对比元素');
             
             showCompareBtn.addEventListener('click', () => {
                 comparePanel.classList.add('active');
