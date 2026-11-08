@@ -1,6 +1,52 @@
 // 后台管理系统核心脚本
-// 安全说明：本系统使用 SHA-256+盐 哈希存储密码，但运行在浏览器端（GitHub Pages 静态站点），
-// 属于客户端认证，仅适用于 demo/教育场景。如需真正的安全认证，请使用服务端方案（见 server.js）。
+//
+// 安全说明：密码用 SHA-256+盐 哈希，但哈希和校验都在浏览器里跑（GitHub Pages 是纯静态站），
+// 属于「客户端门禁」——它挡的是误入，不是有心人。改 localStorage 就能绕过去。
+// 所以真正的密码不应该放在这里，见下面的 ESP32 硬件认证。
+//
+// ===== 为什么 ESP32 只能"整页跳转"而不能直接 fetch =====
+// 本站是 https，设备是 http://192.168.x.x。从 https 页面往 http 发起 XHR/fetch
+// 属于 active mixed content，浏览器会直接拦掉：
+//   Mixed Content: The page at 'https://…' was loaded over HTTPS,
+//   but requested an insecure resource 'http://192.168.x.x/api/login'.
+// 顶层导航不受这个限制，所以流程只能是：
+//   登录页点「硬件认证」→ 整页跳到 http://chemworld.local/ →
+//   设备本地校验密码 → 跳回 https://…/admin/index.html#auth=<base64url> →
+//   本站解码、写入会话。密码只在设备和浏览器之间的那次 POST 里出现，不碰本站。
+
+// ESP32-S3 认证服务地址。优先用 mDNS 主机名，路由器重新分配 IP 也不用改代码。
+// 想改成固定 IP 就在控制台执行：localStorage.setItem('esp32AuthUrl', 'http://192.168.1.100')
+const ESP32_DEFAULT_URL = 'http://chemworld.local';
+
+function resolveEsp32Url() {
+    try {
+        const saved = localStorage.getItem('esp32AuthUrl');
+        if (saved && /^https?:\/\//.test(saved)) return saved.replace(/\/+$/, '');
+    } catch (e) { /* 隐私模式下 localStorage 可能抛异常 */ }
+    return ESP32_DEFAULT_URL;
+}
+
+const ESP32_AUTH_URL = resolveEsp32Url();
+
+// 设备回跳凭证的有效期（设备端也写 2 分钟，两边要一致）
+const AUTH_PAYLOAD_TTL = 120000;
+// 允许的时钟偏差，防止手机和电脑时间差几秒就登录失败
+const AUTH_CLOCK_SKEW = 10000;
+// 只认这几个权限键，设备传什么别的都丢掉
+const KNOWN_PERMISSIONS = ['carousel', 'notice', 'users', 'edit', 'delete'];
+
+// 设备端用 base64url(UTF-8 JSON) 编码，这里还原
+function decodeAuthPayload(raw) {
+    let b64 = decodeURIComponent(raw)
+        .replace(/\s+/g, '')
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+
+    const bin = atob(b64);
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+}
 
 const PASSWORD_SALT = 'cw_salt_2024_a1b2c3d4e5f6';
 
@@ -198,6 +244,8 @@ const AdminSystem = {
     logout() {
         sessionStorage.removeItem('adminLoggedIn');
         sessionStorage.removeItem('adminUser');
+        sessionStorage.removeItem('esp32Token');
+        sessionStorage.removeItem('authSource');
         window.location.href = 'login.html';
     },
 
@@ -334,8 +382,105 @@ const AdminSystem = {
         }
     },
 
+    // ESP32-S3 硬件认证：解析设备跳回来的 #auth= 凭证
+    // 返回 true 表示这次进入是靠硬件认证过的
+    checkESP32Auth() {
+        const hash = window.location.hash;
+        if (!hash || hash.indexOf('#auth=') !== 0) return false;
+
+        // 先抹掉地址栏里的凭证——不管后面解析成功还是失败。
+        // 留在 history 里的话，后退一步就能把过期凭证再喂一次。
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+
+        let data;
+        try {
+            data = decodeAuthPayload(hash.slice(6));
+        } catch (e) {
+            console.error('ESP32 认证数据解析失败（可能是复制粘贴时被截断）:', e);
+            return false;
+        }
+
+        if (!data || data.success !== true || !data.user ||
+            typeof data.user.username !== 'string' || !data.user.username) {
+            console.warn('ESP32 认证数据格式不正确，已忽略');
+            return false;
+        }
+
+        if (typeof data.exp === 'number') {
+            if (Date.now() > data.exp + AUTH_CLOCK_SKEW) {
+                console.warn('ESP32 认证凭证已过期，请重新走一次硬件认证');
+                // 记一笔，登录页会把它显示出来，否则用户只看到"莫名其妙被踢回登录页"
+                sessionStorage.setItem('authError', '硬件认证凭证已过期（2 分钟有效），请重试');
+                return false;
+            }
+        } else {
+            // 旧固件没有 exp 字段，放行但记一笔
+            console.warn('ESP32 认证凭证缺少 exp 字段（旧版固件），已按有效处理');
+        }
+
+        const perms = String(data.user.permissions || '')
+            .split(',')
+            .map(p => p.trim())
+            .filter(p => KNOWN_PERMISSIONS.includes(p));
+
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        sessionStorage.setItem('adminUser', JSON.stringify({
+            username: data.user.username,
+            role: data.user.role === 'admin' ? 'admin' : 'visitor',
+            permissions: perms
+        }));
+        if (data.token) sessionStorage.setItem('esp32Token', data.token);
+        sessionStorage.setItem('authSource', 'esp32');
+
+        console.log('ESP32 硬件认证通过:', data.user.username, '来自', data.device || '设备');
+        return true;
+    },
+
+    // 硬件认证相关的零碎操作，供页面调用
+    esp32: {
+        url() {
+            return ESP32_AUTH_URL;
+        },
+
+        authPageUrl() {
+            return ESP32_AUTH_URL + '/';
+        },
+
+        // 这次会话是不是硬件认证进来的
+        isLinked() {
+            return sessionStorage.getItem('authSource') === 'esp32';
+        },
+
+        token() {
+            return sessionStorage.getItem('esp32Token');
+        },
+
+        // 只能用整页跳转：https 页面 fetch http 设备会被 mixed content 拦掉
+        openAuthPage() {
+            window.location.href = this.authPageUrl();
+        },
+
+        // 手动指定设备地址（路由器换了网段、mDNS 不生效时用）
+        setUrl(url) {
+            if (url) {
+                localStorage.setItem('esp32AuthUrl', url.replace(/\/+$/, ''));
+            } else {
+                localStorage.removeItem('esp32AuthUrl');
+            }
+            window.location.reload();
+        },
+
+        unlink() {
+            sessionStorage.removeItem('esp32Token');
+            sessionStorage.removeItem('authSource');
+        }
+    },
+
     // 初始化
     init() {
+        // 检测 ESP32-S3 硬件认证回调
+        this.checkESP32Auth();
+
         this.users = this.getUsers();
 
         // 检查登录状态

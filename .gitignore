@@ -21,6 +21,7 @@ Thumbs.db
 # PlatformIO 构建缓存（数百个文件）
 .platformio/
 *.pio/
+.pio/
 
 # Agent 工作区数据（记忆、临时产物）
 .workbuddy/
@@ -29,4 +30,5 @@ Thumbs.db
 *.log
 
 # ESP32 固件里的 WiFi 凭据，绝不提交
-esp32-auth-server/src/config.h
+# 凭据现在单独放在 include/secrets.h，仓库里只有 secrets.example.h 模板
+esp32-auth-server/include/secrets.h

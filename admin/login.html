@@ -40,15 +40,47 @@
             <a href="#" id="esp32-auth-link" class="esp32-auth-btn">
                 通过 ESP32-S3 硬件认证
             </a>
-            <p class="esp32-hint">需要与 ESP32-S3 在同一局域网</p>
+            <p class="esp32-hint">
+                需要设备与 ESP32 在同一 WiFi<br>
+                当前设备：<span id="esp32-url">chemworld.local</span>
+                · <a href="#" id="esp32-change">改地址</a>
+            </p>
         </div>
     </div>
 
     <script>
-        // 设置 ESP32 认证链接
         const esp32Link = document.getElementById('esp32-auth-link');
-        if (esp32Link && typeof ESP32_AUTH_URL !== 'undefined') {
-            esp32Link.href = ESP32_AUTH_URL + '/';
+        const esp32UrlLabel = document.getElementById('esp32-url');
+
+        if (typeof AdminSystem !== 'undefined' && AdminSystem.esp32) {
+            esp32Link.href = AdminSystem.esp32.authPageUrl();
+            esp32UrlLabel.textContent = AdminSystem.esp32.url().replace(/^https?:\/\//, '');
+        }
+
+        // mDNS 在某些路由器/系统上不生效，留个手动改地址的入口
+        document.getElementById('esp32-change').addEventListener('click', function (e) {
+            e.preventDefault();
+            const cur = AdminSystem.esp32.url();
+            const next = prompt('ESP32 的地址（例如 http://192.168.1.100），留空恢复默认：', cur);
+            if (next === null) return;
+            AdminSystem.esp32.setUrl(next.trim());
+        });
+
+        // 硬件认证回来但凭证过期了，把原因说清楚
+        const authError = sessionStorage.getItem('authError');
+        if (authError) {
+            sessionStorage.removeItem('authError');
+            const tip = document.createElement('p');
+            tip.className = 'esp32-hint';
+            tip.style.color = '#ff8a80';
+            tip.style.opacity = '0.9';
+            tip.textContent = authError;
+            document.querySelector('.esp32-auth-section').appendChild(tip);
+        }
+
+        // 已经登录过就别停在登录页，直接进后台
+        if (typeof AdminSystem !== 'undefined' && AdminSystem.isLoggedIn()) {
+            window.location.replace('index.html');
         }
 
         document.getElementById('login-form').addEventListener('submit', async function(e) {
