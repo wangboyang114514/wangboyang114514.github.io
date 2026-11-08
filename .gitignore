@@ -17,3 +17,16 @@ Thumbs.db
 
 # Trae
 .trae/
+
+# PlatformIO 构建缓存（数百个文件）
+.platformio/
+*.pio/
+
+# Agent 工作区数据（记忆、临时产物）
+.workbuddy/
+
+# 日志
+*.log
+
+# ESP32 固件里的 WiFi 凭据，绝不提交
+esp32-auth-server/src/config.h
